@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;900&amp;display=swap"
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTBpRefq3kQWU79YiRZOeGb7jamVPHHnw"></script>
+    <!-- Google Maps API with Places -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTBpRefq3kQWU79YiRZOeGb7jamVPHHnw&libraries=places"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <style type="text/tailwindcss">
         :root {
@@ -306,7 +306,7 @@
             });
         }
 
-        function openModal(editIdx) {
+        function openModal(editAddr) {
             document.getElementById('address-modal').classList.remove('hidden');
             document.getElementById('address-form').reset();
             document.getElementById('edit-index').value = '';
@@ -314,27 +314,26 @@
             document.getElementById('address-lat').value = '';
             document.getElementById('address-lng').value = '';
             selectedLocation = null;
-            document.getElementById('modal-title').textContent = editIdx !== undefined ? 'Edit Address' : 'Add Address';
+            document.getElementById('modal-title').textContent = editAddr ? 'Edit Address' : 'Add Address';
 
             // Initialize autocomplete for address input
             initAutocomplete();
 
-            if (editIdx !== undefined) {
-                const addr = addresses[editIdx];
-                document.getElementById('address-label').value = addr.label;
-                document.getElementById('address-line').value = addr.line;
-                document.getElementById('address-city').value = addr.city;
-                document.getElementById('address-zip').value = addr.zip;
-                document.getElementById('address-country').value = addr.country;
-                document.getElementById('address-default').checked = (editIdx === defaultIndex);
-                document.getElementById('edit-index').value = editIdx;
+            if (editAddr) {
+                document.getElementById('address-label').value = editAddr.label || '';
+                document.getElementById('address-line').value = editAddr.address_line || '';
+                document.getElementById('address-city').value = editAddr.city || '';
+                document.getElementById('address-zip').value = editAddr.zip_code || '';
+                document.getElementById('address-country').value = editAddr.country || '';
+                document.getElementById('address-default').checked = editAddr.is_default || false;
+                document.getElementById('edit-index').value = editAddr.id;
 
-                if (addr.lat && addr.lng) {
-                    document.getElementById('address-lat').value = addr.lat;
-                    document.getElementById('address-lng').value = addr.lng;
+                if (editAddr.latitude && editAddr.longitude) {
+                    document.getElementById('address-lat').value = editAddr.latitude;
+                    document.getElementById('address-lng').value = editAddr.longitude;
                     document.getElementById('coordinates-display').textContent =
-                        `${parseFloat(addr.lat).toFixed(4)}, ${parseFloat(addr.lng).toFixed(4)}`;
-                    selectedLocation = { lat: parseFloat(addr.lat), lng: parseFloat(addr.lng) };
+                        `${parseFloat(editAddr.latitude).toFixed(4)}, ${parseFloat(editAddr.longitude).toFixed(4)}`;
+                    selectedLocation = { lat: parseFloat(editAddr.latitude), lng: parseFloat(editAddr.longitude) };
                 }
             }
         }
@@ -509,9 +508,15 @@
             selectedLocation = { lat: location.lat(), lng: location.lng() };
         }
 
-        function locateUser() {
+        async function locateUser() {
             if (!navigator.geolocation) {
-                showToast('Geolocation is not supported by your browser');
+                showToast('Geolocation not supported by your browser');
+                return;
+            }
+
+            // Check if we're on HTTPS or localhost
+            if (location.protocol !== 'https:' && !location.hostname.includes('localhost') && location.hostname !== '127.0.0.1') {
+                showToast('Location requires HTTPS. Please use secure connection.');
                 return;
             }
 
@@ -519,43 +524,57 @@
             document.getElementById('locate-btn').classList.add('hidden');
             document.getElementById('locate-loading').classList.remove('hidden');
 
-            navigator.geolocation.getCurrentPosition(
-                function (position) {
-                    const userLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
+            try {
+                // Check permissions first if available
+                if ('permissions' in navigator) {
+                    const permission = await navigator.permissions.query({name: 'geolocation'});
+                    if (permission.state === 'denied') {
+                        throw new Error('Location permission denied');
+                    }
+                }
 
-                    map.setCenter(userLocation);
-                    map.setZoom(15);
-                    setMarker(userLocation);
-                    reverseGeocode(userLocation.lat, userLocation.lng);
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 300000
+                    });
+                });
 
-                    // Hide loading state
-                    document.getElementById('locate-btn').classList.remove('hidden');
-                    document.getElementById('locate-loading').classList.add('hidden');
-                },
-                function (error) {
-                    // Hide loading state
-                    document.getElementById('locate-btn').classList.remove('hidden');
-                    document.getElementById('locate-loading').classList.add('hidden');
+                const userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
 
-                    let errorMsg = 'Unable to retrieve your location';
+                map.setCenter(userLocation);
+                map.setZoom(16);
+                setMarker(userLocation);
+                reverseGeocode(userLocation.lat, userLocation.lng);
+                showToast('Location found successfully!');
+
+            } catch (error) {
+                let errorMsg = 'Unable to get your location';
+                if (error.code) {
                     switch (error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMsg = 'Location access denied. Please enable location services.';
+                        case 1: // PERMISSION_DENIED
+                            errorMsg = 'Location access denied. Please allow location access in browser settings.';
                             break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMsg = 'Location information is unavailable.';
+                        case 2: // POSITION_UNAVAILABLE
+                            errorMsg = 'Location unavailable. Please try again.';
                             break;
-                        case error.TIMEOUT:
-                            errorMsg = 'Location request timed out.';
+                        case 3: // TIMEOUT
+                            errorMsg = 'Location request timed out. Please try again.';
                             break;
                     }
-                    showToast(errorMsg);
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-            );
+                } else if (error.message.includes('denied')) {
+                    errorMsg = 'Location permission denied. Please enable location access.';
+                }
+                showToast(errorMsg);
+            } finally {
+                // Hide loading state
+                document.getElementById('locate-btn').classList.remove('hidden');
+                document.getElementById('locate-loading').classList.add('hidden');
+            }
         }
 
         function reverseGeocode(lat, lng) {
@@ -679,8 +698,10 @@
             }
         };
 
-        function editAddress(i) {
-            openModal(i);
+        function editAddress(addressId) {
+            const addr = addresses.find(a => a.id === addressId);
+            if (!addr) return;
+            openModal(addr);
         }
 
         async function deleteAddress(addressId) {
