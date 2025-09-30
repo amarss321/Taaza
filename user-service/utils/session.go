@@ -1,10 +1,6 @@
 package utils
 
 import (
-	"context"
-	"crypto/md5"
-	"encoding/json"
-	"fmt"
 	"time"
 	"user-service/database"
 )
@@ -89,44 +85,6 @@ func CleanupExpiredSessions() error {
 }
 
 
-
-// UserSession represents a multi-device session
-type UserSession struct {
-	UserID    int       `json:"user_id"`
-	DeviceID  string    `json:"device_id"`
-	Token     string    `json:"token"`
-	CreatedAt time.Time `json:"created_at"`
-	LastSeen  time.Time `json:"last_seen"`
-}
-
-// GenerateDeviceID creates a unique device identifier
-func GenerateDeviceID(ip, userAgent string) string {
-	data := fmt.Sprintf("%s-%s-%d", ip, userAgent, time.Now().UnixNano())
-	return fmt.Sprintf("%x", md5.Sum([]byte(data)))
-}
-
-// StoreMultiDeviceSession stores session with device tracking
-func StoreMultiDeviceSession(userID int, deviceID, token string) error {
-	session := UserSession{
-		UserID:    userID,
-		DeviceID:  deviceID,
-		Token:     token,
-		CreatedAt: time.Now(),
-		LastSeen:  time.Now(),
-	}
-	
-	// Store in Redis with 30-day expiration
-	sessionKey := fmt.Sprintf("session:%d:%s", userID, deviceID)
-	sessionData, _ := json.Marshal(session)
-	
-	err := RedisClient.Set(context.Background(), sessionKey, sessionData, 30*24*time.Hour).Err()
-	if err != nil {
-		return err
-	}
-	
-	// Also store in database for persistence
-	return StoreSession(userID, token)
-}
 
 // StartSessionCleanup runs session cleanup every 12 hours
 func StartSessionCleanup() {

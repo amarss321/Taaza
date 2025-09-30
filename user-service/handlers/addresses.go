@@ -83,7 +83,7 @@ func CreateAddress(c *gin.Context) {
 		return
 	}
 
-	if err := utils.Validator.Struct(req); err != nil {
+	if err := validate.Struct(req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -130,7 +130,7 @@ func UpdateAddress(c *gin.Context) {
 		return
 	}
 
-	if err := utils.Validator.Struct(req); err != nil {
+	if err := validate.Struct(req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

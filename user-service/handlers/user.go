@@ -238,14 +238,8 @@ func LoginVerifyOTP(c *gin.Context) {
 		return
 	}
 
-	// Get device ID from headers or generate one
-	deviceID := c.GetHeader("X-Device-ID")
-	if deviceID == "" {
-		deviceID = utils.GenerateDeviceID(c.ClientIP(), c.GetHeader("User-Agent"))
-	}
-
-	// Store multi-device session
-	if err := utils.StoreMultiDeviceSession(user.ID, deviceID, token); err != nil {
+	// Store session in database
+	if err := utils.StoreSession(user.ID, token); err != nil {
 		logrus.Error("Session storage error:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return

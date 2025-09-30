@@ -403,20 +403,10 @@
             verifySpinner.classList.remove('hidden');
             
             try {
-                // Generate or get device ID
-                let deviceId = localStorage.getItem('deviceId');
-                if (!deviceId) {
-                    deviceId = 'web-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-                    localStorage.setItem('deviceId', deviceId);
-                }
-                
                 const endpoint = isLogin ? '/api/v1/users/login-verify-otp' : '/api/v1/users/verify-otp';
                 const response = await fetch(endpoint, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'X-Device-ID': deviceId
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, otp: otpValue })
                 });
                 
@@ -430,20 +420,7 @@
                     verifyBtn.classList.add('bg-green-500');
                     
                     setTimeout(() => {
-                        // Store auth token in multiple places for persistence
                         localStorage.setItem('authToken', data.token);
-                        sessionStorage.setItem('authToken', data.token);
-                        
-                        // Store user data
-                        localStorage.setItem('userData', JSON.stringify({
-                            id: data.user.id,
-                            name: data.user.name,
-                            email: data.user.email,
-                            mobile: data.user.mobile
-                        }));
-                        
-                        // Set cookie for cross-tab communication
-                        document.cookie = `authToken=${data.token}; path=/; max-age=${24*60*60}; SameSite=Lax`;
                         
                         // Check if user is new or existing
                         if (data.isNewUser) {
