@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Addresses - Tazza Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        .sidebar-item.active {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 shadow-lg">
+            <div class="p-6 border-b">
+                <h1 class="text-2xl font-bold text-gray-100">Tazza Admin</h1>
+            </div>
+            <nav class="mt-6">
+                <a href="admin.html" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined mr-3">dashboard</span>
+                    Dashboard
+                </a>
+                <a href="admin.html#users" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined mr-3">people</span>
+                    Users
+                </a>
+                <a href="#" onclick="loadAddresses()" class="sidebar-item active flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined mr-3">location_on</span>
+                    Addresses
+                </a>
+                <a href="admin.html#activity" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined mr-3">history</span>
+                    Activity Log
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="bg-gray-800 shadow-sm border-b border-gray-700 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-semibold text-gray-100">User Addresses</h2>
+                    <button onclick="loadAddresses()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
+                        <span class="material-symbols-outlined mr-2">refresh</span>
+                        Refresh
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 p-6 overflow-y-auto">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-blue-100 rounded-full">
+                                <span class="material-symbols-outlined text-blue-600">location_on</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-400">Total Addresses</p>
+                                <p class="text-2xl font-bold text-gray-100" id="total-addresses">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-100 rounded-full">
+                                <span class="material-symbols-outlined text-green-600">home</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-400">Default Addresses</p>
+                                <p class="text-2xl font-bold text-gray-100" id="default-addresses">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-purple-100 rounded-full">
+                                <span class="material-symbols-outlined text-purple-600">people</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-400">Users with Addresses</p>
+                                <p class="text-2xl font-bold text-gray-100" id="users-with-addresses">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-orange-100 rounded-full">
+                                <span class="material-symbols-outlined text-orange-600">today</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-400">Added Today</p>
+                                <p class="text-2xl font-bold text-gray-100" id="addresses-today">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6 mb-6">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-gray-400">search</span>
+                            <input type="text" id="user-search" placeholder="Search users, addresses, cities..." 
+                                   class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-80">
+                        </div>
+                        <select id="address-filter" class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Addresses</option>
+                            <option value="default">Default Only</option>
+                            <option value="non-default">Non-Default</option>
+                        </select>
+                        <select id="view-mode" class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="cards">Card View</option>
+                            <option value="table">Table View</option>
+                        </select>
+                        <button onclick="exportAddresses()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
+                            <span class="material-symbols-outlined">download</span>
+                            Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cards View -->
+                <div id="cards-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="col-span-full flex justify-center py-12">
+                        <div class="text-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                            <p class="text-gray-400">Loading addresses...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table View -->
+                <div id="table-view" class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 overflow-hidden hidden">
+                    <div class="p-6 border-b border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-100">All User Addresses</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">User</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Label</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Address</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">City</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Country</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Default</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Created</th>
+                                </tr>
+                            </thead>
+                            <tbody id="addresses-table-body" class="bg-gray-800 divide-y divide-gray-700">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 p-4 rounded-lg text-white z-50 hidden"></div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let allAddresses = [];
+
+        // API Helper
+        async function apiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer admin-token',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                showToast('API connection failed: ' + error.message, 'error');
+                return null;
+            }
+        }
+
+        // Load all addresses
+        async function loadAddresses() {
+            const tbody = document.getElementById('addresses-table-body');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-6 py-8 text-center text-gray-400">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                        Loading addresses...
+                    </td>
+                </tr>
+            `;
+
+            // Get all users first
+            const usersData = await apiCall('/admin/users?limit=1000');
+            if (!usersData || !usersData.users) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-400">Failed to load users</td></tr>';
+                return;
+            }
+
+            allAddresses = [];
+            
+            // Get addresses for each user
+            for (const user of usersData.users) {
+                const addressData = await apiCall(`/admin/users/${user.id}/addresses`);
+                if (addressData && addressData.addresses) {
+                    addressData.addresses.forEach(address => {
+                        allAddresses.push({
+                            ...address,
+                            user_name: user.name,
+                            user_email: user.email
+                        });
+                    });
+                }
+            }
+
+            displayAddresses(allAddresses);
+        }
+
+        // Display addresses in cards or table
+        function displayAddresses(addresses) {
+            updateStats(addresses);
+            const viewMode = document.getElementById('view-mode').value;
+            
+            if (viewMode === 'cards') {
+                displayAddressCards(addresses);
+            } else {
+                displayAddressTable(addresses);
+            }
+        }
+
+        // Display address cards
+        function displayAddressCards(addresses) {
+            const cardsContainer = document.getElementById('cards-view');
+            document.getElementById('table-view').classList.add('hidden');
+            cardsContainer.classList.remove('hidden');
+            
+            if (!addresses.length) {
+                cardsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <span class="material-symbols-outlined text-6xl text-gray-500 mb-4">location_off</span>
+                        <p class="text-gray-400 text-lg">No addresses found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            cardsContainer.innerHTML = addresses.map(addr => `
+                <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6 hover:border-blue-500 transition-colors">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                ${addr.user_name.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-lg font-semibold text-gray-100">${addr.user_name}</h3>
+                                <p class="text-sm text-gray-400">${addr.user_email}</p>
+                            </div>
+                        </div>
+                        ${addr.is_default ? 
+                            '<span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"><span class="material-symbols-outlined text-xs mr-1">home</span>Default</span>' : 
+                            '<span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Secondary</span>'
+                        }
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-300">
+                            <span class="material-symbols-outlined text-blue-400 mr-3">label</span>
+                            <span class="font-medium">${addr.label}</span>
+                        </div>
+                        
+                        <div class="flex items-start text-gray-300">
+                            <span class="material-symbols-outlined text-blue-400 mr-3 mt-0.5">location_on</span>
+                            <div>
+                                <p class="font-medium">${addr.address_line}</p>
+                                <p class="text-sm text-gray-400">${addr.city}${addr.state ? ', ' + addr.state : ''} ${addr.zip_code}</p>
+                                <p class="text-sm text-gray-400">${addr.country}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center text-gray-400 text-sm pt-2 border-t border-gray-700">
+                            <span class="material-symbols-outlined text-xs mr-2">schedule</span>
+                            <span>Added ${new Date(addr.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Display address table
+        function displayAddressTable(addresses) {
+            const tableContainer = document.getElementById('table-view');
+            const tbody = document.getElementById('addresses-table-body');
+            document.getElementById('cards-view').classList.add('hidden');
+            tableContainer.classList.remove('hidden');
+            
+            if (!addresses.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-400">No addresses found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = addresses.map(addr => `
+                <tr class="hover:bg-gray-700">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
+                                ${addr.user_name.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-100">${addr.user_name}</div>
+                                <div class="text-sm text-gray-400">${addr.user_email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-sm font-medium text-gray-100">${addr.label}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-100">${addr.address_line}</div>
+                        ${addr.state ? `<div class="text-sm text-gray-400">${addr.state}</div>` : ''}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-100">${addr.city}</div>
+                        <div class="text-sm text-gray-400">${addr.zip_code}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-100">${addr.country}</td>
+                    <td class="px-6 py-4">
+                        ${addr.is_default ? 
+                            '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Default</span>' : 
+                            '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">No</span>'
+                        }
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-400">
+                        ${new Date(addr.created_at).toLocaleDateString()}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update statistics
+        function updateStats(addresses) {
+            const totalAddresses = addresses.length;
+            const defaultAddresses = addresses.filter(addr => addr.is_default).length;
+            const uniqueUsers = new Set(addresses.map(addr => addr.user_id)).size;
+            const today = new Date().toDateString();
+            const addressesToday = addresses.filter(addr => new Date(addr.created_at).toDateString() === today).length;
+            
+            document.getElementById('total-addresses').textContent = totalAddresses;
+            document.getElementById('default-addresses').textContent = defaultAddresses;
+            document.getElementById('users-with-addresses').textContent = uniqueUsers;
+            document.getElementById('addresses-today').textContent = addressesToday;
+        }
+
+        // Export addresses to CSV
+        function exportAddresses() {
+            if (!allAddresses.length) {
+                showToast('No addresses to export', 'warning');
+                return;
+            }
+            
+            const csv = [
+                ['User Name', 'Email', 'Label', 'Address', 'City', 'State', 'ZIP', 'Country', 'Default', 'Created'],
+                ...allAddresses.map(addr => [
+                    addr.user_name,
+                    addr.user_email,
+                    addr.label,
+                    addr.address_line,
+                    addr.city,
+                    addr.state || '',
+                    addr.zip_code,
+                    addr.country,
+                    addr.is_default ? 'Yes' : 'No',
+                    new Date(addr.created_at).toLocaleDateString()
+                ])
+            ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `user-addresses-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showToast('Addresses exported successfully', 'success');
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('user-search').value.toLowerCase();
+            const addressFilter = document.getElementById('address-filter').value;
+            
+            let filteredAddresses = allAddresses;
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredAddresses = filteredAddresses.filter(addr => 
+                    addr.user_name.toLowerCase().includes(searchTerm) ||
+                    addr.user_email.toLowerCase().includes(searchTerm) ||
+                    addr.label.toLowerCase().includes(searchTerm) ||
+                    addr.address_line.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Apply address type filter
+            if (addressFilter === 'default') {
+                filteredAddresses = filteredAddresses.filter(addr => addr.is_default);
+            } else if (addressFilter === 'non-default') {
+                filteredAddresses = filteredAddresses.filter(addr => !addr.is_default);
+            }
+            
+            displayAddresses(filteredAddresses);
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const colors = {
+                'success': 'bg-green-500',
+                'error': 'bg-red-500',
+                'warning': 'bg-yellow-500',
+                'info': 'bg-blue-500'
+            };
+            
+            toast.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${colors[type]}`;
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAddresses();
+        });
+
+        // Add event listeners for real-time filtering
+        document.getElementById('user-search').addEventListener('input', applyFilters);
+        document.getElementById('address-filter').addEventListener('change', applyFilters);
+        document.getElementById('view-mode').addEventListener('change', function() {
+            displayAddresses(allAddresses.filter(addr => {
+                const searchTerm = document.getElementById('user-search').value.toLowerCase();
+                const addressFilter = document.getElementById('address-filter').value;
+                
+                let matches = true;
+                
+                if (searchTerm) {
+                    matches = matches && (
+                        addr.user_name.toLowerCase().includes(searchTerm) ||
+                        addr.user_email.toLowerCase().includes(searchTerm) ||
+                        addr.label.toLowerCase().includes(searchTerm) ||
+                        addr.address_line.toLowerCase().includes(searchTerm) ||
+                        addr.city.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                if (addressFilter === 'default') {
+                    matches = matches && addr.is_default;
+                } else if (addressFilter === 'non-default') {
+                    matches = matches && !addr.is_default;
+                }
+                
+                return matches;
+            }));
+        });
+    </script>
+</body>
+</html>

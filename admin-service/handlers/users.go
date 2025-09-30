@@ -239,3 +239,55 @@ func GetUserActivity(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"activities": activities})
 }
+
+type Address struct {
+	ID          int     `json:"id"`
+	UserID      int     `json:"user_id"`
+	Label       string  `json:"label"`
+	AddressLine string  `json:"address_line"`
+	City        string  `json:"city"`
+	State       string  `json:"state"`
+	ZipCode     string  `json:"zip_code"`
+	Country     string  `json:"country"`
+	Latitude    *float64 `json:"latitude"`
+	Longitude   *float64 `json:"longitude"`
+	IsDefault   bool    `json:"is_default"`
+	CreatedAt   string  `json:"created_at"`
+	UpdatedAt   string  `json:"updated_at"`
+}
+
+func GetUserAddresses(c *gin.Context) {
+	userID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	rows, err := database.DB.Query(`
+		SELECT id, user_id, label, address_line, city, COALESCE(state, '') as state, 
+		       zip_code, country, latitude, longitude, is_default, created_at, updated_at
+		FROM user_addresses 
+		WHERE user_id = $1 
+		ORDER BY is_default DESC, created_at DESC`, userID)
+	if err != nil {
+		logrus.Error("Database error:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+	defer rows.Close()
+
+	var addresses []Address
+	for rows.Next() {
+		var addr Address
+		err := rows.Scan(&addr.ID, &addr.UserID, &addr.Label, &addr.AddressLine, 
+			&addr.City, &addr.State, &addr.ZipCode, &addr.Country, 
+			&addr.Latitude, &addr.Longitude, &addr.IsDefault, &addr.CreatedAt, &addr.UpdatedAt)
+		if err != nil {
+			logrus.Error("Row scan error:", err)
+			continue
+		}
+		addresses = append(addresses, addr)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"addresses": addresses})
+}

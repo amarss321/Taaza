@@ -35,7 +35,10 @@
                     <span class="material-symbols-outlined mr-3">people</span>
                     Users
                 </a>
-
+                <a href="addresses.html" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined mr-3">location_on</span>
+                    Addresses
+                </a>
                 <a href="#" onclick="showSection('activity')" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
                     <span class="material-symbols-outlined mr-3">history</span>
                     Activity Log
@@ -434,13 +437,15 @@
         async function viewUser(userId) {
             const user = await apiCall(`/admin/users/${userId}`);
             const activity = await apiCall(`/admin/users/${userId}/activity`);
+            const addresses = await apiCall(`/admin/users/${userId}/addresses`);
             
             if (user && user.user) {
                 const u = user.user;
                 const activities = activity?.activities || activity || [];
+                const userAddresses = addresses?.addresses || [];
                 
                 document.getElementById('user-details-content').innerHTML = `
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div>
                             <h4 class="text-lg font-medium text-gray-100 mb-4">Profile Information</h4>
                             <div class="space-y-3 text-gray-200">
@@ -456,6 +461,22 @@
                                 </div>
                                 <div><span class="font-medium text-gray-300">Verified:</span> ${u.is_verified ? 'Yes' : 'No'}</div>
                                 <div><span class="font-medium text-gray-300">Joined:</span> ${new Date(u.created_at).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-100 mb-4">Addresses (${userAddresses.length})</h4>
+                            <div class="space-y-3 max-h-64 overflow-y-auto">
+                                ${userAddresses.map(addr => `
+                                    <div class="p-3 bg-gray-700 rounded border ${addr.is_default ? 'border-green-500' : 'border-gray-600'}">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="text-sm font-medium text-gray-200">${addr.label}</span>
+                                            ${addr.is_default ? '<span class="text-xs bg-green-600 text-white px-2 py-1 rounded">Default</span>' : ''}
+                                        </div>
+                                        <p class="text-xs text-gray-300">${addr.address_line}</p>
+                                        <p class="text-xs text-gray-300">${addr.city}${addr.state ? ', ' + addr.state : ''} ${addr.zip_code}</p>
+                                        <p class="text-xs text-gray-400">${addr.country}</p>
+                                    </div>
+                                `).join('') || '<p class="text-sm text-gray-400">No addresses found</p>'}
                             </div>
                         </div>
                         <div>
