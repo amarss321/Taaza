@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Connection Test</title>
+</head>
+<body>
+    <h1>Frontend-Backend Connection Test</h1>
+    <button onclick="testConnection()">Test Connection</button>
+    <div id="result"></div>
+
+    <script>
+        async function testConnection() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing...';
+
+            // Check if we have auth token
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            
+            if (!token) {
+                result.innerHTML = '❌ No auth token found. Please login first at <a href="/">http://localhost:3000</a>';
+                return;
+            }
+
+            try {
+                // Test addresses API
+                const response = await fetch('/api/v1/users/addresses', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `✅ Connection working! Found ${data.addresses?.length || 0} addresses:<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    result.innerHTML = `❌ API Error: ${data.error} (Status: ${response.status})`;
+                }
+            } catch (error) {
+                result.innerHTML = `❌ Network Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

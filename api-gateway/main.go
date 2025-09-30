@@ -60,6 +60,12 @@ func main() {
 				protected.PUT("/update-profile", handlers.ProxyToUserService)
 				protected.PUT("/personal-info", handlers.ProxyToUserService)
 				protected.POST("/upload-picture", handlers.ProxyToUserService)
+				// Address routes
+				protected.GET("/addresses", handlers.ProxyToUserService)
+				protected.POST("/addresses", handlers.ProxyToUserService)
+				protected.PUT("/addresses/:id", handlers.ProxyToUserService)
+				protected.DELETE("/addresses/:id", handlers.ProxyToUserService)
+				protected.PUT("/addresses/:id/default", handlers.ProxyToUserService)
 			}
 		}
 
