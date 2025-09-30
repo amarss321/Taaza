@@ -278,9 +278,10 @@
                                 <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                                     <span class="material-symbols-outlined">${addr.label.toLowerCase() === 'work' ? 'work' : 'home'}</span>
                                 </div>
-                                <h2 class="text-lg sm:text-xl font-bold text-text-light">${addr.label}
-                                    ${i === defaultIndex ? '<span title="Default address" class="ml-2 align-middle material-symbols-outlined text-gold-500" style="color:#FFD700;vertical-align:middle;">star</span>' : ''}
-                                </h2>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-lg sm:text-xl font-bold text-text-light">${addr.label}</h2>
+                                    ${i === defaultIndex ? '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
+                                </div>
                             </div>
                             <div class="pl-13">
                                 <p class="text-text-light">${addr.line}</p>
@@ -289,6 +290,7 @@
                             </div>
                         </div>
                         <div class="flex flex-col gap-2 items-end">
+                            ${i !== defaultIndex ? `<button onclick="setDefaultAddress(${i})" class="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20 transition-slow">Set Default</button>` : ''}
                             <button onclick="editAddress(${i})" class="p-2 rounded-full hover:bg-primary/5 transition-slow">
                                 <span class="material-symbols-outlined text-primary">edit</span>
                             </button>

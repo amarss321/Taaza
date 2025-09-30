@@ -35,10 +35,7 @@
                     <span class="material-symbols-outlined mr-3">people</span>
                     Users
                 </a>
-                <a href="user-addresses.html" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
-                    <span class="material-symbols-outlined mr-3">location_on</span>
-                    User Addresses
-                </a>
+
                 <a href="#" onclick="showSection('activity')" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
                     <span class="material-symbols-outlined mr-3">history</span>
                     Activity Log
@@ -206,37 +203,7 @@
                     </div>
                 </div>
 
-                <!-- User Addresses Section -->
-                <div id="addresses-section" class="content-section">
-                    <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6 mb-6">
-                        <div class="flex flex-wrap items-center gap-4">
-                            <input type="text" id="address-user-search" placeholder="Search by user name or email..." 
-                                   class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-w-64">
-                            <button onclick="searchAddressUsers()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                                Search Users
-                            </button>
-                        </div>
-                    </div>
 
-                    <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 overflow-hidden">
-                        <div class="p-6 border-b border-gray-700">
-                            <h3 class="text-lg font-semibold text-gray-100">Users with Saved Addresses</h3>
-                        </div>
-                        
-                        <div id="address-users-loading" class="p-8 text-center">
-                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                            <p class="mt-2 text-gray-400">Loading users...</p>
-                        </div>
-
-                        <div id="address-users-list" class="hidden">
-                        </div>
-
-                        <div id="no-address-users" class="hidden p-8 text-center">
-                            <span class="material-symbols-outlined text-6xl text-gray-600 mb-4 block">location_off</span>
-                            <p class="text-gray-400">No users with addresses found</p>
-                        </div>
-                    </div>
-                </div>
             </main>
         </div>
     </div>
@@ -279,7 +246,7 @@
                 'users': 'User Management',
                 'activity': 'Activity Log',
                 'sessions': 'Active Sessions',
-                'addresses': 'User Addresses'
+
             };
             document.getElementById('page-title').textContent = titles[section];
             
@@ -297,9 +264,7 @@
                 case 'sessions':
                     loadSessions();
                     break;
-                case 'addresses':
-                    loadAddresses();
-                    break;
+
             }
         }
 
@@ -571,118 +536,7 @@
             showToast('Data refreshed', 'success');
         }
 
-        // Load Addresses
-        const mockAddressUsers = [
-            {
-                id: 1,
-                name: "John Doe",
-                email: "john@example.com",
-                mobile: "1234567890",
-                addresses: [
-                    { label: "Home", line: "123 Main Street", city: "New York", zip: "10001", country: "USA", isDefault: true },
-                    { label: "Work", line: "456 Business Ave", city: "New York", zip: "10002", country: "USA", isDefault: false }
-                ]
-            },
-            {
-                id: 2,
-                name: "Jane Smith",
-                email: "jane@example.com",
-                mobile: "0987654321",
-                addresses: [
-                    { label: "Home", line: "789 Oak Street", city: "Los Angeles", zip: "90210", country: "USA", isDefault: true }
-                ]
-            }
-        ];
 
-        async function loadAddresses() {
-            document.getElementById('address-users-loading').classList.remove('hidden');
-            document.getElementById('address-users-list').classList.add('hidden');
-            document.getElementById('no-address-users').classList.add('hidden');
-
-            setTimeout(() => {
-                displayAddressUsers(mockAddressUsers);
-                document.getElementById('address-users-loading').classList.add('hidden');
-            }, 1000);
-        }
-
-        function displayAddressUsers(users) {
-            const container = document.getElementById('address-users-list');
-            
-            if (!users.length) {
-                document.getElementById('no-address-users').classList.remove('hidden');
-                return;
-            }
-
-            container.innerHTML = users.map(user => `
-                <div class="border-b border-gray-700 last:border-b-0">
-                    <div class="p-6 hover:bg-gray-700 transition-colors">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium text-lg">
-                                    ${user.name.charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-medium text-gray-100">${user.name}</h4>
-                                    <p class="text-sm text-gray-400">${user.email}</p>
-                                    <p class="text-sm text-gray-400">${user.mobile}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-200">${user.addresses.length} Address${user.addresses.length !== 1 ? 'es' : ''}</p>
-                                    <p class="text-xs text-gray-400">${user.addresses.filter(a => a.isDefault).length} Default</p>
-                                </div>
-                                <button onclick="viewUserAddresses(${user.id})" 
-                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
-                                    <span class="material-symbols-outlined mr-2">visibility</span>
-                                    View
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            
-            container.classList.remove('hidden');
-        }
-
-        function searchAddressUsers() {
-            const searchTerm = document.getElementById('address-user-search').value.toLowerCase().trim();
-            
-            if (!searchTerm) {
-                displayAddressUsers(mockAddressUsers);
-                return;
-            }
-
-            const filteredUsers = mockAddressUsers.filter(user => 
-                user.name.toLowerCase().includes(searchTerm) ||
-                user.email.toLowerCase().includes(searchTerm)
-            );
-            
-            displayAddressUsers(filteredUsers);
-        }
-
-        function viewUserAddresses(userId) {
-            const user = mockAddressUsers.find(u => u.id === userId);
-            if (!user) return;
-
-            const addressesHtml = user.addresses.map(address => `
-                <div class="bg-gray-700 rounded-lg p-4 ${address.isDefault ? 'border-2 border-yellow-400' : 'border border-gray-600'}">
-                    <div class="flex items-center space-x-3 mb-3">
-                        <span class="material-symbols-outlined text-blue-400">${address.label.toLowerCase() === 'work' ? 'work' : 'home'}</span>
-                        <h5 class="font-medium text-gray-100">${address.label}</h5>
-                        ${address.isDefault ? '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">DEFAULT</span>' : ''}
-                    </div>
-                    <div class="text-gray-200 text-sm">
-                        <p>${address.line}</p>
-                        <p>${address.city}, ${address.zip}</p>
-                        <p>${address.country}</p>
-                    </div>
-                </div>
-            `).join('');
-
-            showToast(`Viewing addresses for ${user.name}`, 'info');
-        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
