@@ -1,8 +1,8 @@
 // Session management utility
 class SessionManager {
     constructor() {
-        this.timeoutDuration = 30 * 60 * 1000; // 30 minutes
-        this.warningDuration = 5 * 60 * 1000; // 5 minutes before timeout
+        this.timeoutDuration = 7 * 24 * 60 * 60 * 1000; // 7 days
+        this.warningDuration = 60 * 60 * 1000; // 1 hour before timeout
         this.timeoutId = null;
         this.warningId = null;
         this.lastActivity = Date.now();
@@ -45,7 +45,7 @@ class SessionManager {
         modal.innerHTML = `
             <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
                 <h3 class="text-lg font-bold text-gray-900 mb-2">Session Expiring</h3>
-                <p class="text-gray-600 mb-4">Your session will expire in 5 minutes due to inactivity.</p>
+                <p class="text-gray-600 mb-4">Your session will expire in 1 hour due to inactivity.</p>
                 <div class="flex gap-2">
                     <button id="extendSession" class="flex-1 bg-primary text-background-dark px-4 py-2 rounded font-medium">
                         Stay Logged In
@@ -83,10 +83,31 @@ class SessionManager {
         window.location.href = '/auth/3-Taaza-Login.html';
     }
     
-    checkSession() {
+    async checkSession() {
         const token = localStorage.getItem('authToken');
         if (!token && this.requiresAuth()) {
             this.logout();
+            return;
+        }
+        
+        // If we have a token, validate it with backend
+        if (token && this.requiresAuth()) {
+            try {
+                const response = await fetch('/api/v1/users/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    // Token is invalid/expired on backend
+                    this.logout();
+                }
+            } catch (error) {
+                console.error('Session validation failed:', error);
+                // On network error, don't logout - might be temporary
+            }
         }
     }
     

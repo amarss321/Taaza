@@ -108,8 +108,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Store session in database
-	if err := utils.StoreSession(user.ID, token); err != nil {
+	// Store session in database with 3 device limit
+	if err := utils.StoreSessionWithLimit(user.ID, token, 3); err != nil {
 		logrus.Error("Session storage error:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
@@ -235,8 +235,8 @@ func LoginVerifyOTP(c *gin.Context) {
 		return
 	}
 
-	// Store session in database
-	if err := utils.StoreSession(user.ID, token); err != nil {
+	// Store session in database with 3 device limit
+	if err := utils.StoreSessionWithLimit(user.ID, token, 3); err != nil {
 		logrus.Error("Session storage error:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
