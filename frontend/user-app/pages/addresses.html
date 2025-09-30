@@ -248,10 +248,12 @@
         <div class="h-5"></div>
     </div>
 
+    <script src="../js/session.js"></script>
+    <script src="../js/addresses-api.js"></script>
     <script>
         // Address management logic
-        let addresses = JSON.parse(localStorage.getItem('addresses') || '[]');
-        let defaultIndex = parseInt(localStorage.getItem('defaultAddress') || '0');
+        let addresses = [];
+        let addressAPI = new AddressAPI();
 
         // Google Maps variables
         let map, marker, selectedLocation = null;
@@ -280,21 +282,21 @@
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <h2 class="text-lg sm:text-xl font-bold text-text-light">${addr.label}</h2>
-                                    ${i === defaultIndex ? '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
+                                    ${addr.is_default ? '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
                                 </div>
                             </div>
                             <div class="pl-13">
-                                <p class="text-text-light">${addr.line}</p>
-                                <p class="text-subtext-light">${addr.city}, ${addr.zip}</p>
+                                <p class="text-text-light">${addr.address_line}</p>
+                                <p class="text-subtext-light">${addr.city}, ${addr.zip_code}</p>
                                 <p class="text-subtext-light">${addr.country}</p>
                             </div>
                         </div>
                         <div class="flex flex-col gap-2 items-end">
-                            ${i !== defaultIndex ? `<button onclick="setDefaultAddress(${i})" class="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20 transition-slow">Set Default</button>` : ''}
-                            <button onclick="editAddress(${i})" class="p-2 rounded-full hover:bg-primary/5 transition-slow">
+                            ${!addr.is_default ? `<button onclick="setDefaultAddress(${addr.id})" class="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20 transition-slow">Set Default</button>` : ''}
+                            <button onclick="editAddress(${addr.id})" class="p-2 rounded-full hover:bg-primary/5 transition-slow">
                                 <span class="material-symbols-outlined text-primary">edit</span>
                             </button>
-                            <button onclick="deleteAddress(${i})" class="p-2 rounded-full hover:bg-danger/5 transition-slow">
+                            <button onclick="deleteAddress(${addr.id})" class="p-2 rounded-full hover:bg-danger/5 transition-slow">
                                 <span class="material-symbols-outlined text-danger">delete</span>
                             </button>
                         </div>
@@ -643,59 +645,74 @@
             closeMapModal();
         }
 
-        document.getElementById('address-form').onsubmit = function (e) {
+        document.getElementById('address-form').onsubmit = async function (e) {
             e.preventDefault();
-            const label = document.getElementById('address-label').value.trim();
-            const line = document.getElementById('address-line').value.trim();
-            const city = document.getElementById('address-city').value.trim();
-            const zip = document.getElementById('address-zip').value.trim();
-            const country = document.getElementById('address-country').value.trim();
-            const lat = document.getElementById('address-lat').value;
-            const lng = document.getElementById('address-lng').value;
-            const isDefault = document.getElementById('address-default').checked;
-            const idx = document.getElementById('edit-index').value;
+            const addressData = {
+                label: document.getElementById('address-label').value.trim(),
+                address_line: document.getElementById('address-line').value.trim(),
+                city: document.getElementById('address-city').value.trim(),
+                zip_code: document.getElementById('address-zip').value.trim(),
+                country: document.getElementById('address-country').value.trim(),
+                latitude: document.getElementById('address-lat').value || null,
+                longitude: document.getElementById('address-lng').value || null,
+                is_default: document.getElementById('address-default').checked
+            };
 
-            const addressData = { label, line, city, zip, country };
-            if (lat && lng) {
-                addressData.lat = lat;
-                addressData.lng = lng;
+            const editId = document.getElementById('edit-index').value;
+            
+            try {
+                if (editId) {
+                    await addressAPI.updateAddress(editId, addressData);
+                } else {
+                    await addressAPI.createAddress(addressData);
+                }
+                closeModal();
+                loadAddresses();
+                showToast('Address saved!');
+            } catch (error) {
+                if (error.message.includes('401')) {
+                    showToast('Session expired. Please login again.');
+                    setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
+                } else {
+                    showToast('Failed to save address');
+                }
             }
-
-            if (idx !== '') {
-                addresses[idx] = addressData;
-                if (isDefault) defaultIndex = parseInt(idx);
-            } else {
-                addresses.push(addressData);
-                if (isDefault) defaultIndex = addresses.length - 1;
-            }
-            localStorage.setItem('addresses', JSON.stringify(addresses));
-            localStorage.setItem('defaultAddress', defaultIndex);
-            closeModal();
-            renderAddresses();
-            showToast('Address saved!');
         };
 
         function editAddress(i) {
             openModal(i);
         }
 
-        function deleteAddress(i) {
+        async function deleteAddress(addressId) {
             if (confirm('Are you sure you want to delete this address?')) {
-                addresses.splice(i, 1);
-                if (defaultIndex === i) defaultIndex = 0;
-                if (defaultIndex > i) defaultIndex--;
-                localStorage.setItem('addresses', JSON.stringify(addresses));
-                localStorage.setItem('defaultAddress', defaultIndex);
-                renderAddresses();
-                showToast('Address deleted!');
+                try {
+                    await addressAPI.deleteAddress(addressId);
+                    loadAddresses();
+                    showToast('Address deleted!');
+                } catch (error) {
+                    if (error.message.includes('401')) {
+                        showToast('Session expired. Please login again.');
+                        setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
+                    } else {
+                        showToast('Failed to delete address');
+                    }
+                }
             }
         }
 
-        function setDefaultAddress(i) {
-            defaultIndex = i;
-            localStorage.setItem('defaultAddress', defaultIndex);
-            renderAddresses();
-            showToast('Default address updated!');
+        async function setDefaultAddress(addressId) {
+            try {
+                await addressAPI.setDefaultAddress(addressId);
+                loadAddresses();
+                showToast('Default address updated!');
+            } catch (error) {
+                if (error.message.includes('401')) {
+                    showToast('Session expired. Please login again.');
+                    setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
+                } else {
+                    showToast('Failed to update default address');
+                }
+            }
         }
 
         // Toast notification
@@ -712,8 +729,25 @@
             setTimeout(() => toast.classList.add('hidden'), 2000);
         }
 
-        // Initial render
-        renderAddresses();
+        // Initial load
+        loadAddresses();
+        
+        async function loadAddresses() {
+            try {
+                addresses = await addressAPI.getAddresses();
+                renderAddresses();
+            } catch (error) {
+                console.error('Failed to load addresses:', error);
+                if (error.message.includes('401') || error.message.includes('Invalid token')) {
+                    showToast('Session expired. Please login again.');
+                    setTimeout(() => {
+                        window.location.href = '/auth/3-Taaza-Login.html';
+                    }, 2000);
+                } else {
+                    showToast('Failed to load addresses');
+                }
+            }
+        }
     </script>
 </body>
 
