@@ -178,9 +178,14 @@
                 <h2 class="text-xl font-bold mb-4">Select Location on Map</h2>
                 <div class="flex gap-2 mb-4">
                     <button id="locate-btn" onclick="locateUser()"
-                        class="flex items-center gap-1 text-sm bg-primary/10 text-primary px-3 py-2 rounded-lg">
+                        class="flex items-center gap-1 text-sm bg-primary/10 text-primary px-3 py-2 rounded-lg hover:bg-primary/20 transition-colors">
                         <span class="material-symbols-outlined">my_location</span>
                         Use My Location
+                    </button>
+                    <button onclick="showLocationHelp()" 
+                        class="flex items-center gap-1 text-sm bg-gray-100 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                        <span class="material-symbols-outlined">help</span>
+                        Help
                     </button>
                     <div id="locate-loading"
                         class="hidden items-center gap-1 text-sm bg-primary/10 text-primary px-3 py-2 rounded-lg">
@@ -461,6 +466,8 @@
         }
 
         function initMap() {
+            console.log('🗺️ Initializing Google Map...');
+            
             // Default center (London)
             const defaultCenter = { lat: 51.505, lng: -0.09 };
 
@@ -470,19 +477,38 @@
                 center: selectedLocation || defaultCenter,
                 mapTypeControl: false,
                 streetViewControl: false,
-                fullscreenControl: false
+                fullscreenControl: false,
+                zoomControl: true,
+                gestureHandling: 'cooperative'
             });
+
+            console.log('✅ Google Map initialized');
 
             // If we have a previously selected location, add a marker
             if (selectedLocation) {
+                console.log('📍 Setting existing location marker');
                 setMarker(selectedLocation);
             }
 
             // Add click event to set marker
             map.addListener('click', function (event) {
+                console.log('👆 Map clicked at:', event.latLng.lat(), event.latLng.lng());
                 setMarker(event.latLng);
                 reverseGeocode(event.latLng.lat(), event.latLng.lng());
             });
+            
+            // Add instruction overlay
+            const instructionDiv = document.createElement('div');
+            instructionDiv.innerHTML = '👆 Click on map to select location or use "My Location" button';
+            instructionDiv.style.cssText = 'background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none;';
+            document.getElementById('google-map').appendChild(instructionDiv);
+            
+            // Hide instruction after 5 seconds
+            setTimeout(() => {
+                if (instructionDiv.parentNode) {
+                    instructionDiv.remove();
+                }
+            }, 5000);
         }
 
         function setMarker(location) {
@@ -509,38 +535,60 @@
         }
 
         function locateUser() {
-            console.log('Geolocation attempt started');
+            console.log('🌍 Geolocation attempt started');
+            console.log('🔒 Protocol:', window.location.protocol);
+            console.log('🌐 Host:', window.location.host);
             
+            // Check if geolocation is supported
             if (!navigator.geolocation) {
-                showToast('Geolocation not supported by your browser');
+                showToast('❌ Geolocation not supported by your browser');
                 return;
+            }
+
+            // Check if we're on HTTPS or localhost
+            const isSecure = window.location.protocol === 'https:' || 
+                           window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1';
+            
+            if (!isSecure) {
+                showToast('⚠️ Location requires HTTPS. Try accessing via HTTPS.');
+                console.warn('Geolocation requires HTTPS in production');
             }
 
             // Show loading state
             document.getElementById('locate-btn').classList.add('hidden');
             document.getElementById('locate-loading').classList.remove('hidden');
             
-            // Force timeout after 8 seconds
+            // Extended timeout for better reliability
             const forceTimeout = setTimeout(() => {
                 document.getElementById('locate-btn').classList.remove('hidden');
                 document.getElementById('locate-loading').classList.add('hidden');
-                showToast('Location request timed out. Please try again or check permissions.');
-            }, 8000);
+                showToast('⏱️ Location request timed out. Check permissions and try again.');
+                console.log('🚫 Forced timeout after 15 seconds');
+            }, 15000);
 
+            // Try to get location with better options
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     clearTimeout(forceTimeout);
-                    console.log('Location success:', position);
+                    console.log('✅ Location success:', position);
+                    console.log('📍 Coordinates:', position.coords.latitude, position.coords.longitude);
+                    console.log('🎯 Accuracy:', position.coords.accuracy, 'meters');
+                    
                     const userLocation = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     };
 
-                    map.setCenter(userLocation);
-                    map.setZoom(16);
-                    setMarker(userLocation);
-                    reverseGeocode(userLocation.lat, userLocation.lng);
-                    showToast('Location found successfully!');
+                    // Update map
+                    if (map) {
+                        map.setCenter(userLocation);
+                        map.setZoom(16);
+                        setMarker(userLocation);
+                        reverseGeocode(userLocation.lat, userLocation.lng);
+                    }
+                    
+                    showToast('📍 Location found successfully!');
 
                     // Hide loading state
                     document.getElementById('locate-btn').classList.remove('hidden');
@@ -548,34 +596,52 @@
                 },
                 function(error) {
                     clearTimeout(forceTimeout);
-                    console.error('Geolocation error:', error);
-                    console.log('Error code:', error.code);
-                    console.log('Error message:', error.message);
+                    console.error('❌ Geolocation error:', error);
+                    console.log('🔢 Error code:', error.code);
+                    console.log('💬 Error message:', error.message);
                     
                     // Hide loading state
                     document.getElementById('locate-btn').classList.remove('hidden');
                     document.getElementById('locate-loading').classList.add('hidden');
 
-                    let errorMsg = 'Unable to get your location';
+                    let errorMsg = '❌ Unable to get your location';
+                    let instructions = '';
+                    
                     switch (error.code) {
                         case 1: // PERMISSION_DENIED
-                            errorMsg = 'Location blocked. Click the location icon in address bar to allow.';
+                            errorMsg = '🚫 Location access denied';
+                            instructions = 'Click the 🔒 icon in your address bar and allow location access, then try again.';
+                            console.log('🚫 User denied location permission');
                             break;
                         case 2: // POSITION_UNAVAILABLE
-                            errorMsg = 'Location unavailable. Check GPS/WiFi and try again.';
+                            errorMsg = '📡 Location unavailable';
+                            instructions = 'Check your GPS/WiFi connection and try again.';
+                            console.log('📡 Position unavailable - GPS/network issue');
                             break;
                         case 3: // TIMEOUT
-                            errorMsg = 'Location timeout. Please try again.';
+                            errorMsg = '⏱️ Location request timed out';
+                            instructions = 'Please try again. Make sure GPS is enabled.';
+                            console.log('⏱️ Geolocation timeout');
                             break;
                         default:
-                            errorMsg = `Location error (${error.code}): ${error.message}`;
+                            errorMsg = `❌ Location error (${error.code})`;
+                            instructions = error.message;
+                            console.log('❓ Unknown geolocation error:', error);
                     }
+                    
                     showToast(errorMsg);
+                    
+                    // Show detailed instructions after a delay
+                    setTimeout(() => {
+                        if (instructions) {
+                            showToast(instructions);
+                        }
+                    }, 2500);
                 },
                 {
-                    enableHighAccuracy: false,
-                    timeout: 5000,              // 5 second timeout
-                    maximumAge: 300000          // 5 minute cache
+                    enableHighAccuracy: true,    // Use GPS for better accuracy
+                    timeout: 10000,             // 10 second timeout
+                    maximumAge: 60000           // 1 minute cache
                 }
             );
         }
@@ -658,45 +724,122 @@
         }
 
         function confirmLocation() {
+            console.log('📍 Confirming location:', selectedLocation);
+            
             if (selectedLocation) {
-                document.getElementById('address-lat').value = selectedLocation.lat;
-                document.getElementById('address-lng').value = selectedLocation.lng;
-                document.getElementById('coordinates-display').textContent =
-                    `${selectedLocation.lat.toFixed(4)}, ${selectedLocation.lng.toFixed(4)}`;
+                const lat = selectedLocation.lat;
+                const lng = selectedLocation.lng;
+                
+                // Ensure coordinates are valid numbers
+                if (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng)) {
+                    document.getElementById('address-lat').value = lat;
+                    document.getElementById('address-lng').value = lng;
+                    document.getElementById('coordinates-display').textContent =
+                        `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    
+                    console.log('✅ Location confirmed:', lat, lng);
+                    showToast('📍 Location selected successfully!');
+                } else {
+                    console.error('❌ Invalid location data:', selectedLocation);
+                    showToast('❌ Invalid location data. Please try again.');
+                    return;
+                }
+            } else {
+                console.warn('⚠️ No location selected');
+                showToast('⚠️ Please select a location on the map first.');
+                return;
             }
+            
             closeMapModal();
         }
 
         document.getElementById('address-form').onsubmit = async function (e) {
             e.preventDefault();
-            const addressData = {
-                label: document.getElementById('address-label').value.trim(),
-                address_line: document.getElementById('address-line').value.trim(),
-                city: document.getElementById('address-city').value.trim(),
-                zip_code: document.getElementById('address-zip').value.trim(),
-                country: document.getElementById('address-country').value.trim(),
-                latitude: document.getElementById('address-lat').value || null,
-                longitude: document.getElementById('address-lng').value || null,
-                is_default: document.getElementById('address-default').checked
-            };
-
+            console.log('📝 Form submission started...');
+            
+            // Get form values
+            const label = document.getElementById('address-label').value.trim();
+            const addressLine = document.getElementById('address-line').value.trim();
+            const city = document.getElementById('address-city').value.trim();
+            const zipCode = document.getElementById('address-zip').value.trim();
+            const country = document.getElementById('address-country').value.trim();
+            const lat = document.getElementById('address-lat').value;
+            const lng = document.getElementById('address-lng').value;
+            const isDefault = document.getElementById('address-default').checked;
             const editId = document.getElementById('edit-index').value;
             
-            try {
-                if (editId) {
-                    await addressAPI.updateAddress(editId, addressData);
+            console.log('📋 Form data:', {
+                label, addressLine, city, zipCode, country, lat, lng, isDefault, editId
+            });
+            
+            // Validate required fields
+            if (!label || !addressLine || !city || !zipCode || !country) {
+                showToast('❌ Please fill in all required fields');
+                return;
+            }
+            
+            // Convert coordinates to proper format
+            let latitude = null;
+            let longitude = null;
+            
+            if (lat && lng) {
+                latitude = parseFloat(lat);
+                longitude = parseFloat(lng);
+                
+                // Validate coordinates
+                if (isNaN(latitude) || isNaN(longitude)) {
+                    console.warn('⚠️ Invalid coordinates:', lat, lng);
+                    latitude = null;
+                    longitude = null;
                 } else {
-                    await addressAPI.createAddress(addressData);
+                    console.log('📍 Valid coordinates:', latitude, longitude);
                 }
+            }
+            
+            const addressData = {
+                label,
+                address_line: addressLine,
+                city,
+                zip_code: zipCode,
+                country,
+                latitude,
+                longitude,
+                is_default: isDefault
+            };
+            
+            console.log('🚀 Sending address data:', addressData);
+            
+            try {
+                let result;
+                if (editId) {
+                    console.log('✏️ Updating address ID:', editId);
+                    result = await addressAPI.updateAddress(editId, addressData);
+                } else {
+                    console.log('➕ Creating new address');
+                    result = await addressAPI.createAddress(addressData);
+                }
+                
+                console.log('✅ Address saved successfully:', result);
                 closeModal();
                 loadAddresses();
-                showToast('Address saved!');
+                showToast('✅ Address saved successfully!');
+                
             } catch (error) {
-                if (error.message.includes('401')) {
-                    showToast('Session expired. Please login again.');
+                console.error('❌ Save error:', error);
+                console.log('🔍 Error details:', {
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+                    showToast('🔒 Session expired. Please login again.');
                     setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
+                } else if (error.message.includes('400')) {
+                    showToast('❌ Invalid data. Please check all fields.');
+                } else if (error.message.includes('500')) {
+                    showToast('🔧 Server error. Please try again.');
                 } else {
-                    showToast('Failed to save address');
+                    showToast(`❌ Failed to save: ${error.message}`);
                 }
             }
         };
@@ -739,19 +882,74 @@
             }
         }
 
-        // Toast notification
-        function showToast(msg) {
+        // Enhanced toast notification
+        function showToast(msg, duration = 3000) {
             let toast = document.getElementById('toast');
             if (!toast) {
                 toast = document.createElement('div');
                 toast.id = 'toast';
-                toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden';
+                toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden max-w-sm text-center';
                 document.body.appendChild(toast);
             }
+            
+            // Clear any existing timeout
+            if (toast.timeoutId) {
+                clearTimeout(toast.timeoutId);
+            }
+            
             toast.textContent = msg;
             toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 2000);
+            
+            toast.timeoutId = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, duration);
         }
+
+        // Location help function
+        function showLocationHelp() {
+            const helpMsg = `📍 Location Help:\n\n1. Click 🔒 icon in address bar\n2. Select "Allow" for location\n3. Try "Use My Location" again\n\nIf still not working:\n• Enable GPS/Location Services\n• Check WiFi connection\n• Use HTTPS (not HTTP)\n• Try refreshing the page`;
+            
+            if (confirm(helpMsg + '\n\nOpen browser location settings?')) {
+                // This will prompt user to check their browser settings
+                showToast('🔧 Check browser settings for location permissions');
+            }
+        }
+
+        // Debug location permissions
+        function checkLocationPermissions() {
+            if ('permissions' in navigator) {
+                navigator.permissions.query({name: 'geolocation'}).then(function(result) {
+                    console.log('🔒 Geolocation permission:', result.state);
+                    
+                    if (result.state === 'denied') {
+                        showToast('🚫 Location blocked. Check browser settings.');
+                    } else if (result.state === 'prompt') {
+                        showToast('📍 Location will prompt when requested.');
+                    } else if (result.state === 'granted') {
+                        showToast('✅ Location permission granted.');
+                    }
+                });
+            }
+        }
+
+        // Test location on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Page loaded, checking location support...');
+            
+            if (navigator.geolocation) {
+                console.log('✅ Geolocation API supported');
+                checkLocationPermissions();
+            } else {
+                console.log('❌ Geolocation API not supported');
+            }
+            
+            // Check if we're on secure context
+            if (window.isSecureContext) {
+                console.log('✅ Secure context (HTTPS/localhost)');
+            } else {
+                console.log('⚠️ Insecure context - geolocation may not work');
+            }
+        });
 
         // Initial load
         loadAddresses();

@@ -9,11 +9,8 @@ import (
 	"user-service/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
-
-var validate = validator.New()
 
 func StartRegistration(c *gin.Context) {
 	var req models.StartRegistrationRequest
