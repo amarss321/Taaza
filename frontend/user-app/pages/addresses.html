@@ -251,6 +251,23 @@
     <!-- Include Address API -->
     <script src="../js/addresses-api.js"></script>
     <script>
+        // Generate or get device ID
+        function getDeviceId() {
+            let deviceId = localStorage.getItem('deviceId');
+            if (!deviceId) {
+                deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+                localStorage.setItem('deviceId', deviceId);
+            }
+            return deviceId;
+        }
+
+        // Include device ID in all API requests
+        const originalGetAuthHeaders = AddressAPI.prototype.getAuthHeaders;
+        AddressAPI.prototype.getAuthHeaders = function() {
+            const headers = originalGetAuthHeaders.call(this);
+            headers['X-Device-ID'] = getDeviceId();
+            return headers;
+        };
         // Address management logic
         let addresses = [];
         let addressAPI = new AddressAPI();
@@ -516,46 +533,67 @@
 
         document.getElementById('address-form').onsubmit = async function (e) {
             e.preventDefault();
-            const label = document.getElementById('address-label').value.trim();
-            const addressLine = document.getElementById('address-line').value.trim();
-            const city = document.getElementById('address-city').value.trim();
-            const zipCode = document.getElementById('address-zip').value.trim();
-            const country = document.getElementById('address-country').value.trim();
-            const lat = document.getElementById('address-lat').value;
-            const lng = document.getElementById('address-lng').value;
-            const isDefault = document.getElementById('address-default').checked;
-            const idx = document.getElementById('edit-index').value;
-
-            const addressData = { 
-                label, 
-                address_line: addressLine, 
-                city, 
-                zip_code: zipCode, 
-                country,
-                is_default: isDefault
-            };
             
-            if (lat && lng) {
-                addressData.latitude = parseFloat(lat);
-                addressData.longitude = parseFloat(lng);
-            }
-
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
             try {
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div> Saving...';
+
+                const label = document.getElementById('address-label').value.trim();
+                const addressLine = document.getElementById('address-line').value.trim();
+                const city = document.getElementById('address-city').value.trim();
+                const zipCode = document.getElementById('address-zip').value.trim();
+                const country = document.getElementById('address-country').value.trim();
+                const lat = document.getElementById('address-lat').value;
+                const lng = document.getElementById('address-lng').value;
+                const isDefault = document.getElementById('address-default').checked;
+                const idx = document.getElementById('edit-index').value;
+
+                // Validate required fields
+                if (!label || !addressLine || !city || !zipCode || !country) {
+                    throw new Error('Please fill all required fields');
+                }
+
+                const addressData = { 
+                    label, 
+                    address_line: addressLine, 
+                    city, 
+                    zip_code: zipCode, 
+                    country,
+                    is_default: isDefault
+                };
+                
+                // Add coordinates if available
+                if (lat && lng) {
+                    addressData.latitude = parseFloat(lat);
+                    addressData.longitude = parseFloat(lng);
+                }
+
+                let result;
                 if (idx !== '') {
                     // Editing existing address
                     const addressId = addresses[parseInt(idx)].id;
-                    await addressAPI.updateAddress(addressId, addressData);
+                    result = await addressAPI.updateAddress(addressId, addressData);
                 } else {
                     // Adding new address
-                    await addressAPI.createAddress(addressData);
+                    result = await addressAPI.createAddress(addressData);
                 }
                 
+                console.log('Address saved successfully:', result);
                 closeModal();
                 await loadAddresses();
-                showToast('Address saved!');
+                showToast('Address saved successfully!');
+                
             } catch (error) {
                 console.error('Error saving address:', error);
-                showToast('Failed to save address');
+                showToast(`Failed to save address: ${error.message}`);
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }
         };
 
@@ -601,27 +639,60 @@
             setTimeout(() => toast.classList.add('hidden'), 2000);
         }
 
-        // Initial load with migration
+        // Enhanced initialization with auth check
         async function initializeAddresses() {
             const token = addressAPI.getAuthToken();
             
             if (!token) {
                 showToast('Please login first');
+                // Redirect to login after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/auth/3-Taaza-Login.html';
+                }, 2000);
                 return;
             }
             
             try {
-                await addressAPI.migrateLocalStorageAddresses();
+                // Test authentication first
+                await testAuthentication();
+                
+                // Load addresses
                 await loadAddresses();
+                
             } catch (error) {
                 console.error('Error initializing addresses:', error);
-                showToast('Failed to load addresses');
-                // Fallback to localStorage if API fails
-                const localAddresses = JSON.parse(localStorage.getItem('addresses') || '[]');
-                if (localAddresses.length > 0) {
-                    addresses = localAddresses;
-                    renderAddresses();
+                
+                if (error.message.includes('Authentication') || error.message.includes('401')) {
+                    showToast('Session expired. Please login again.');
+                    setTimeout(() => {
+                        window.location.href = '/auth/3-Taaza-Login.html';
+                    }, 2000);
+                } else {
+                    showToast('Failed to load addresses. Please try again.');
                 }
+            }
+        }
+
+        // Test if user is authenticated
+        async function testAuthentication() {
+            try {
+                const response = await fetch('/api/v1/users/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${addressAPI.getAuthToken()}`
+                    }
+                });
+                
+                if (response.status === 401) {
+                    throw new Error('Authentication failed');
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Authentication test failed');
+                }
+                
+                return true;
+            } catch (error) {
+                throw new Error('Authentication required');
             }
         }
 

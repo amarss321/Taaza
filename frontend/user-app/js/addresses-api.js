@@ -1,36 +1,81 @@
-// Address API integration
+// Enhanced Address API with better error handling
 class AddressAPI {
     constructor() {
         this.baseURL = '/api/v1/users';
     }
 
-    // Get auth token from localStorage
+    // Enhanced token detection across multiple storage methods
     getAuthToken() {
-        return localStorage.getItem('authToken') || localStorage.getItem('token');
+        const token = 
+            localStorage.getItem('authToken') ||
+            sessionStorage.getItem('authToken') ||
+            this.getCookie('authToken') ||
+            localStorage.getItem('token');
+        
+        if (!token) {
+            console.warn('No auth token found in any storage');
+        }
+        return token;
     }
 
-    // Get auth headers
-    getAuthHeaders() {
+    // Get cookie value
+    getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    // Redirect to login if no token
+    redirectToLogin() {
+        if (!window.location.href.includes('login')) {
+            window.location.href = '/auth/3-Taaza-Login.html';
+        }
+    }
+
+    // Enhanced API call with better error handling
+    async makeAPIRequest(url, options = {}) {
         const token = this.getAuthToken();
-        return {
+        
+        if (!token) {
+            throw new Error('No authentication token found. Please login first.');
+        }
+        
+        const defaultHeaders = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
-    }
 
-    // Get all addresses
-    async getAddresses() {
         try {
-            const response = await fetch(`${this.baseURL}/addresses`, {
-                method: 'GET',
-                headers: this.getAuthHeaders()
+            const response = await fetch(url, {
+                ...options,
+                headers: { ...defaultHeaders, ...options.headers }
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // Handle unauthorized (401) - redirect to login
+            if (response.status === 401) {
+                console.warn('Token expired, redirecting to login');
+                this.redirectToLogin();
+                throw new Error('Authentication required');
             }
 
-            const data = await response.json();
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('API Request failed:', error);
+            throw error;
+        }
+    }
+
+    // Get all addresses with enhanced error handling
+    async getAddresses() {
+        try {
+            const data = await this.makeAPIRequest(`${this.baseURL}/addresses`, {
+                method: 'GET'
+            });
             return data.addresses || [];
         } catch (error) {
             console.error('Error fetching addresses:', error);
@@ -38,42 +83,37 @@ class AddressAPI {
         }
     }
 
-    // Create new address
+    // Create new address with validation
     async createAddress(addressData) {
         try {
-            const response = await fetch(`${this.baseURL}/addresses`, {
-                method: 'POST',
-                headers: this.getAuthHeaders(),
-                body: JSON.stringify(addressData)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            // Validate required fields
+            const required = ['label', 'address_line', 'city', 'zip_code', 'country'];
+            for (const field of required) {
+                if (!addressData[field]?.trim()) {
+                    throw new Error(`Missing required field: ${field}`);
+                }
             }
 
-            return await response.json();
+            const result = await this.makeAPIRequest(`${this.baseURL}/addresses`, {
+                method: 'POST',
+                body: JSON.stringify(addressData)
+            });
+            
+            return result;
         } catch (error) {
             console.error('Error creating address:', error);
             throw error;
         }
     }
 
-    // Update address
+    // Update existing address
     async updateAddress(addressId, addressData) {
         try {
-            const response = await fetch(`${this.baseURL}/addresses/${addressId}`, {
+            const result = await this.makeAPIRequest(`${this.baseURL}/addresses/${addressId}`, {
                 method: 'PUT',
-                headers: this.getAuthHeaders(),
                 body: JSON.stringify(addressData)
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-            }
-
-            return await response.json();
+            return result;
         } catch (error) {
             console.error('Error updating address:', error);
             throw error;
@@ -83,17 +123,10 @@ class AddressAPI {
     // Delete address
     async deleteAddress(addressId) {
         try {
-            const response = await fetch(`${this.baseURL}/addresses/${addressId}`, {
-                method: 'DELETE',
-                headers: this.getAuthHeaders()
+            const result = await this.makeAPIRequest(`${this.baseURL}/addresses/${addressId}`, {
+                method: 'DELETE'
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-            }
-
-            return await response.json();
+            return result;
         } catch (error) {
             console.error('Error deleting address:', error);
             throw error;
@@ -103,17 +136,10 @@ class AddressAPI {
     // Set default address
     async setDefaultAddress(addressId) {
         try {
-            const response = await fetch(`${this.baseURL}/addresses/${addressId}/default`, {
-                method: 'PUT',
-                headers: this.getAuthHeaders()
+            const result = await this.makeAPIRequest(`${this.baseURL}/addresses/${addressId}/default`, {
+                method: 'PUT'
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-            }
-
-            return await response.json();
+            return result;
         } catch (error) {
             console.error('Error setting default address:', error);
             throw error;

@@ -1,0 +1,114 @@
+TAAZA ADDRESS PAGE - ARCHITECTURE DIAGRAM
+==========================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│                        USER INTERFACE                          │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │  addresses.html │  │ Map Modal       │  │ Add/Edit Modal  │ │
+│  │                 │  │ (Leaflet.js)    │  │                 │ │
+│  │ - Address List  │  │ - GPS Selection │  │ - Form Fields   │ │
+│  │ - Default Badge │  │ - Drag Marker   │  │ - Validation    │ │
+│  │ - CRUD Buttons  │  │ - Auto-fill     │  │ - Save/Cancel   │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                │ JavaScript API Calls
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    FRONTEND API LAYER                          │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │              addresses-api.js                               │ │
+│  │                                                             │ │
+│  │  getAddresses()     createAddress()    updateAddress()     │ │
+│  │  deleteAddress()    setDefaultAddress()                    │ │
+│  │                                                             │ │
+│  │  Auth: JWT Token + Device ID                               │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                │ HTTP Requests
+                                │ Bearer Token Auth
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      API GATEWAY                               │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │                    nginx:80                                 │ │
+│  │                                                             │ │
+│  │  /api/v1/users/addresses/*  ──────────────────────────────► │ │
+│  │                                                             │ │
+│  │  Load Balance │ SSL │ Rate Limit │ Proxy                   │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                │ Forward to Service
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    USER SERVICE                                │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │                user-service (Go/Gin)                       │ │
+│  │                                                             │ │
+│  │  Middleware: Auth │ Security │ Validation │ Sanitization   │ │
+│  │                                                             │ │
+│  │  Routes:                                                    │ │
+│  │  GET    /addresses        ──► GetAddresses()               │ │
+│  │  POST   /addresses        ──► CreateAddress()              │ │
+│  │  PUT    /addresses/:id    ──► UpdateAddress()              │ │
+│  │  DELETE /addresses/:id    ──► DeleteAddress()              │ │
+│  │  PUT    /addresses/:id/default ──► SetDefaultAddress()     │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                │ SQL Queries
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     DATABASE                                   │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │                PostgreSQL                                   │ │
+│  │                                                             │ │
+│  │  Database: taaza_users                                      │ │
+│  │                                                             │ │
+│  │  ┌─────────────────┐    ┌─────────────────────────────────┐ │ │
+│  │  │     users       │    │        user_addresses          │ │ │
+│  │  │                 │    │                                 │ │ │
+│  │  │ id (PK)         │◄───┤ user_id (FK)                   │ │ │
+│  │  │ name            │    │ id (PK)                         │ │ │
+│  │  │ email           │    │ label                           │ │ │
+│  │  │ mobile          │    │ address_line                    │ │ │
+│  │  │ password_hash   │    │ city, state, zip_code          │ │ │
+│  │  │ is_verified     │    │ country                         │ │ │
+│  │  └─────────────────┘    │ latitude, longitude             │ │ │
+│  │                         │ is_default                      │ │ │
+│  │                         │ created_at, updated_at          │ │ │
+│  │                         └─────────────────────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+
+DATA FLOW:
+==========
+
+1. User loads addresses.html
+2. JavaScript checks JWT token
+3. API calls user-service via nginx
+4. Service validates auth & queries database
+5. Returns address list as JSON
+6. Frontend renders addresses with map integration
+
+STORAGE LOCATIONS:
+==================
+
+• User Addresses: PostgreSQL user_addresses table
+• Authentication: JWT tokens in localStorage
+• Session Data: Redis (session cleanup)
+• Activity Logs: Database audit trail
+• GPS Coordinates: Stored as latitude/longitude decimals
+• Default Address: Boolean flag (only one per user)
+
+SECURITY:
+=========
+
+• JWT Authentication on all endpoints
+• Device ID tracking
+• Input validation & sanitization
+• Rate limiting via nginx
+• SQL injection protection
+• CORS headers
