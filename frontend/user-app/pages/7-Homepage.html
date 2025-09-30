@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Taaza - Fresh Milk & Meat Delivery</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style type="text/tailwindcss">
+        :root {
+      --zepto-blue: #0C2D57;
+      --zepto-yellow: #FFD700;
+      --zepto-light-bg: #F8F4E9;
+      --zepto-manage-blue: #4A7B9D;
+      --zepto-order-red: #D5715C;
+      --zepto-green: #10B981;
+      --zepto-gray: #6B7280;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24
+    }
+    
+    /* Custom animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .slide-up {
+      animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .status-badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 1rem;
+    }
+    
+    /* Custom scrollbar for horizontal scrolling */
+    .scroll-container {
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--zepto-blue) transparent;
+    }
+    
+    .scroll-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    
+    .scroll-container::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 10px;
+    }
+    
+    .scroll-container::-webkit-scrollbar-thumb {
+      background: var(--zepto-blue);
+      border-radius: 10px;
+    }
+    
+    .scroll-container::-webkit-scrollbar-thumb:hover {
+      background: #0a2445;
+    }
+    
+    /* Hide scroll arrows on small screens */
+    @media (max-width: 640px) {
+      .scroll-arrows {
+        display: none;
+      }
+    }
+  </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+            background-color: var(--zepto-light-bg);
+        }
+
+        /* Safe area for notched phones */
+        .h-safe-area-bottom {
+            height: constant(safe-area-inset-bottom);
+            height: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+
+<body class="text-gray-800">
+    <div class="flex flex-col min-h-screen">
+        <!-- Enhanced Header -->
+        <header class="bg-[var(--zepto-blue)] text-white p-4 pb-6 sticky top-0 z-20 shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <p class="text-xs text-gray-300" id="timeGreeting">Good morning</p>
+                    <h1 class="text-xl font-semibold" id="userGreeting">Hello, User!</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <!-- Cart Icon -->
+                    <a href="../cart/cart.html" class="relative p-2 rounded-full hover:bg-white/10 transition-colors"
+                        aria-label="Cart">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                    </a>
+                    <!-- Profile Icon -->
+                    <a href="profile.html"
+                        class="relative p-2 rounded-full hover:bg-white/10 transition-colors" aria-label="Profile">
+                        <span class="material-symbols-outlined">person</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white/10 p-4 rounded-lg flex justify-between items-center backdrop-blur-sm">
+                <div>
+                    <p class="text-sm text-gray-300">Wallet Balance</p>
+                    <p class="text-2xl font-bold">₹570.00</p>
+                </div>
+                <button onclick="window.location.href='../wallet/add_money.html'"
+                    class="bg-[var(--zepto-yellow)] text-[var(--zepto-blue)] font-bold py-2 px-4 rounded-lg text-sm hover:bg-yellow-500 transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Add Money
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-4 slide-up">
+            <!-- Next Delivery Highlight -->
+            <div class="bg-gradient-to-r from-[var(--zepto-blue)] to-blue-800 text-white rounded-xl p-4 mb-6 shadow-lg">
+                <p class="text-sm opacity-90 mb-1">Your next delivery</p>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-xl font-bold">Tomorrow, 7-9 AM</p>
+                        <p class="text-sm opacity-90">1L Milk + 500g Chicken</p>
+                    </div>
+                    <span class="material-symbols-outlined text-3xl">motorcycle</span>
+                </div>
+            </div>
+
+            <!-- Upcoming Deliveries Section -->
+            <h2 class="text-xl font-bold mb-4 text-gray-900 flex items-center justify-between">
+                <span>Upcoming Deliveries</span>
+                <button class="text-sm text-[var(--zepto-blue)] font-medium">View all</button>
+            </h2>
+
+            <div class="space-y-4 mb-6">
+                <!-- Delivery Card 1 -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-start mb-3">
+                        <p class="font-bold text-gray-800">Thu, Nov 2</p>
+                        <span class="status-badge bg-[var(--zepto-green)]/20 text-[var(--zepto-green)]">Scheduled</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <span class="material-symbols-outlined text-blue-600">local_drink</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">1L Taaza Milk</p>
+                                <p class="text-sm text-gray-500">7-9 AM</p>
+                            </div>
+                        </div>
+                        <button
+                            class="border border-red-500 text-red-500 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-red-50 transition-colors">
+                            Skip
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Delivery Card 2 -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-start mb-3">
+                        <p class="font-bold text-gray-800">Fri, Nov 3</p>
+                        <span class="status-badge bg-blue-100 text-blue-800">Upcoming</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <span class="material-symbols-outlined text-blue-600">local_drink</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">1L Taaza Milk</p>
+                                <p class="text-sm text-gray-500">7-9 AM</p>
+                            </div>
+                        </div>
+                        <!-- Skip button removed for second delivery -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommended For You Section - Moved Below Upcoming Deliveries -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-900">Recommended For You</h2>
+                    <div class="flex items-center gap-2">
+                        <a href="#" class="text-sm text-[var(--zepto-blue)] font-medium hover:underline">See All</a>
+                        <!-- Scroll arrows for larger screens -->
+                        <div class="scroll-arrows flex gap-1">
+                            <button id="scrollLeft"
+                                class="p-1 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                            </button>
+                            <button id="scrollRight"
+                                class="p-1 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal scrolling container -->
+                <div class="scroll-container relative">
+                    <div id="recommendedProducts" class="flex gap-4 pb-2" style="min-width: max-content;">
+                        <!-- Product Card 1 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center min-w-[150px] flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=200&q=80"
+                                alt="Organic Bananas" class="w-20 h-20 object-cover rounded-lg mb-2" />
+                            <h3 class="font-semibold text-gray-800 text-center text-sm">Organic Bananas</h3>
+                            <p class="text-[var(--zepto-blue)] font-bold mb-2 text-sm">₹149</p>
+                            <button onclick="addToCart('Organic Bananas', 149)"
+                                class="bg-[var(--zepto-yellow)] text-[var(--zepto-blue)] font-bold py-1.5 px-3 rounded-lg text-xs hover:bg-yellow-500 transition-colors w-full">
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <!-- Product Card 2 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center min-w-[150px] flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=200&q=80"
+                                alt="Avocados" class="w-20 h-20 object-cover rounded-lg mb-2" />
+                            <h3 class="font-semibold text-gray-800 text-center text-sm">Avocados</h3>
+                            <p class="text-[var(--zepto-blue)] font-bold mb-2 text-sm">₹330</p>
+                            <button onclick="addToCart('Avocados', 330)"
+                                class="bg-[var(--zepto-yellow)] text-[var(--zepto-blue)] font-bold py-1.5 px-3 rounded-lg text-xs hover:bg-yellow-500 transition-colors w-full">
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <!-- Product Card 3 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center min-w-[150px] flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=200&q=80"
+                                alt="Strawberries" class="w-20 h-20 object-cover rounded-lg mb-2" />
+                            <h3 class="font-semibold text-gray-800 text-center text-sm">Strawberries</h3>
+                            <p class="text-[var(--zepto-blue)] font-bold mb-2 text-sm">₹240</p>
+                            <button onclick="addToCart('Strawberries', 240)"
+                                class="bg-[var(--zepto-yellow)] text-[var(--zepto-blue)] font-bold py-1.5 px-3 rounded-lg text-xs hover:bg-yellow-500 transition-colors w-full">
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <!-- Product Card 4 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center min-w-[150px] flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=200&q=80"
+                                alt="Fresh Apples" class="w-20 h-20 object-cover rounded-lg mb-2" />
+                            <h3 class="font-semibold text-gray-800 text-center text-sm">Fresh Apples</h3>
+                            <p class="text-[var(--zepto-blue)] font-bold mb-2 text-sm">₹330</p>
+                            <button onclick="addToCart('Fresh Apples', 330)"
+                                class="bg-[var(--zepto-yellow)] text-[var(--zepto-blue)] font-bold py-1.5 px-3 rounded-lg text-xs hover:bg-yellow-500 transition-colors w-full">
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <!-- Product Card 5 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center min-w-[150px] flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=200&q=80"
+                                alt="Carrots" class="w-20 h-20 object-cover rounded-lg mb-2" />
+                            <h3 class="font-semibold text-gray-800 text-center text-sm">Carrots</h3>
+                            <p class="text-[var(--zepto-blue)] font-bold mb-2 text-sm">₹459</p>
+                            <button onclick="addToCart('Carrots', 459)"
+                                class="bg-[var(--zepto-yellow)] text-[var(--zepto-blue)] font-bold py-1.5 px-3 rounded-lg text-xs hover:bg-yellow-500 transition-colors w-full">
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <!-- Product Card 6 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center min-w-[150px] flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=200&q=80"
+                                alt="Broccoli" class="w-20 h-20 object-cover rounded-lg mb-2" />
+                            <h3 class="font-semibold text-gray-800 text-center text-sm">Broccoli</h3>
+                            <p class="text-[var(--zepto-blue)] font-bold mb-2 text-sm">₹199</p>
+                            <button onclick="addToCart('Broccoli', 199)"
+                                class="bg-[var(--zepto-yellow)] text-[var(--zepto-blue)] font-bold py-1.5 px-3 rounded-lg text-xs hover:bg-yellow-500 transition-colors w-full">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Quick Actions (Improved with icons, accessibility, and focus outlines) -->
+        <div class="sticky bottom-4 z-10 px-4 py-2">
+            <div class="flex justify-between gap-4">
+                <button onclick="manageMilkSubscription()" aria-label="Manage your milk subscription"
+                    class="flex-1 bg-[var(--zepto-manage-blue)] text-white font-bold py-4 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 focus-visible:focus">
+                    Manage Milk
+                </button>
+                <button onclick="orderFreshMeat()" aria-label="Order fresh meat"
+                    class="flex-1 bg-[var(--zepto-order-red)] text-white font-bold py-4 rounded-lg shadow-lg hover:bg-red-500 transition-colors flex items-center justify-center gap-2 focus-visible:focus">
+                    Order Meat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamic greeting based on time and user name
+        function updateGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            const userName = localStorage.getItem('userName') || 'User';
+
+            let greeting = 'Good morning';
+            if (hour >= 12 && hour < 17) {
+                greeting = 'Good afternoon';
+            } else if (hour >= 17) {
+                greeting = 'Good evening';
+            }
+
+            document.getElementById('timeGreeting').textContent = greeting;
+            document.getElementById('userGreeting').textContent = `Hello, ${userName}!`;
+        }
+
+        // Horizontal scrolling functionality
+        function setupHorizontalScroll() {
+            const scrollContainer = document.querySelector('.scroll-container');
+            const scrollLeftBtn = document.getElementById('scrollLeft');
+            const scrollRightBtn = document.getElementById('scrollRight');
+
+            if (!scrollContainer || !scrollLeftBtn || !scrollRightBtn) return;
+
+            const scrollAmount = 200; // Adjust scroll amount as needed
+
+            scrollLeftBtn.addEventListener('click', () => {
+                scrollContainer.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+
+            scrollRightBtn.addEventListener('click', () => {
+                scrollContainer.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Update arrow visibility based on scroll position
+            const updateArrows = () => {
+                const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+                scrollLeftBtn.style.opacity = scrollLeft > 0 ? '1' : '0.5';
+                scrollRightBtn.style.opacity = scrollLeft < scrollWidth - clientWidth ? '1' : '0.5';
+            };
+
+            scrollContainer.addEventListener('scroll', updateArrows);
+            updateArrows(); // Initial check
+        }
+
+        // Simple interaction enhancements
+        document.addEventListener('DOMContentLoaded', function () {
+            // Update greeting on page load
+            updateGreeting();
+
+            // Add subtle animation to delivery cards
+            const cards = document.querySelectorAll('.bg-white.rounded-xl');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('slide-up');
+            });
+
+            // Setup horizontal scrolling
+            setupHorizontalScroll();
+
+            // Simulate loading state for demonstration
+            setTimeout(() => {
+                document.querySelectorAll('.pulse').forEach(el => {
+                    el.classList.remove('pulse');
+                });
+            }, 2000);
+        });
+
+        function manageMilkSubscription() {
+            window.location.href = '../Milk/Your Milk Plan.html';
+        }
+
+        function orderFreshMeat() {
+            window.location.href = '../meat/order-meat.html';
+        }
+
+        function addToCart(name, price) {
+            // Simulate adding to cart
+            // You can integrate with your cart logic here
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            toast.textContent = `${name} added to cart!`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 1800);
+        }
+    </script>
+</body>
+
+</html>

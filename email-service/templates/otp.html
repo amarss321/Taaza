@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your OTP Code</title>
+    <style>
+        body { font-family: 'Space Grotesk', Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #0C2D57 0%, #1E3A6F 100%); }
+        .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #0C2D57 0%, #1E3A6F 100%); padding: 30px 20px; text-align: center; }
+        .header h1 { color: #FFD700; margin: 0; font-size: 36px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        .header p { color: #E0E0E0; margin: 8px 0 0 0; font-size: 16px; }
+        .content { padding: 40px 30px; }
+        .otp-box { background: linear-gradient(135deg, #FFD700 0%, #FBC02D 100%); border: none; padding: 25px; text-align: center; margin: 25px 0; border-radius: 12px; box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3); }
+        .otp-code { font-size: 36px; font-weight: bold; color: #0C2D57; letter-spacing: 8px; margin: 10px 0; font-family: 'Space Grotesk', monospace; }
+        .footer { background-color: #f8f9fa; padding: 25px; text-align: center; color: #666; font-size: 14px; }
+        .button { display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #FFD700 0%, #FBC02D 100%); color: #0C2D57; text-decoration: none; border-radius: 8px; margin: 15px 0; font-weight: bold; }
+        h2 { color: #0C2D57; font-size: 24px; margin-bottom: 20px; }
+        p { color: #333; line-height: 1.6; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Taaza</h1>
+            <p>Straight from the Farm to Your Door</p>
+        </div>
+        
+        <div class="content">
+            <h2>Your OTP Code</h2>
+            <p>Hello {{.Name}},</p>
+            <p>Use the following OTP code to verify your email address:</p>
+            
+            <div class="otp-box">
+                <div class="otp-code">{{.OTP}}</div>
+                <p style="margin: 5px 0; color: #0C2D57; font-weight: 500;">This code will expire in 10 minutes</p>
+            </div>
+            
+            <p>If you didn't request this code, please ignore this email.</p>
+            <p>For security reasons, never share this code with anyone.</p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2024 Taaza. All rights reserved.</p>
+            <p>Fresh groceries delivered to your doorstep</p>
+        </div>
+    </div>
+</body>
+</html>

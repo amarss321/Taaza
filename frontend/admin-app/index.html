@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taaza Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'taaza-primary': '#3B82F6',
+                        'taaza-secondary': '#6366F1'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 min-h-screen text-white">
+    <!-- Sidebar -->
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 border-r border-gray-700">
+        <div class="flex items-center justify-center h-16 bg-blue-600">
+            <h1 class="text-xl font-bold text-white">Taaza Admin</h1>
+        </div>
+        <nav class="mt-8">
+            <a href="dashboard.html" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-blue-400 transition-colors">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                </svg>
+                Dashboard
+            </a>
+            <a href="#dashboard" onclick="showSection('dashboard')" class="nav-item active flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-blue-400 transition-colors">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Overview
+            </a>
+            <a href="#users" onclick="showSection('users')" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-blue-400 transition-colors">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                User Management
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64">
+        <!-- Header -->
+        <header class="bg-gray-800 shadow-sm border-b border-gray-700">
+            <div class="flex items-center justify-between px-6 py-4">
+                <h2 id="pageTitle" class="text-2xl font-semibold text-white">Dashboard</h2>
+                <div class="flex items-center space-x-4">
+                    <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+                        Refresh
+                    </button>
+                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span class="text-white font-semibold">A</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="section active p-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-600 rounded-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-400">Total Users</p>
+                            <p class="text-2xl font-semibold text-white" id="totalUsers">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-600 rounded-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-400">Active Users</p>
+                            <p class="text-2xl font-semibold text-white" id="activeUsers">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-purple-600 rounded-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.25-4.5l-.02.01M6.75 6a.75.75 0 01.75-.75h10.5a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75H7.5a.75.75 0 01-.75-.75V6z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-400">Verified Users</p>
+                            <p class="text-2xl font-semibold text-white" id="verifiedUsers">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-600 rounded-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-400">Blocked Users</p>
+                            <p class="text-2xl font-semibold text-white" id="blockedUsers">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="showSection('users')" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        Manage Users
+                    </button>
+                    <button onclick="refreshData()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                        Refresh Data
+                    </button>
+                    <button onclick="exportUsers()" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors">
+                        Export Users
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users-section" class="section p-6" style="display: none;">
+            <!-- Filters -->
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-6 border border-gray-700">
+                <div class="flex flex-wrap items-center gap-4">
+                    <input type="text" id="searchInput" placeholder="Search users..." 
+                           class="border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="statusFilter" class="border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="blocked">Blocked</option>
+                    </select>
+                    <button onclick="loadUsers()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">User Management</h3>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Contact</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Verification</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Joined</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="bg-gray-800 divide-y divide-gray-700">
+                            <!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="bg-gray-700 px-6 py-3 flex items-center justify-between">
+                    <div class="text-sm text-gray-300">
+                        Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span id="totalCount">0</span> users
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="previousPage()" id="prevBtn" class="px-3 py-1 bg-gray-600 border border-gray-500 rounded text-gray-300 hover:bg-gray-500 disabled:opacity-50" disabled>
+                            Previous
+                        </button>
+                        <span id="pageInfo" class="text-sm text-gray-300">Page 1 of 1</span>
+                        <button onclick="nextPage()" id="nextBtn" class="px-3 py-1 bg-gray-600 border border-gray-500 rounded text-gray-300 hover:bg-gray-500 disabled:opacity-50" disabled>
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="userModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-screen overflow-y-auto border border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-white">User Details</h3>
+                <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="userDetails">
+                <!-- User details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg text-white z-50 hidden"></div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        const ADMIN_TOKEN = 'admin-token-123'; // Demo token
+        
+        let currentPage = 1;
+        let totalPages = 1;
+
+        // API Helper with fallback
+        async function apiCall(endpoint, options = {}) {
+            console.log('=== ADMIN API CALL DEBUG ===');
+            console.log('Endpoint:', endpoint);
+            console.log('Full URL:', `${API_BASE}${endpoint}`);
+            console.log('Token:', ADMIN_TOKEN);
+            console.log('Options:', options);
+            
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ADMIN_TOKEN}`,
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.log('Error response text:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                console.log('API Response:', result);
+                return result;
+            } catch (error) {
+                console.error('API call failed:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+                
+                showNotification('API connection failed: ' + error.message, 'error');
+                return null;
+            }
+        }
+
+        // Navigation
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(section + '-section').style.display = 'block';
+            document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
+            
+            if (section === 'dashboard') {
+                document.getElementById('pageTitle').textContent = 'Dashboard';
+                loadStats();
+            } else if (section === 'users') {
+                document.getElementById('pageTitle').textContent = 'User Management';
+                setTimeout(() => loadUsers(), 100); // Small delay to ensure DOM is ready
+            }
+        }
+
+        // Load Statistics
+        async function loadStats() {
+            console.log('=== LOADING STATS ===');
+            const stats = await apiCall('/admin/users/stats');
+            console.log('Stats received:', stats);
+            
+            if (stats && stats.stats) {
+                console.log('Updating stats UI with:', stats.stats);
+                document.getElementById('totalUsers').textContent = stats.stats.total_users || 0;
+                document.getElementById('activeUsers').textContent = stats.stats.active_users || 0;
+                document.getElementById('verifiedUsers').textContent = stats.stats.verified_users || 0;
+                document.getElementById('blockedUsers').textContent = stats.stats.blocked_users || 0;
+            } else {
+                console.log('No stats data received');
+                showNotification('Failed to load statistics', 'error');
+            }
+        }
+
+        // Load Users
+        async function loadUsers() {
+            console.log('=== LOADING USERS ===');
+            console.log('Current page:', currentPage);
+            
+            const search = document.getElementById('searchInput')?.value || '';
+            const status = document.getElementById('statusFilter')?.value || '';
+            
+            console.log('Search:', search);
+            console.log('Status filter:', status);
+            
+            const params = new URLSearchParams({
+                page: currentPage,
+                limit: 20
+            });
+            
+            if (search) params.append('search', search);
+            if (status) params.append('status', status);
+            
+            console.log('Query params:', params.toString());
+            
+            const data = await apiCall(`/admin/users?${params}`);
+            console.log('Received data:', data);
+            
+            if (data && data.users) {
+                console.log('Users found:', data.users.length);
+                displayUsers(data.users);
+                updatePagination(data.pagination);
+                showNotification(`Loaded ${data.users.length} users`, 'success');
+            } else {
+                console.log('No data received, showing empty state');
+                displayUsers([]);
+                showNotification('No users data received', 'error');
+            }
+        }
+
+        // Display Users
+        function displayUsers(users) {
+            console.log('Displaying users:', users);
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No users found</td></tr>';
+                return;
+            }
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-700';
+                
+                const statusColor = {
+                    'active': 'bg-green-100 text-green-800',
+                    'inactive': 'bg-gray-100 text-gray-800',
+                    'blocked': 'bg-red-100 text-red-800'
+                }[user.status] || 'bg-gray-100 text-gray-800';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-taaza-primary flex items-center justify-center">
+                                    <span class="text-sm font-medium text-white">${user.name.charAt(0).toUpperCase()}</span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-white">${user.name}</div>
+                                <div class="text-sm text-gray-400">ID: ${user.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-white">${user.email}</div>
+                        <div class="text-sm text-gray-400">${user.mobile || 'No mobile'}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">
+                            ${user.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.is_verified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${user.is_verified ? 'Verified' : 'Unverified'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-400">
+                        ${new Date(user.created_at).toLocaleDateString()}
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <div class="flex space-x-2">
+                            <button onclick="viewUser(${user.id})" class="text-blue-400 hover:text-blue-300">View</button>
+                            <button onclick="toggleUserStatus(${user.id}, '${user.status}')" class="text-orange-400 hover:text-orange-300">
+                                ${user.status === 'blocked' ? 'Unblock' : 'Block'}
+                            </button>
+                            <button onclick="toggleVerification(${user.id}, ${user.is_verified})" class="text-green-400 hover:text-green-300">
+                                ${user.is_verified ? 'Unverify' : 'Verify'}
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // User Actions
+        async function viewUser(userId) {
+            const user = await apiCall(`/admin/users/${userId}`);
+            const activity = await apiCall(`/admin/users/${userId}/activity`);
+            const sessions = await apiCall(`/admin/users/${userId}/sessions`);
+            
+            if (user && user.user) {
+                const u = user.user;
+                const activities = activity?.activities || activity || [];
+                const userSessions = sessions || [];
+                
+                document.getElementById('userDetails').innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Tabs -->
+                        <div class="border-b border-gray-600">
+                            <nav class="-mb-px flex space-x-8">
+                                <button onclick="showTab('profile')" class="tab-btn active py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-400">Profile</button>
+                                <button onclick="showTab('activity')" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-400 hover:text-gray-300">Activity</button>
+                                <button onclick="showTab('sessions')" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-400 hover:text-gray-300">Sessions</button>
+                            </nav>
+                        </div>
+                        
+                        <!-- Profile Tab -->
+                        <div id="profile-tab" class="tab-content">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300">Name</label>
+                                    <p class="mt-1 text-sm text-white">${u.name}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300">Email</label>
+                                    <p class="mt-1 text-sm text-white">${u.email}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300">Mobile</label>
+                                    <p class="mt-1 text-sm text-white">${u.mobile || 'Not provided'}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300">Gender</label>
+                                    <p class="mt-1 text-sm text-white">${u.gender || 'Not provided'}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300">Status</label>
+                                    <p class="mt-1 text-sm text-white">${u.status}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300">Verification</label>
+                                    <p class="mt-1 text-sm text-white">${u.is_verified ? 'Verified' : 'Unverified'}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Activity Tab -->
+                        <div id="activity-tab" class="tab-content hidden">
+                            <div class="space-y-2 max-h-64 overflow-y-auto">
+                                ${activities.map(act => `
+                                    <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
+                                        <div>
+                                            <span class="text-sm font-medium text-white">${act.action}</span>
+                                            <p class="text-xs text-gray-400">${act.details}</p>
+                                            <p class="text-xs text-gray-500">IP: ${act.ip_address}</p>
+                                        </div>
+                                        <span class="text-xs text-gray-500">${new Date(act.created_at).toLocaleString()}</span>
+                                    </div>
+                                `).join('') || '<p class="text-sm text-gray-400">No activity found</p>'}
+                            </div>
+                        </div>
+                        
+                        <!-- Sessions Tab -->
+                        <div id="sessions-tab" class="tab-content hidden">
+                            <div class="space-y-2 max-h-64 overflow-y-auto">
+                                ${userSessions.map(session => `
+                                    <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
+                                        <div>
+                                            <span class="text-sm font-medium text-white">Session ${session.id}</span>
+                                            <p class="text-xs text-gray-400">Token: ${session.token}</p>
+                                            <p class="text-xs text-gray-500">Created: ${new Date(session.created_at).toLocaleString()}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-gray-500">Expires: ${new Date(session.expires_at).toLocaleString()}</p>
+                                            <button onclick="revokeSession(${session.id})" class="text-red-400 hover:text-red-300 text-xs mt-1">Revoke</button>
+                                        </div>
+                                    </div>
+                                `).join('') || '<p class="text-sm text-gray-400">No active sessions</p>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('userModal').classList.remove('hidden');
+                document.getElementById('userModal').classList.add('flex');
+            }
+        }
+        
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-400');
+                btn.classList.add('border-transparent', 'text-gray-400');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            event.target.classList.remove('border-transparent', 'text-gray-400');
+            event.target.classList.add('border-blue-500', 'text-blue-400');
+        }
+        
+        async function revokeSession(sessionId) {
+            if (confirm('Are you sure you want to revoke this session?')) {
+                const result = await apiCall(`/admin/sessions/${sessionId}/revoke`, {
+                    method: 'POST'
+                });
+                
+                if (result) {
+                    showNotification('Session revoked successfully', 'success');
+                    // Refresh the current user modal
+                    const userId = document.querySelector('[onclick*="viewUser"]')?.onclick.toString().match(/\d+/)?.[0];
+                    if (userId) viewUser(userId);
+                }
+            }
+        }
+
+        async function toggleUserStatus(userId, currentStatus) {
+            const newStatus = currentStatus === 'blocked' ? 'active' : 'blocked';
+            const reason = prompt(`Enter reason for ${newStatus === 'blocked' ? 'blocking' : 'unblocking'} user:`);
+            
+            if (!reason) return;
+            
+            const result = await apiCall(`/admin/users/${userId}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    status: newStatus,
+                    reason: reason
+                })
+            });
+            
+            if (result) {
+                showNotification(`User ${newStatus === 'blocked' ? 'blocked' : 'unblocked'} successfully`, 'success');
+                loadUsers();
+                loadStats();
+            }
+        }
+
+        async function toggleVerification(userId, currentVerified) {
+            const newVerified = !currentVerified;
+            const reason = prompt(`Enter reason for ${newVerified ? 'verifying' : 'unverifying'} user:`);
+            
+            if (!reason) return;
+            
+            const result = await apiCall(`/admin/users/${userId}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    is_verified: newVerified,
+                    reason: reason
+                })
+            });
+            
+            if (result) {
+                showNotification(`User ${newVerified ? 'verified' : 'unverified'} successfully`, 'success');
+                loadUsers();
+                loadStats();
+            }
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.add('hidden');
+            document.getElementById('userModal').classList.remove('flex');
+        }
+
+        // Pagination
+        function updatePagination(pagination) {
+            if (!pagination) return;
+            
+            totalPages = pagination.total_pages || 1;
+            const total = pagination.total || 0;
+            const limit = pagination.limit || 20;
+            const page = pagination.page || 1;
+            
+            document.getElementById('showingFrom').textContent = total > 0 ? ((page - 1) * limit) + 1 : 0;
+            document.getElementById('showingTo').textContent = Math.min(page * limit, total);
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('pageInfo').textContent = `Page ${page} of ${totalPages}`;
+            
+            document.getElementById('prevBtn').disabled = page <= 1;
+            document.getElementById('nextBtn').disabled = page >= totalPages;
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadUsers();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadUsers();
+            }
+        }
+
+        // Utility Functions
+        function refreshData() {
+            loadStats();
+            if (document.getElementById('users-section').style.display !== 'none') {
+                loadUsers();
+            }
+            showNotification('Data refreshed successfully', 'success');
+        }
+
+        function exportUsers() {
+            showNotification('Export feature coming soon!', 'info');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 
+                type === 'warning' ? 'bg-orange-600' : 'bg-blue-600'
+            }`;
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            
+            // Add search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        currentPage = 1;
+                        loadUsers();
+                    }
+                });
+            }
+            
+            // Auto-load users if on users section
+            if (window.location.hash === '#users') {
+                showSection('users');
+            }
+        });
+    </script>
+
+    <style>
+        .nav-item.active {
+            background-color: #374151;
+            color: #60A5FA;
+            border-right: 3px solid #60A5FA;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: taaza
+      POSTGRES_PASSWORD: taaza123
+      POSTGRES_DB: taaza_main
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - taaza-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taaza -d taaza_main"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - taaza-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # User Service
+  user-service:
+    build: ./user-service
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=taaza
+      - DB_PASSWORD=taaza123
+      - DB_NAME=taaza_users
+      - REDIS_URL=redis:6379
+      - JWT_SECRET=your-secret-key-here
+      - PORT=8081
+      - EMAIL_SERVICE_URL=http://email-service:8084
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - taaza-network
+    restart: unless-stopped
+
+  # Admin Service
+  admin-service:
+    build: ./admin-service
+    ports:
+      - "8082:8082"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=taaza
+      - DB_PASSWORD=taaza123
+      - DB_NAME=taaza_users
+      - PORT=8082
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - taaza-network
+    restart: unless-stopped
+
+  # Email Service
+  email-service:
+    build: ./email-service
+    ports:
+      - "8084:8084"
+    environment:
+      - PORT=8084
+      - REDIS_URL=redis:6379
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=amarnathmalasani2@gmail.com
+      - SMTP_PASS=eius tppe wepd cuxz
+      - SMTP_FROM=amarnathmalasani2@gmail.com
+      - APP_URL=http://localhost:3000
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - taaza-network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - USER_SERVICE_URL=http://user-service:8081
+      - ADMIN_SERVICE_URL=http://admin-service:8082
+      - REDIS_URL=redis:6379
+      - JWT_SECRET=your-secret-key-here
+      - PORT=8080
+    depends_on:
+      - user-service
+      - admin-service
+      - email-service
+    networks:
+      - taaza-network
+    restart: unless-stopped
+
+  # Frontend - User App
+  user-frontend:
+    build: ./frontend/user-app
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - taaza-network
+    restart: unless-stopped
+
+  # Frontend - Admin App
+  admin-frontend:
+    build: ./frontend/admin-app
+    ports:
+      - "3001:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - taaza-network
+    restart: unless-stopped
+
+
+
+volumes:
+  postgres_data:
+
+networks:
+  taaza-network:
+    driver: bridge

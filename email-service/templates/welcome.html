@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Taaza</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background-color: white; }
+        .header { background: linear-gradient(135deg, #4CAF50, #45a049); padding: 30px; text-align: center; }
+        .header h1 { color: white; margin: 0; font-size: 32px; }
+        .content { padding: 30px; }
+        .welcome-box { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        .button { display: inline-block; padding: 15px 30px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 25px; margin: 15px 0; font-weight: bold; }
+        .features { display: flex; justify-content: space-around; margin: 30px 0; }
+        .feature { text-align: center; flex: 1; padding: 0 10px; }
+        .feature-icon { font-size: 48px; margin-bottom: 10px; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to Taaza!</h1>
+            <p style="color: white; margin: 10px 0; font-size: 18px;">Fresh Groceries Delivered</p>
+        </div>
+        
+        <div class="content">
+            <div class="welcome-box">
+                <h2 style="color: #4CAF50; margin-bottom: 15px;">Hello {{.Name}}! 🎉</h2>
+                <p>Your account has been successfully created. You're now ready to explore fresh groceries and get them delivered right to your doorstep.</p>
+            </div>
+            
+            <h3>What's Next?</h3>
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🛒</div>
+                    <h4>Shop</h4>
+                    <p>Browse fresh groceries</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🚚</div>
+                    <h4>Deliver</h4>
+                    <p>Fast home delivery</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💰</div>
+                    <h4>Save</h4>
+                    <p>Best prices guaranteed</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="{{.AppURL}}" class="button">Start Shopping Now</a>
+            </div>
+            
+            <p>If you have any questions, feel free to contact our support team.</p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2024 Taaza. All rights reserved.</p>
+            <p>Fresh groceries delivered to your doorstep</p>
+        </div>
+    </div>
+</body>
+</html>

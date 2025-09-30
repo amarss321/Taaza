@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Taaza - User Registration</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFD700",
+                        "primary-light": "#FFF9C4",
+                        "primary-dark": "#FBC02D",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#0C2D57",
+                        "accent-blue": "#1E40AF",
+                        "foreground-light": "#E0E0E0",
+                        "foreground-dark": "#E0E0E0",
+                        "input-light": "#FFFFFF",
+                        "input-dark": "#1F3A66",
+                        "input-border-light": "#E0E0E0",
+                        "input-border-dark": "#3B5998",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in': 'fadeIn 1.5s ease-in-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #0C2D57 0%, #1E3A6F 100%);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Responsive styling for different devices - same as other pages */
+        @media (max-width: 640px) {
+            .taaza-title {
+                font-size: 3rem !important;
+                /* 48px */
+            }
+
+            .taaza-subtitle {
+                font-size: 1.125rem !important;
+                /* 18px */
+                padding: 0 1rem;
+            }
+
+            .register-input {
+                padding: 1rem !important;
+                font-size: 1rem !important;
+                height: 3.5rem !important;
+            }
+
+            .register-button {
+                padding: 1rem !important;
+                font-size: 1.125rem !important;
+                min-height: 3.5rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .taaza-title {
+                font-size: 2.5rem !important;
+                /* 40px */
+            }
+
+            .taaza-subtitle {
+                font-size: 1rem !important;
+                /* 16px */
+            }
+        }
+
+        /* Enhanced touch targets for mobile */
+        .register-input {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            min-height: 44px;
+            transition: all 0.3s ease;
+        }
+
+        .register-input:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .register-button {
+            min-height: 44px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .register-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Improved focus states for accessibility */
+        .register-input:focus {
+            outline: 2px solid #FFD700;
+            outline-offset: 2px;
+        }
+
+        .register-button:focus {
+            outline: 2px solid #FFD700;
+            outline-offset: 2px;
+        }
+
+        /* Remove touch callouts on mobile */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Allow text selection for inputs */
+        input,
+        textarea {
+            -webkit-user-select: text;
+            -khtml-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* Custom shape for visual interest - same as other pages */
+        .shape-background {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 25s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Animation for fade-in */
+        .animate-fade-in {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        /* Input container styling */
+        .input-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            position: absolute;
+            left: 1rem;
+            top: -0.5rem;
+            background: #0C2D57;
+            color: #FFD700;
+            padding: 0 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 10;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid #0C2D57;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Error message styling */
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="font-display overflow-hidden">
+    <div
+        class="relative flex flex-col items-center justify-center min-h-screen bg-background-light dark:bg-background-dark p-4 overflow-hidden">
+        <!-- Animated background elements - same as other pages -->
+        <div class="shape-background"></div>
+
+        <div class="relative z-10 w-full max-w-sm mx-auto animate-fade-in">
+            <!-- Logo section - same as other pages -->
+            <div class="flex flex-col items-center mb-8">
+                <h1
+                    class="taaza-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold uppercase tracking-wider text-background-dark dark:text-background-light mb-2 px-4">
+                    Taaza
+                </h1>
+
+                <p
+                    class="taaza-subtitle text-lg sm:text-xl md:text-2xl text-primary font-medium max-w-sm mx-auto px-4 text-center">
+                    Straight from the Farm to Your Door
+                </p>
+            </div>
+
+            <!-- Registration form -->
+            <div class="bg-background-dark/70 backdrop-blur-sm rounded-xl p-6 shadow-xl">
+                <h2 class="text-2xl font-bold text-background-light text-center mb-2">Complete Your Profile</h2>
+                <p class="text-background-light/80 text-center mb-6">Please provide your details to continue.</p>
+
+                <form id="registrationForm">
+                    <!-- Name Input -->
+                    <div class="mb-4">
+                        <input id="fullName"
+                            class="register-input form-input w-full rounded-lg h-12 sm:h-14 px-4 bg-input-dark border border-input-border-dark text-background-light placeholder-foreground-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300"
+                            placeholder="Enter your full name" type="text" autocomplete="name" maxlength="50" required />
+                        <div id="nameError" class="error-message">Please enter a valid name</div>
+                    </div>
+
+                    <!-- Mobile Input -->
+                    <div class="mb-6">
+                        <input id="mobileNumber"
+                            class="register-input form-input w-full rounded-lg h-12 sm:h-14 px-4 bg-input-dark border border-input-border-dark text-background-light placeholder-foreground-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300"
+                            placeholder="Enter your mobile number" type="tel" autocomplete="tel" maxlength="10" required />
+                        <div id="mobileError" class="error-message">Please enter a valid 10-digit mobile number</div>
+                    </div>
+
+                    <!-- General Error Message -->
+                    <div id="generalError" class="text-red-400 text-sm mb-4 text-center" style="display: none;"></div>
+
+                    <!-- Continue Button -->
+                    <button type="submit" id="continueBtn"
+                        class="register-button w-full bg-primary text-background-dark font-bold py-3 sm:py-4 rounded-lg text-base sm:text-lg hover:bg-primary-dark transition-colors duration-300 shadow-lg disabled:opacity-50">
+                        <span id="continueText">Continue to Taaza</span>
+                        <div id="continueSpinner" class="hidden inline-flex items-center">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-background-dark mr-2"></div>
+                            Processing...
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Back link -->
+                <div class="mt-4 text-center">
+                    <p class="text-background-light/80 text-sm">Want to change your information?
+                        <a class="font-semibold text-primary hover:underline" href="3-Taaza-Login.html">Go back</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('registrationForm');
+            const nameInput = document.getElementById('fullName');
+            const mobileInput = document.getElementById('mobileNumber');
+            const continueBtn = document.getElementById('continueBtn');
+            const nameError = document.getElementById('nameError');
+            const mobileError = document.getElementById('mobileError');
+
+            // Focus on name input
+            setTimeout(() => nameInput.focus(), 500);
+
+            // Validation functions
+            function validateName(name) {
+                return name.length >= 2 && /^[a-zA-Z\s]+$/.test(name);
+            }
+
+            function validateMobile(mobile) {
+                return /^[6-9]\d{9}$/.test(mobile);
+            }
+
+            // Real-time validation with visual feedback
+            nameInput.addEventListener('input', function (e) {
+                const value = e.target.value.trim();
+                if (value.length > 0) {
+                    if (validateName(value)) {
+                        nameError.style.display = 'none';
+                        e.target.classList.remove('border-red-500');
+                        e.target.classList.add('border-green-500');
+                    } else {
+                        nameError.style.display = 'block';
+                        e.target.classList.remove('border-green-500');
+                        e.target.classList.add('border-red-500');
+                    }
+                } else {
+                    nameError.style.display = 'none';
+                    e.target.classList.remove('border-red-500', 'border-green-500');
+                }
+            });
+
+            mobileInput.addEventListener('input', function (e) {
+                // Only allow numbers
+                e.target.value = e.target.value.replace(/\D/g, '');
+                const value = e.target.value;
+                
+                if (value.length > 0) {
+                    if (validateMobile(value)) {
+                        mobileError.style.display = 'none';
+                        e.target.classList.remove('border-red-500');
+                        e.target.classList.add('border-green-500');
+                    } else {
+                        mobileError.style.display = 'block';
+                        e.target.classList.remove('border-green-500');
+                        e.target.classList.add('border-red-500');
+                    }
+                } else {
+                    mobileError.style.display = 'none';
+                    e.target.classList.remove('border-red-500', 'border-green-500');
+                }
+            });
+
+            // Handle Enter key navigation
+            nameInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    mobileInput.focus();
+                }
+            });
+
+            mobileInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            });
+
+            // Form submission
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                
+                const fullName = nameInput.value.trim();
+                const mobileNumber = mobileInput.value.trim();
+                const email = localStorage.getItem('loginEmail');
+
+                // Check if email exists
+                if (!email) {
+                    const generalError = document.getElementById('generalError');
+                    generalError.textContent = 'Session expired. Please login again.';
+                    generalError.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '3-Taaza-Login.html';
+                    }, 2000);
+                    return;
+                }
+
+                let isValid = true;
+
+                // Validate name
+                if (!fullName || !validateName(fullName)) {
+                    nameError.style.display = 'block';
+                    nameInput.focus();
+                    isValid = false;
+                } else {
+                    nameError.style.display = 'none';
+                }
+
+                // Validate mobile
+                if (!mobileNumber || !validateMobile(mobileNumber)) {
+                    mobileError.style.display = 'block';
+                    mobileInput.focus();
+                    isValid = false;
+                } else {
+                    mobileError.style.display = 'none';
+                }
+
+                if (!isValid) return;
+
+                // Show loading state
+                const continueText = document.getElementById('continueText');
+                const continueSpinner = document.getElementById('continueSpinner');
+                
+                continueBtn.disabled = true;
+                continueText.classList.add('hidden');
+                continueSpinner.classList.remove('hidden');
+
+                console.log('Sending registration data:', { email, name: fullName, mobile: mobileNumber });
+
+                try {
+                    const response = await fetch('/api/v1/users/complete-profile', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            email, 
+                            name: fullName, 
+                            mobile: mobileNumber 
+                        })
+                    });
+
+                    const data = await response.json();
+                    console.log('Registration response:', data);
+
+                    if (response.ok) {
+                        localStorage.setItem('userName', fullName);
+                        localStorage.setItem('userMobile', mobileNumber);
+                        localStorage.removeItem('loginEmail');
+                        window.location.href = '../pages/7-Homepage.html';
+                    } else {
+                        throw new Error(data.error || 'Registration failed');
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    
+                    // Show error message inline instead of popup
+                    const generalError = document.getElementById('generalError');
+                    generalError.textContent = error.message;
+                    generalError.style.display = 'block';
+                    
+                    // Reset button state
+                    continueSpinner.classList.add('hidden');
+                    continueText.classList.remove('hidden');
+                    continueBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

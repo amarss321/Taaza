@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tazza Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        .sidebar-item.active {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 shadow-lg">
+            <div class="p-6 border-b">
+                <h1 class="text-2xl font-bold text-gray-100">Tazza Admin</h1>
+            </div>
+            <nav class="mt-6">
+                <a href="#" onclick="showSection('dashboard')" class="sidebar-item active flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined mr-3">dashboard</span>
+                    Dashboard
+                </a>
+                <a href="#" onclick="showSection('users')" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined mr-3">people</span>
+                    Users
+                </a>
+
+                <a href="#" onclick="showSection('activity')" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined mr-3">history</span>
+                    Activity Log
+                </a>
+                <a href="#" onclick="showSection('sessions')" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined mr-3">devices</span>
+                    Sessions
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="bg-gray-800 shadow-sm border-b border-gray-700 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <h2 id="page-title" class="text-2xl font-semibold text-gray-100">Dashboard</h2>
+                    <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
+                        <span class="material-symbols-outlined mr-2">refresh</span>
+                        Refresh
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 p-6 overflow-y-auto">
+                <!-- Dashboard Section -->
+                <div id="dashboard-section" class="content-section active">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-blue-100 rounded-full">
+                                    <span class="material-symbols-outlined text-blue-600">people</span>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-400">Total Users</p>
+                                    <p class="text-2xl font-bold text-gray-100" id="total-users">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-green-100 rounded-full">
+                                    <span class="material-symbols-outlined text-green-600">verified_user</span>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-400">Active Users</p>
+                                    <p class="text-2xl font-bold text-gray-100" id="active-users">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-orange-100 rounded-full">
+                                    <span class="material-symbols-outlined text-orange-600">schedule</span>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-400">Active Sessions</p>
+                                    <p class="text-2xl font-bold text-gray-100" id="active-sessions">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-purple-100 rounded-full">
+                                    <span class="material-symbols-outlined text-purple-600">today</span>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-400">New Today</p>
+                                    <p class="text-2xl font-bold text-gray-100" id="new-today">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700">
+                        <div class="p-6 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-gray-100">Recent Activity</h3>
+                        </div>
+                        <div class="p-6">
+                            <div id="dashboard-activity-list">
+                                <div class="text-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                                    <p class="mt-2 text-gray-500">Loading activities...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="users-section" class="content-section">
+                    <!-- Filters -->
+                    <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6 mb-6">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <input type="text" id="user-search" placeholder="Search users..." 
+                                   class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <select id="user-status-filter" class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="blocked">Blocked</option>
+                            </select>
+                            <button onclick="loadUsers()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                Apply Filters
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 overflow-hidden">
+                        <div class="p-6 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-gray-100">User Management</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-700">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">User</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Contact</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Joined</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body" class="bg-gray-800 divide-y divide-gray-700">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Section -->
+                <div id="activity-section" class="content-section">
+                    <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700">
+                        <div class="p-6 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-gray-100">Activity Log</h3>
+                        </div>
+                        <div class="p-6">
+                            <div id="activity-list">
+                                <div class="text-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                                    <p class="mt-2 text-gray-500">Loading activities...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sessions Section -->
+                <div id="sessions-section" class="content-section">
+                    <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700">
+                        <div class="p-6 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-gray-100">Active Sessions</h3>
+                        </div>
+                        <div class="p-6">
+                            <div id="sessions-list">
+                                <div class="text-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                                    <p class="mt-2 text-gray-500">Loading sessions...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Addresses Section -->
+                <div id="addresses-section" class="content-section">
+                    <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6 mb-6">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <input type="text" id="address-user-search" placeholder="Search by user name or email..." 
+                                   class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-w-64">
+                            <button onclick="searchAddressUsers()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                Search Users
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 overflow-hidden">
+                        <div class="p-6 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-gray-100">Users with Saved Addresses</h3>
+                        </div>
+                        
+                        <div id="address-users-loading" class="p-8 text-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                            <p class="mt-2 text-gray-400">Loading users...</p>
+                        </div>
+
+                        <div id="address-users-list" class="hidden">
+                        </div>
+
+                        <div id="no-address-users" class="hidden p-8 text-center">
+                            <span class="material-symbols-outlined text-6xl text-gray-600 mb-4 block">location_off</span>
+                            <p class="text-gray-400">No users with addresses found</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-4xl max-h-screen overflow-y-auto m-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-100">User Details</h3>
+                <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-200">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="user-details-content">
+                <!-- User details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 p-4 rounded-lg text-white z-50 hidden"></div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let currentPage = 1;
+
+        // Navigation
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(section + '-section').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'users': 'User Management',
+                'activity': 'Activity Log',
+                'sessions': 'Active Sessions',
+                'addresses': 'User Addresses'
+            };
+            document.getElementById('page-title').textContent = titles[section];
+            
+            // Load section data
+            switch(section) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'activity':
+                    loadActivity();
+                    break;
+                case 'sessions':
+                    loadSessions();
+                    break;
+                case 'addresses':
+                    loadAddresses();
+                    break;
+            }
+        }
+
+        // API Helper
+        async function apiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer admin-token',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                showToast('API connection failed: ' + error.message, 'error');
+                return null;
+            }
+        }
+
+        // Load Dashboard
+        async function loadDashboard() {
+            // Load stats
+            const stats = await apiCall('/admin/users/stats');
+            if (stats && stats.stats) {
+                document.getElementById('total-users').textContent = stats.stats.total_users || 0;
+                document.getElementById('active-users').textContent = stats.stats.active_users || 0;
+                document.getElementById('new-today').textContent = stats.stats.new_users_today || 0;
+            }
+
+            // Load recent activity
+            const activities = await apiCall('/admin/activity/recent');
+            displayDashboardActivity(activities || []);
+        }
+
+        function displayDashboardActivity(activities) {
+            const container = document.getElementById('dashboard-activity-list');
+            
+            if (!activities.length) {
+                container.innerHTML = '<p class="text-center text-gray-400 py-8">No recent activity</p>';
+                return;
+            }
+
+            container.innerHTML = activities.slice(0, 10).map(activity => `
+                <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 rounded-full ${getActionColor(activity.action)} mr-3"></div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-100">${activity.user_name || 'Unknown User'}</p>
+                            <p class="text-xs text-gray-300">${activity.action}: ${activity.details}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-400">${formatTimeAgo(activity.created_at)}</span>
+                </div>
+            `).join('');
+        }
+
+        // Load Users
+        async function loadUsers() {
+            const search = document.getElementById('user-search')?.value || '';
+            const status = document.getElementById('user-status-filter')?.value || '';
+            
+            const params = new URLSearchParams({
+                page: currentPage,
+                limit: 20
+            });
+            
+            if (search) params.append('search', search);
+            if (status) params.append('status', status);
+            
+            const data = await apiCall(`/admin/users?${params}`);
+            
+            if (data && data.users) {
+                displayUsers(data.users);
+            }
+        }
+
+        function displayUsers(users) {
+            const tbody = document.getElementById('users-table-body');
+            
+            if (!users.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">No users found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = users.map(user => `
+                <tr class="hover:bg-gray-700">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
+                                ${user.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-100">${user.name}</div>
+                                <div class="text-sm text-gray-400">ID: ${user.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-100">${user.email}</div>
+                        <div class="text-sm text-gray-400">${user.mobile || 'No mobile'}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${user.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-400">
+                        ${new Date(user.created_at).toLocaleDateString()}
+                    </td>
+                    <td class="px-6 py-4">
+                        <button onclick="viewUser(${user.id})" class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load Activity
+        async function loadActivity() {
+            const activities = await apiCall('/admin/activity/recent');
+            displayActivity(activities || []);
+        }
+
+        function displayActivity(activities) {
+            const container = document.getElementById('activity-list');
+            
+            if (!activities.length) {
+                container.innerHTML = '<p class="text-center text-gray-400 py-8">No activity found</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    ${activities.map(activity => `
+                        <div class="flex items-start space-x-4 p-4 bg-gray-700 rounded-lg">
+                            <div class="w-3 h-3 rounded-full ${getActionColor(activity.action)} mt-1"></div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-medium text-gray-100">${activity.user_name || 'Unknown User'}</h4>
+                                    <span class="text-xs text-gray-400">${formatTimeAgo(activity.created_at)}</span>
+                                </div>
+                                <p class="text-sm text-gray-300 mt-1">${activity.action}: ${activity.details}</p>
+                                <p class="text-xs text-gray-400 mt-1">IP: ${activity.ip_address}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Load Sessions (placeholder)
+        async function loadSessions() {
+            const container = document.getElementById('sessions-list');
+            container.innerHTML = '<p class="text-center text-gray-400 py-8">Session management coming soon</p>';
+        }
+
+        // View User Details
+        async function viewUser(userId) {
+            const user = await apiCall(`/admin/users/${userId}`);
+            const activity = await apiCall(`/admin/users/${userId}/activity`);
+            
+            if (user && user.user) {
+                const u = user.user;
+                const activities = activity?.activities || activity || [];
+                
+                document.getElementById('user-details-content').innerHTML = `
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-100 mb-4">Profile Information</h4>
+                            <div class="space-y-3 text-gray-200">
+                                <div><span class="font-medium text-gray-300">Name:</span> ${u.name}</div>
+                                <div><span class="font-medium text-gray-300">Email:</span> ${u.email}</div>
+                                <div><span class="font-medium text-gray-300">Mobile:</span> ${u.mobile || 'Not provided'}</div>
+                                <div><span class="font-medium text-gray-300">Gender:</span> ${u.gender || 'Not provided'}</div>
+                                <div><span class="font-medium text-gray-300">Date of Birth:</span> ${u.date_of_birth ? new Date(u.date_of_birth).toLocaleDateString() : 'Not provided'}</div>
+                                <div><span class="font-medium text-gray-300">Status:</span> 
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${u.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                        ${u.status}
+                                    </span>
+                                </div>
+                                <div><span class="font-medium text-gray-300">Verified:</span> ${u.is_verified ? 'Yes' : 'No'}</div>
+                                <div><span class="font-medium text-gray-300">Joined:</span> ${new Date(u.created_at).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-100 mb-4">Recent Activity</h4>
+                            <div class="space-y-2 max-h-64 overflow-y-auto">
+                                ${activities.map(act => `
+                                    <div class="p-3 bg-gray-700 rounded">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-200">${act.action}</span>
+                                                <p class="text-xs text-gray-300">${act.details}</p>
+                                            </div>
+                                            <span class="text-xs text-gray-400">${formatTimeAgo(act.created_at)}</span>
+                                        </div>
+                                    </div>
+                                `).join('') || '<p class="text-sm text-gray-400">No activity found</p>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('user-modal').classList.remove('hidden');
+                document.getElementById('user-modal').classList.add('flex');
+            }
+        }
+
+        function closeUserModal() {
+            document.getElementById('user-modal').classList.add('hidden');
+            document.getElementById('user-modal').classList.remove('flex');
+        }
+
+        // Utility Functions
+        function getActionColor(action) {
+            const colors = {
+                'login': 'bg-green-500',
+                'login_otp': 'bg-green-500',
+                'logout': 'bg-red-500',
+                'profile_update': 'bg-blue-500',
+                'profile_complete': 'bg-purple-500',
+                'personal_info_update': 'bg-yellow-500'
+            };
+            return colors[action] || 'bg-gray-500';
+        }
+
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            return `${diffDays}d ago`;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const colors = {
+                'success': 'bg-green-500',
+                'error': 'bg-red-500',
+                'warning': 'bg-yellow-500',
+                'info': 'bg-blue-500'
+            };
+            
+            toast.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${colors[type]}`;
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        function refreshData() {
+            const activeSection = document.querySelector('.content-section.active').id.replace('-section', '');
+            showSection(activeSection);
+            showToast('Data refreshed', 'success');
+        }
+
+        // Load Addresses
+        const mockAddressUsers = [
+            {
+                id: 1,
+                name: "John Doe",
+                email: "john@example.com",
+                mobile: "1234567890",
+                addresses: [
+                    { label: "Home", line: "123 Main Street", city: "New York", zip: "10001", country: "USA", isDefault: true },
+                    { label: "Work", line: "456 Business Ave", city: "New York", zip: "10002", country: "USA", isDefault: false }
+                ]
+            },
+            {
+                id: 2,
+                name: "Jane Smith",
+                email: "jane@example.com",
+                mobile: "0987654321",
+                addresses: [
+                    { label: "Home", line: "789 Oak Street", city: "Los Angeles", zip: "90210", country: "USA", isDefault: true }
+                ]
+            }
+        ];
+
+        async function loadAddresses() {
+            document.getElementById('address-users-loading').classList.remove('hidden');
+            document.getElementById('address-users-list').classList.add('hidden');
+            document.getElementById('no-address-users').classList.add('hidden');
+
+            setTimeout(() => {
+                displayAddressUsers(mockAddressUsers);
+                document.getElementById('address-users-loading').classList.add('hidden');
+            }, 1000);
+        }
+
+        function displayAddressUsers(users) {
+            const container = document.getElementById('address-users-list');
+            
+            if (!users.length) {
+                document.getElementById('no-address-users').classList.remove('hidden');
+                return;
+            }
+
+            container.innerHTML = users.map(user => `
+                <div class="border-b border-gray-700 last:border-b-0">
+                    <div class="p-6 hover:bg-gray-700 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium text-lg">
+                                    ${user.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-medium text-gray-100">${user.name}</h4>
+                                    <p class="text-sm text-gray-400">${user.email}</p>
+                                    <p class="text-sm text-gray-400">${user.mobile}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-gray-200">${user.addresses.length} Address${user.addresses.length !== 1 ? 'es' : ''}</p>
+                                    <p class="text-xs text-gray-400">${user.addresses.filter(a => a.isDefault).length} Default</p>
+                                </div>
+                                <button onclick="viewUserAddresses(${user.id})" 
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
+                                    <span class="material-symbols-outlined mr-2">visibility</span>
+                                    View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.classList.remove('hidden');
+        }
+
+        function searchAddressUsers() {
+            const searchTerm = document.getElementById('address-user-search').value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                displayAddressUsers(mockAddressUsers);
+                return;
+            }
+
+            const filteredUsers = mockAddressUsers.filter(user => 
+                user.name.toLowerCase().includes(searchTerm) ||
+                user.email.toLowerCase().includes(searchTerm)
+            );
+            
+            displayAddressUsers(filteredUsers);
+        }
+
+        function viewUserAddresses(userId) {
+            const user = mockAddressUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            const addressesHtml = user.addresses.map(address => `
+                <div class="bg-gray-700 rounded-lg p-4 ${address.isDefault ? 'border-2 border-yellow-400' : 'border border-gray-600'}">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <span class="material-symbols-outlined text-blue-400">${address.label.toLowerCase() === 'work' ? 'work' : 'home'}</span>
+                        <h5 class="font-medium text-gray-100">${address.label}</h5>
+                        ${address.isDefault ? '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">DEFAULT</span>' : ''}
+                    </div>
+                    <div class="text-gray-200 text-sm">
+                        <p>${address.line}</p>
+                        <p>${address.city}, ${address.zip}</p>
+                        <p>${address.country}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            showToast(`Viewing addresses for ${user.name}`, 'info');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>

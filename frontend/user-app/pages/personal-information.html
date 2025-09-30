@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Personal Information - Tazza</title>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --golden-yellow: #FFD700;
+            --dark-blue: #0C2D57;
+        }
+
+        /* Smooth transitions */
+        .transition-slow {
+            transition: all 0.3s ease;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0C2D57",
+                        "background-light": "#f6f7f8",
+                        "content-light": "#ffffff",
+                        "text-light": "#111827",
+                        "subtext-light": "#64748b",
+                        "danger": "#ef4444"
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+            background-color: #f6f7f8;
+        }
+
+        /* Custom styles with your colors */
+        .golden-bg {
+            background-color: #FFD700;
+        }
+
+        .dark-blue-text {
+            color: #0C2D57;
+        }
+
+        .dark-blue-bg {
+            background-color: #0C2D57;
+        }
+
+        .input-field {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+
+        .input-field:focus {
+            background-color: #ffffff;
+            border-color: #FFD700;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .input-field {
+                font-size: 16px; /* Prevents zoom on iOS */
+                min-height: 48px; /* Better touch targets */
+            }
+            
+            .form-container {
+                padding: 1rem;
+            }
+            
+            .avatar-container {
+                margin-bottom: 1.5rem;
+            }
+        }
+        
+        /* Touch-friendly buttons */
+        button, select, input[type="submit"] {
+            min-height: 44px;
+        }
+        
+        /* Better focus states for mobile */
+        @media (hover: none) {
+            .input-field:focus {
+                transform: scale(1.02);
+                transition: transform 0.2s ease;
+            }
+        }
+        
+        /* Screen reader only content */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* High contrast focus indicators */
+        .input-field:focus, button:focus, select:focus {
+            outline: 2px solid #0C2D57;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+
+<body class="font-display">
+    <div class="relative flex min-h-screen w-full flex-col max-w-screen-2xl mx-auto">
+
+        <!-- Header -->
+        <header class="dark-blue-bg text-white sticky top-0 z-10 shadow-md" role="banner">
+            <div class="px-3 sm:px-6 lg:px-12 xl:px-16">
+                <div class="flex h-16 sm:h-20 lg:h-24 items-center justify-between">
+                    <button class="p-2 -ml-2" onclick="history.back()" aria-label="Go back to previous page">
+                        <svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24"
+                            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path
+                                d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
+                            </path>
+                        </svg>
+                    </button>
+                    <h1 class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold" id="page-title">Personal Information</h1>
+                    <div class="w-10 h-10 flex-shrink-0" aria-hidden="true"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow" role="main" aria-labelledby="page-title">
+            <div class="flex flex-col items-center pt-4 sm:pt-6 lg:pt-8 xl:pt-12 avatar-container">
+                <!-- Profile Avatar -->
+                <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 xl:w-36 xl:h-36 
+                    rounded-full golden-bg flex items-center justify-center 
+                    dark-blue-text font-bold 
+                    text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 
+                    shadow-lg border-2 sm:border-4 border-white" id="userAvatar" 
+                    role="img" aria-label="User profile avatar">
+                    U
+                </div>
+            </div>
+
+            <!-- Loading Skeleton -->
+            <div id="loading-skeleton" class="px-3 sm:px-6 lg:px-12 xl:px-16 mt-8 pb-8 hidden" aria-label="Loading profile information" role="status">
+                <div class="bg-content-light rounded-lg shadow-sm overflow-hidden p-4 sm:p-6">
+                    <div class="space-y-4 sm:space-y-6">
+                        <div class="animate-pulse" aria-hidden="true">
+                            <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                            <div class="h-12 bg-gray-200 rounded mb-4"></div>
+                            <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                            <div class="h-12 bg-gray-200 rounded mb-4"></div>
+                            <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                            <div class="h-12 bg-gray-200 rounded mb-4"></div>
+                            <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                            <div class="h-12 bg-gray-200 rounded mb-6"></div>
+                            <div class="h-14 bg-gray-200 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+                <span class="sr-only">Loading your profile information...</span>
+            </div>
+
+            <!-- Form Section -->
+            <div id="form-section" class="px-4 sm:px-6 lg:px-12 xl:px-16 mt-6 sm:mt-8 pb-8 form-container">
+                <div class="bg-content-light rounded-lg shadow-sm overflow-hidden p-4 sm:p-6">
+                    <div class="space-y-4 sm:space-y-6">
+                        <form id="personal-info-form" autocomplete="off" novalidate role="form" aria-labelledby="page-title">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-text-light mb-2" for="full-name">Full Name *</label>
+                                <input 
+                                    class="input-field w-full rounded-lg text-text-light placeholder-subtext-light focus:ring-2 focus:ring-primary h-12 sm:h-14 p-3 sm:p-4 text-base transition-all"
+                                    id="full-name" type="text" placeholder="Enter your full name" required 
+                                    aria-describedby="name-error name-help" aria-invalid="false" autocomplete="name" />
+
+                                <p id="name-error" class="text-danger text-xs mt-1 hidden" role="alert" aria-live="polite">Please enter your name.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-text-light mb-2" for="email">Email Address</label>
+                                <input 
+                                    class="input-field w-full rounded-lg text-text-light placeholder-subtext-light focus:ring-2 focus:ring-primary h-12 sm:h-14 p-3 sm:p-4 text-base transition-all bg-gray-50"
+                                    id="email" type="email" placeholder="Enter your email address" required readonly 
+                                    aria-describedby="email-help" autocomplete="email" aria-readonly="true" />
+
+                                <p id="email-error" class="text-danger text-xs mt-1 hidden" role="alert" aria-live="polite">Please enter a valid email address.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-text-light mb-2" for="phone">Phone Number</label>
+                                <input 
+                                    class="input-field w-full rounded-lg text-text-light placeholder-subtext-light focus:ring-2 focus:ring-primary h-12 sm:h-14 p-3 sm:p-4 text-base transition-all bg-gray-50"
+                                    id="phone" type="tel" placeholder="Enter your phone number" required readonly 
+                                    aria-describedby="phone-help" autocomplete="tel" aria-readonly="true" />
+
+                                <p id="phone-error" class="text-danger text-xs mt-1 hidden" role="alert" aria-live="polite">Please enter a valid 10-digit phone number.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-text-light mb-2" for="gender">Gender</label>
+                                <select 
+                                    class="input-field w-full rounded-lg text-text-light focus:ring-2 focus:ring-primary h-12 sm:h-14 p-3 sm:p-4 text-base transition-all"
+                                    id="gender" aria-describedby="gender-error gender-help" aria-invalid="false">
+                                    <option value="">Select Gender (Optional)</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+
+                                <p id="gender-error" class="text-danger text-xs mt-1 hidden" role="alert" aria-live="polite">Please select a valid gender.</p>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-text-light mb-2" for="dob">Date of Birth</label>
+                                <input 
+                                    class="input-field w-full rounded-lg text-text-light placeholder-subtext-light focus:ring-2 focus:ring-primary h-12 sm:h-14 p-3 sm:p-4 text-base transition-all"
+                                    id="dob" type="date" aria-describedby="dob-error dob-help" aria-invalid="false" autocomplete="bday" />
+
+                                <p id="dob-error" class="text-danger text-xs mt-1 hidden" role="alert" aria-live="polite">Please enter a valid date of birth.</p>
+                            </div>
+                            
+                            <button type="submit" id="saveBtn"
+                                class="flex w-full items-center justify-center gap-2 rounded-lg h-12 sm:h-14 lg:h-16 px-4 sm:px-6 lg:px-8 golden-bg dark-blue-text font-bold hover:bg-[#e6c200] active:bg-[#ccad00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 text-sm sm:text-base"
+                                aria-describedby="save-help">
+                                <span class="material-symbols-outlined text-lg sm:text-xl" aria-hidden="true">save</span>
+                                <span class="truncate">Save Changes</span>
+                            </button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Toast -->
+        <div id="toast" class="hidden fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50" role="alert" aria-live="assertive" aria-atomic="true"></div>
+    </div>
+
+    <script src="../js/session.js"></script>
+    <script>
+        // Debug helper
+        function debugProfile() {
+            console.log('=== DEBUG PROFILE INFO ===');
+            console.log('Auth Token:', localStorage.getItem('authToken') ? 'Exists' : 'Missing');
+            console.log('User Name:', localStorage.getItem('userName'));
+            console.log('User Email:', localStorage.getItem('userEmail'));
+            console.log('Form Name:', document.getElementById('full-name').value);
+            console.log('Form Email:', document.getElementById('email').value);
+            console.log('==========================');
+        }
+        window.debugProfile = debugProfile;
+
+        // Input sanitization function
+        function sanitizeInput(input) {
+            if (typeof input !== 'string') return input;
+            return input
+                .replace(/[<>"'&]/g, function(match) {
+                    const escapeMap = {
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#x27;',
+                        '&': '&amp;'
+                    };
+                    return escapeMap[match];
+                })
+                .trim();
+        }
+
+        // Enhanced toast function with retry option
+        function showToast(msg, isError = false, showRetry = false, retryCallback = null) {
+            const toast = document.getElementById('toast');
+            if (showRetry && retryCallback) {
+                toast.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span>${sanitizeInput(msg)}</span>
+                        <button onclick="${retryCallback}()" class="ml-4 px-3 py-1 bg-white bg-opacity-20 rounded text-sm hover:bg-opacity-30">Retry</button>
+                    </div>
+                `;
+            } else {
+                toast.textContent = sanitizeInput(msg);
+            }
+            toast.className = `fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 ${isError ? 'bg-red-500' : 'bg-green-500'} text-white max-w-md`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), showRetry ? 8000 : 3000);
+        }
+
+        // Network error detection
+        function isNetworkError(error) {
+            return !navigator.onLine || 
+                   error.message.includes('fetch') || 
+                   error.message.includes('network') ||
+                   error.message.includes('timeout');
+        }
+
+        // Retry mechanism
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        // Populate form with user data
+        function populateForm(user) {
+            console.log('=== POPULATE FORM DEBUG ===');
+            console.log('Raw user data received:', user);
+            console.log('Gender value:', user.gender, 'Type:', typeof user.gender);
+            console.log('DOB value:', user.date_of_birth, 'Type:', typeof user.date_of_birth);
+            
+            document.getElementById('full-name').value = user.name || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('phone').value = user.mobile || '';
+            
+            // Handle gender - check for null/undefined
+            const genderValue = user.gender || '';
+            console.log('Setting gender to:', genderValue);
+            document.getElementById('gender').value = genderValue;
+            console.log('Gender field after setting:', document.getElementById('gender').value);
+            
+            // Handle date formatting
+            if (user.date_of_birth && user.date_of_birth !== '') {
+                console.log('Processing DOB:', user.date_of_birth);
+                const date = new Date(user.date_of_birth);
+                if (!isNaN(date.getTime())) {
+                    const formattedDate = date.toISOString().split('T')[0];
+                    console.log('Setting DOB to:', formattedDate);
+                    document.getElementById('dob').value = formattedDate;
+                } else {
+                    console.log('Invalid date, clearing DOB field');
+                    document.getElementById('dob').value = '';
+                }
+            } else {
+                console.log('No DOB data, clearing field');
+                document.getElementById('dob').value = '';
+            }
+            
+            // Update avatar
+            if (user.name) {
+                document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
+            }
+            
+            // Update localStorage
+            localStorage.setItem('userName', user.name || '');
+            localStorage.setItem('userEmail', user.email || '');
+            localStorage.setItem('userMobile', user.mobile || '');
+            
+            console.log('=== FORM FIELDS AFTER POPULATE ===');
+            console.log('Name field:', document.getElementById('full-name').value);
+            console.log('Gender field:', document.getElementById('gender').value);
+            console.log('DOB field:', document.getElementById('dob').value);
+            console.log('===============================');
+        }
+
+        // Load from localStorage fallback - preserve existing form values
+        function loadFromLocalStorage() {
+            console.log('Loading from localStorage...');
+            const userName = localStorage.getItem('userName') || '';
+            const userEmail = localStorage.getItem('userEmail') || '';
+            const userMobile = localStorage.getItem('userMobile') || '';
+            
+            // Only update basic fields, preserve gender and DOB if already set
+            if (userName) document.getElementById('full-name').value = userName;
+            if (userEmail) document.getElementById('email').value = userEmail;
+            if (userMobile) document.getElementById('phone').value = userMobile;
+            
+            // Update avatar
+            if (userName) {
+                document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+            }
+            
+            console.log('Loaded basic info from localStorage, preserved gender/DOB');
+        }
+
+        // Simple user profile loading - always fetch fresh data
+        async function loadUserProfile() {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                loadFromLocalStorage();
+                return;
+            }
+
+            try {
+                // Add cache-busting parameter and headers
+                const response = await fetch('/api/v1/users/profile?t=' + Date.now(), {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
+                
+                // Handle session expiry
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userMobile');
+                    alert('Your session has expired. Please login again.');
+                    window.location.href = '/auth/3-Taaza-Login.html';
+                    return;
+                }
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('=== API RESPONSE DEBUG ===');
+                    console.log('Full API response:', data);
+                    console.log('User object:', data.user);
+                    if (data.user) {
+                        console.log('Gender from API:', data.user.gender);
+                        console.log('DOB from API:', data.user.date_of_birth);
+                        populateForm(data.user);
+                    } else {
+                        console.log('No user data in response, using localStorage');
+                        loadFromLocalStorage();
+                    }
+                } else {
+                    console.warn('API call failed, using localStorage fallback');
+                    loadFromLocalStorage();
+                }
+            } catch (error) {
+                console.warn('Network error, using localStorage fallback:', error.message);
+                loadFromLocalStorage();
+            }
+        }
+
+        // Show/hide loading states
+        function showLoading() {
+            document.getElementById('loading-skeleton').classList.remove('hidden');
+            document.getElementById('form-section').classList.add('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-skeleton').classList.add('hidden');
+            document.getElementById('form-section').classList.remove('hidden');
+        }
+
+
+
+        // Retry form submission
+        function retryFormSubmit() {
+            document.getElementById('personal-info-form').dispatchEvent(new Event('submit'));
+        }
+
+        // Keyboard navigation support
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(e) {
+                // Escape key to go back
+                if (e.key === 'Escape') {
+                    history.back();
+                }
+                
+                // Ctrl/Cmd + S to save
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    document.getElementById('personal-info-form').dispatchEvent(new Event('submit'));
+                }
+                
+                // Tab navigation enhancement
+                if (e.key === 'Tab') {
+                    const focusableElements = document.querySelectorAll(
+                        'input:not([disabled]), select:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                    );
+                    const firstElement = focusableElements[0];
+                    const lastElement = focusableElements[focusableElements.length - 1];
+                    
+                    if (e.shiftKey && document.activeElement === firstElement) {
+                        e.preventDefault();
+                        lastElement.focus();
+                    } else if (!e.shiftKey && document.activeElement === lastElement) {
+                        e.preventDefault();
+                        firstElement.focus();
+                    }
+                }
+            });
+        }
+
+        // Load user data on page load - always fresh
+        document.addEventListener('DOMContentLoaded', async function() {
+            setupKeyboardNavigation();
+            showLoading();
+            
+            await loadUserProfile();
+            hideLoading();
+        });
+
+        // Form submission
+        const form = document.getElementById('personal-info-form');
+        form.onsubmit = async function (e) {
+            e.preventDefault();
+            
+            let valid = true;
+            const name = document.getElementById('full-name').value.trim();
+            const gender = document.getElementById('gender').value;
+            const dob = document.getElementById('dob').value;
+            
+            console.log('Form values before submit:', {name, gender, dob});
+            
+            // Clear previous errors
+            document.getElementById('name-error').classList.add('hidden');
+
+            // Clear previous errors
+            document.getElementById('name-error').classList.add('hidden');
+            document.getElementById('gender-error').classList.add('hidden');
+            document.getElementById('dob-error').classList.add('hidden');
+
+            // Name validation
+            const nameRegex = /^[a-zA-Z\s]{2,50}$/;
+            if (!name || !nameRegex.test(name)) {
+                document.getElementById('name-error').textContent = 'Name must contain only letters and spaces, 2-50 characters.';
+                document.getElementById('name-error').classList.remove('hidden');
+                valid = false;
+            }
+
+            // Gender validation
+            if (gender && !['male', 'female', 'other'].includes(gender.toLowerCase())) {
+                document.getElementById('gender-error').textContent = 'Please select a valid gender.';
+                document.getElementById('gender-error').classList.remove('hidden');
+                valid = false;
+            }
+
+            // Date of birth validation
+            if (dob) {
+                const dobDate = new Date(dob);
+                const today = new Date();
+                const minAge = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+                const maxAge = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
+                
+                if (dobDate > maxAge || dobDate < minAge) {
+                    document.getElementById('dob-error').textContent = 'Please enter a valid date of birth (age 13-120).';
+                    document.getElementById('dob-error').classList.remove('hidden');
+                    valid = false;
+                }
+            }
+
+            if (valid) {
+                // Show loading state
+                const saveBtn = document.getElementById('saveBtn');
+                const originalText = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<div class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>Saving...';
+                saveBtn.disabled = true;
+
+                try {
+                    const token = localStorage.getItem('authToken');
+                    if (!token) {
+                        throw new Error('No authentication token found');
+                    }
+
+                    const updateData = {
+                        name: sanitizeInput(name),
+                        gender: gender ? sanitizeInput(gender) : null,
+                        date_of_birth: dob ? sanitizeInput(dob) : null
+                    };
+                    
+                    console.log('Sending update data:', updateData);
+                    
+                    const response = await fetch('/api/v1/users/update-profile', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updateData)
+                    });
+
+                    // Handle session expiry
+                    if (response.status === 401) {
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('userName');
+                        localStorage.removeItem('userEmail');
+                        localStorage.removeItem('userMobile');
+                        alert('Your session has expired. Please login again.');
+                        window.location.href = '/auth/3-Taaza-Login.html';
+                        return;
+                    }
+
+                    const responseData = await response.json();
+                    console.log('Update response:', responseData);
+                    
+                    if (response.ok) {
+                        // Update localStorage with current form values
+                        localStorage.setItem('userName', name);
+                        
+                        showToast('Personal information updated successfully!');
+                        
+                        // Don't reload - keep the form values as user set them
+                    } else {
+                        throw new Error(responseData.error || 'Failed to update information');
+                    }
+                } catch (error) {
+                    showToast('Failed to update. Please try again.', true);
+                } finally {
+                    // Reset button
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.disabled = false;
+                }
+            }
+        };
+
+
+    </script>
+</body>
+</html>

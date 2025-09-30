@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Taaza Login</title>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700"
+        onload="this.rel='stylesheet'" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFD700",
+                        "primary-light": "#FFF9C4",
+                        "primary-dark": "#FBC02D",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#0C2D57",
+                        "accent-blue": "#1E40AF",
+                        "foreground-light": "#E0E0E0",
+                        "foreground-dark": "#E0E0E0",
+                        "input-light": "#FFFFFF",
+                        "input-dark": "#1F3A66",
+                        "input-border-light": "#E0E0E0",
+                        "input-border-dark": "#3B5998",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in': 'fadeIn 1.5s ease-in-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "full": "9999px"
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: linear-gradient(135deg, #0C2D57 0%, #1E3A6F 100%);
+        }
+
+        .logo-glow {
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        @media (max-width: 640px) {
+            .taaza-title {
+                font-size: 3rem !important;
+            }
+            .taaza-subtitle {
+                font-size: 1.125rem !important;
+                padding: 0 1rem;
+            }
+            .login-input {
+                padding: 1rem !important;
+                font-size: 1rem !important;
+                height: 3.5rem !important;
+            }
+            .login-button {
+                padding: 1rem !important;
+                font-size: 1.125rem !important;
+                min-height: 3.5rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .taaza-title {
+                font-size: 2.5rem !important;
+            }
+            .taaza-subtitle {
+                font-size: 1rem !important;
+            }
+        }
+
+        .login-input {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            min-height: 44px;
+            transition: all 0.3s ease;
+        }
+
+        .login-input:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .login-button {
+            min-height: 44px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .login-button:active {
+            transform: scale(0.98);
+        }
+
+        .login-input:focus {
+            outline: 2px solid #FFD700;
+            outline-offset: 2px;
+        }
+
+        .login-button:focus {
+            outline: 2px solid #FFD700;
+            outline-offset: 2px;
+        }
+
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea {
+            -webkit-user-select: text;
+            -khtml-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        .shape-background {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 25s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="font-display overflow-hidden">
+    <div class="relative flex flex-col h-screen p-4 sm:p-6 bg-background-light dark:bg-background-dark">
+        <div class="shape-background"></div>
+
+        <div class="flex-grow flex flex-col justify-center max-w-sm mx-auto w-full relative z-10">
+            <div class="text-center">
+                <h1
+                    class="taaza-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold uppercase tracking-wider text-background-dark dark:text-background-light mb-2 px-4">
+                    Taaza
+                </h1>
+
+                <p
+                    class="taaza-subtitle text-lg sm:text-xl md:text-2xl text-primary font-medium max-w-sm mx-auto px-4 mb-8 sm:mb-10">
+                    Straight from the Farm to Your Door
+                </p>
+
+                <h2 class="login-subtitle text-xl sm:text-2xl font-medium text-background-light mb-8 sm:mb-12">Enter Your Email</h2>
+
+                <form id="registrationForm">
+                    <div class="relative mb-6">
+                        <input id="emailInput"
+                            class="login-input form-input w-full rounded-lg h-12 sm:h-14 px-4 bg-input-dark border border-input-border-dark text-background-light placeholder-foreground-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300"
+                            placeholder="Email Address" type="email" autocomplete="email" required />
+                        <div class="error" id="emailError"></div>
+                    </div>
+
+                    <button type="submit" id="sendOtpBtn"
+                        class="login-button w-full bg-primary text-background-dark font-bold py-3 sm:py-4 rounded-lg text-base sm:text-lg hover:bg-opacity-90 transition-colors duration-300 shadow-lg disabled:opacity-50">
+                        <span id="btnText">Send OTP</span>
+                        <div id="btnSpinner" class="hidden inline-flex items-center">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-background-dark mr-2"></div>
+                            Sending...
+                        </div>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <p class="text-center text-foreground-dark text-xs sm:text-sm pb-4 px-4 relative z-10">
+            By continuing, you agree to our <a class="font-semibold underline hover:text-primary transition-colors"
+                href="terms-conditions.html" target="_blank">Terms &amp; Conditions</a>.
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('emailInput').value.trim();
+            const btn = document.getElementById('sendOtpBtn');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            
+            // Clear previous errors
+            document.getElementById('emailError').textContent = '';
+            
+            // Validation
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                document.getElementById('emailError').textContent = 'Please enter a valid email address';
+                return;
+            }
+            
+            // Show loading state
+            btn.disabled = true;
+            btnText.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/api/v1/users/login-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('loginEmail', email);
+                    window.location.href = '4-OTP-Verification.html';
+                } else {
+                    document.getElementById('emailError').innerHTML = `
+                        ${data.error || 'Login failed'}
+                        <button onclick="location.reload()" class="ml-2 underline text-primary">Retry</button>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('emailError').innerHTML = `
+                    Network error. Please try again.
+                    <button onclick="location.reload()" class="ml-2 underline text-primary">Retry</button>
+                `;
+            } finally {
+                // Reset button state
+                btn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnSpinner.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>My Profile</title>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --golden-yellow: #FFD700;
+            --dark-blue: #0C2D57;
+        }
+
+        /* Smooth transitions */
+        .transition-slow {
+            transition: all 0.3s ease;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0C2D57",
+                        "background-light": "#f6f7f8",
+                        "content-light": "#ffffff",
+                        "text-light": "#111827",
+                        "subtext-light": "#64748b",
+                        "danger": "#ef4444"
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+            background-color: #f6f7f8;
+        }
+
+        /* Custom styles with your colors */
+        .golden-bg {
+            background-color: #FFD700;
+        }
+
+        .dark-blue-text {
+            color: #0C2D57;
+        }
+
+        .dark-blue-bg {
+            background-color: #0C2D57;
+        }
+
+        /* Order status badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-delivered {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-processing {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-shipped {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-cancelled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body class="font-display">
+    <div class="relative flex min-h-screen w-full flex-col max-w-screen-2xl mx-auto">
+
+        <!-- Header -->
+        <header class="dark-blue-bg text-white sticky top-0 z-10 shadow-md">
+            <div class="px-3 sm:px-6 lg:px-12 xl:px-16">
+                <div class="flex h-16 sm:h-20 lg:h-24 items-center justify-between">
+                    <button class="p-2 -ml-2" onclick="window.location.href='7-Homepage.html'" aria-label="Go back">
+                        <svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
+                            </path>
+                        </svg>
+                    </button>
+                    <h1 class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold">My Profile</h1>
+                    <div class="w-10 h-10 flex-shrink-0"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow">
+            <div class="flex flex-col items-center pt-6 sm:pt-8 lg:pt-12 pb-8">
+                <!-- Avatar -->
+                <div class="w-16 h-16 sm:w-24 sm:h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 2xl:w-36 2xl:h-36 
+                  rounded-full golden-bg flex items-center justify-center 
+                  dark-blue-text font-bold 
+                  text-2xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl 
+                  shadow-lg border-4 border-white" id="userAvatar">
+                    U
+                </div>
+
+                <!-- User Name Only -->
+                <div class="text-center px-4 mt-4">
+                    <h2 class="text-xl sm:text-2xl font-bold text-text-light" id="userName">User Name</h2>
+                </div>
+            </div>
+
+            <!-- Account Settings -->
+            <div class="px-3 sm:px-6 lg:px-12 xl:px-16 space-y-4">
+                <div class="bg-content-light rounded-lg shadow-sm overflow-hidden">
+                    <h3
+                        class="px-3 sm:px-6 lg:px-12 xl:px-16 pt-4 pb-2 text-lg sm:text-xl lg:text-2xl font-bold text-text-light">
+                        Account Settings</h3>
+                    <nav class="flex flex-col">
+                        <a class="flex items-center gap-4 px-3 sm:px-4 lg:px-6 xl:px-8 py-3 lg:py-4 hover:bg-primary/5 active:bg-primary/10 transition-colors focus:outline-none focus:bg-primary/5"
+                            href="personal-information.html">
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                <span class="material-symbols-outlined">person</span>
+                            </div>
+                            <span class="flex-1 text-text-light">Personal Information</span>
+                            <span class="material-symbols-outlined text-subtext-light">chevron_right</span>
+                        </a>
+                        <a class="flex items-center gap-4 px-3 sm:px-4 lg:px-6 xl:px-8 py-3 lg:py-4 hover:bg-primary/5 active:bg-primary/10 transition-colors focus:outline-none focus:bg-primary/5"
+                            href="addresses.html">
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                <span class="material-symbols-outlined">home</span>
+                            </div>
+                            <span class="flex-1 text-text-light">Addresses</span>
+                            <span class="material-symbols-outlined text-subtext-light">chevron_right</span>
+                        </a>
+                        <!-- Added Orders Option -->
+                        <a class="flex items-center gap-4 px-3 sm:px-4 lg:px-6 xl:px-8 py-3 lg:py-4 hover:bg-primary/5 active:bg-primary/10 transition-colors focus:outline-none focus:bg-primary/5"
+                            href="../orders/orders.html">
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                <span class="material-symbols-outlined">receipt_long</span>
+                            </div>
+                            <span class="flex-1 text-text-light">My Orders</span>
+                            <span class="material-symbols-outlined text-subtext-light">chevron_right</span>
+                        </a>
+                        <a class="flex items-center gap-4 px-3 sm:px-4 lg:px-6 xl:px-8 py-3 lg:py-4 hover:bg-primary/5 active:bg-primary/10 transition-colors focus:outline-none focus:bg-primary/5"
+                            href="4-notification-page.html">
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                <span class="material-symbols-outlined">notifications</span>
+                            </div>
+                            <span class="flex-1 text-text-light">Notifications</span>
+                            <span class="material-symbols-outlined text-subtext-light">chevron_right</span>
+                        </a>
+                        <!-- Added Settings Option -->
+                        <a class="flex items-center gap-4 px-3 sm:px-4 lg:px-6 xl:px-8 py-3 lg:py-4 hover:bg-primary/5 active:bg-primary/10 transition-colors focus:outline-none focus:bg-primary/5"
+                            href="5-Settings.html">
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                <span class="material-symbols-outlined">settings</span>
+                            </div>
+                            <span class="flex-1 text-text-light">Settings</span>
+                            <span class="material-symbols-outlined text-subtext-light">chevron_right</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Logout Button -->
+            <div class="p-3 sm:p-6 lg:p-12 xl:p-16 mt-8">
+                <button class="flex w-full items-center justify-center gap-2 rounded-lg 
+                     h-12 sm:h-14 lg:h-16  
+                     px-6 lg:px-8  
+                     bg-danger/10 text-danger font-bold hover:bg-danger/20 active:bg-danger/30 
+                     transition-colors focus:outline-none focus:ring-2 focus:ring-danger/50" id="logoutBtn">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="truncate">Log Out</span>
+                </button>
+            </div>
+        </main>
+
+        <div class="h-5"></div>
+    </div>
+
+    <script>
+        // Load user data
+        document.addEventListener('DOMContentLoaded', function () {
+            const userName = localStorage.getItem('userName') || 'User';
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+        });
+
+        // Logout modal logic
+        function showLogoutToast() {
+            let toast = document.getElementById('logout-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'logout-toast';
+                toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = 'You have been logged out.';
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 1500);
+        }
+
+        // Create logout modal
+        function createLogoutModal() {
+            if (document.getElementById('logout-modal')) return;
+            const modal = document.createElement('div');
+            modal.id = 'logout-modal';
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg max-w-md w-full">
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-text-light mb-2">Log Out</h3>
+                        <p class="text-subtext-light mb-6">Are you sure you want to log out?</p>
+                        <div class="flex justify-end space-x-3">
+                            <button id="cancel-logout" class="px-4 py-2 text-primary border border-primary rounded-lg hover:bg-primary/5 transition-colors">Cancel</button>
+                            <button id="confirm-logout" class="px-4 py-2 bg-danger text-white rounded-lg hover:bg-red-600 transition-colors">Log Out</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            // Event listeners
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) modal.classList.add('hidden');
+            });
+            document.getElementById('cancel-logout').onclick = function () {
+                modal.classList.add('hidden');
+            };
+            document.getElementById('confirm-logout').onclick = function () {
+                document.getElementById('confirm-logout').disabled = true;
+                document.getElementById('confirm-logout').textContent = 'Logging out...';
+                setTimeout(function () {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    showLogoutToast();
+                    modal.classList.add('hidden');
+                    setTimeout(function () {
+                        window.location.href = '../index.html';
+                    }, 1500);
+                }, 1000);
+            };
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function () {
+            // Attach to logout button
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                createLogoutModal();
+                document.getElementById('logout-modal').classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+
+</html>

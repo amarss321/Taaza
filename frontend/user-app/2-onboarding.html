@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Taaza Onboarding</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFD700",
+                        "primary-light": "#FFF9C4",
+                        "primary-dark": "#FBC02D",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#0C2D57",
+                        "accent-blue": "#1E40AF",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in': 'fadeIn 1.5s ease-in-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+        }
+
+        /* Responsive font sizing */
+        @media (max-width: 640px) {
+            .taaza-title {
+                font-size: 3rem !important;
+                /* 48px */
+            }
+
+            .taaza-subtitle {
+                font-size: 1.125rem !important;
+                /* 18px */
+                padding: 0 1rem;
+            }
+
+            .farm-icon svg {
+                width: 4rem !important;
+                /* 64px */
+                height: 4rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .taaza-title {
+                font-size: 2.5rem !important;
+                /* 40px */
+            }
+
+            .taaza-subtitle {
+                font-size: 1rem !important;
+                /* 16px */
+            }
+
+            .farm-icon svg {
+                width: 3.5rem !important;
+                /* 56px */
+                height: 3.5rem !important;
+            }
+        }
+
+        /* Enhanced mobile touch targets */
+        @media (max-width: 768px) {
+            .get-started-btn {
+                padding: 1rem 2rem !important;
+                font-size: 1.125rem !important;
+                min-height: 3rem !important;
+                /* 48px minimum touch target */
+            }
+        }
+
+        /* Improved button touch area */
+        .get-started-btn {
+            min-height: 44px;
+            /* iOS minimum touch target */
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .get-started-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Touch-friendly hover states for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .pulse:hover {
+                animation: none;
+            }
+
+            .get-started-btn:hover {
+                background-color: rgba(255, 215, 0, 0.9);
+            }
+        }
+
+        /* Custom shape for visual interest */
+        .shape-background {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 25s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .pulse:hover {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+
+<body class="overflow-hidden">
+    <div
+        class="relative flex flex-col items-center justify-center min-h-screen bg-background-light dark:bg-background-dark text-center p-4 overflow-hidden">
+        <div class="shape-background"></div>
+        <div
+            class="relative z-10 space-y-6 sm:space-y-8 animate-fade-in w-full max-w-sm sm:max-w-md mx-auto px-4 sm:px-6">
+            <!-- Logo section -->
+            <div class="flex flex-col items-center">
+                <h1
+                    class="taaza-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold uppercase tracking-wider text-background-dark dark:text-background-light mb-2 text-center">
+                    Taaza
+                </h1>
+                <p class="taaza-subtitle text-lg sm:text-xl md:text-2xl text-primary font-medium text-center">
+                    Straight from the Farm to Your Door
+                </p>
+            </div>
+
+            <!-- Get Started Button -->
+            <div class="pt-6 sm:pt-8">
+                <button
+                    class="get-started-btn w-full bg-primary text-text-dark dark:text-text-dark py-3 sm:py-4 rounded-full text-lg font-bold shadow-lg hover:bg-primary-dark transition-colors pulse">
+                    Get Start
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Only redirect when user clicks the button
+            document.querySelector('.get-started-btn').addEventListener('click', function () {
+                window.location.href = "auth/3-Taaza-Login.html";
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Address Test</title>
+</head>
+<body>
+    <h1>Address API Test</h1>
+    <div id="status"></div>
+    <div id="addresses"></div>
+    
+    <script src="js/addresses-api.js"></script>
+    <script>
+        const addressAPI = new AddressAPI();
+        const statusDiv = document.getElementById('status');
+        const addressesDiv = document.getElementById('addresses');
+        
+        async function testAddresses() {
+            // Check if user is logged in
+            const token = localStorage.getItem('authToken');
+            statusDiv.innerHTML = `<p>Token: ${token ? 'Found' : 'Not found'}</p>`;
+            
+            if (!token) {
+                statusDiv.innerHTML += '<p style="color: red;">Please log in first at <a href="/auth/3-Taaza-Login.html">Login Page</a></p>';
+                return;
+            }
+            
+            try {
+                statusDiv.innerHTML += '<p>Loading addresses...</p>';
+                const addresses = await addressAPI.getAddresses();
+                statusDiv.innerHTML += `<p style="color: green;">Found ${addresses.length} addresses</p>`;
+                addressesDiv.innerHTML = '<pre>' + JSON.stringify(addresses, null, 2) + '</pre>';
+            } catch (error) {
+                statusDiv.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error('Address API Error:', error);
+            }
+        }
+        
+        testAddresses();
+    </script>
+</body>
+</html>
