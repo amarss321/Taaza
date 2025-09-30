@@ -508,73 +508,76 @@
             selectedLocation = { lat: location.lat(), lng: location.lng() };
         }
 
-        async function locateUser() {
+        function locateUser() {
+            console.log('Geolocation attempt started');
+            
             if (!navigator.geolocation) {
                 showToast('Geolocation not supported by your browser');
-                return;
-            }
-
-            // Check if we're on HTTPS or localhost
-            if (location.protocol !== 'https:' && !location.hostname.includes('localhost') && location.hostname !== '127.0.0.1') {
-                showToast('Location requires HTTPS. Please use secure connection.');
                 return;
             }
 
             // Show loading state
             document.getElementById('locate-btn').classList.add('hidden');
             document.getElementById('locate-loading').classList.remove('hidden');
-
-            try {
-                // Check permissions first if available
-                if ('permissions' in navigator) {
-                    const permission = await navigator.permissions.query({name: 'geolocation'});
-                    if (permission.state === 'denied') {
-                        throw new Error('Location permission denied');
-                    }
-                }
-
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 300000
-                    });
-                });
-
-                const userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-
-                map.setCenter(userLocation);
-                map.setZoom(16);
-                setMarker(userLocation);
-                reverseGeocode(userLocation.lat, userLocation.lng);
-                showToast('Location found successfully!');
-
-            } catch (error) {
-                let errorMsg = 'Unable to get your location';
-                if (error.code) {
-                    switch (error.code) {
-                        case 1: // PERMISSION_DENIED
-                            errorMsg = 'Location access denied. Please allow location access in browser settings.';
-                            break;
-                        case 2: // POSITION_UNAVAILABLE
-                            errorMsg = 'Location unavailable. Please try again.';
-                            break;
-                        case 3: // TIMEOUT
-                            errorMsg = 'Location request timed out. Please try again.';
-                            break;
-                    }
-                } else if (error.message.includes('denied')) {
-                    errorMsg = 'Location permission denied. Please enable location access.';
-                }
-                showToast(errorMsg);
-            } finally {
-                // Hide loading state
+            
+            // Force timeout after 8 seconds
+            const forceTimeout = setTimeout(() => {
                 document.getElementById('locate-btn').classList.remove('hidden');
                 document.getElementById('locate-loading').classList.add('hidden');
-            }
+                showToast('Location request timed out. Please try again or check permissions.');
+            }, 8000);
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    clearTimeout(forceTimeout);
+                    console.log('Location success:', position);
+                    const userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    map.setCenter(userLocation);
+                    map.setZoom(16);
+                    setMarker(userLocation);
+                    reverseGeocode(userLocation.lat, userLocation.lng);
+                    showToast('Location found successfully!');
+
+                    // Hide loading state
+                    document.getElementById('locate-btn').classList.remove('hidden');
+                    document.getElementById('locate-loading').classList.add('hidden');
+                },
+                function(error) {
+                    clearTimeout(forceTimeout);
+                    console.error('Geolocation error:', error);
+                    console.log('Error code:', error.code);
+                    console.log('Error message:', error.message);
+                    
+                    // Hide loading state
+                    document.getElementById('locate-btn').classList.remove('hidden');
+                    document.getElementById('locate-loading').classList.add('hidden');
+
+                    let errorMsg = 'Unable to get your location';
+                    switch (error.code) {
+                        case 1: // PERMISSION_DENIED
+                            errorMsg = 'Location blocked. Click the location icon in address bar to allow.';
+                            break;
+                        case 2: // POSITION_UNAVAILABLE
+                            errorMsg = 'Location unavailable. Check GPS/WiFi and try again.';
+                            break;
+                        case 3: // TIMEOUT
+                            errorMsg = 'Location timeout. Please try again.';
+                            break;
+                        default:
+                            errorMsg = `Location error (${error.code}): ${error.message}`;
+                    }
+                    showToast(errorMsg);
+                },
+                {
+                    enableHighAccuracy: false,
+                    timeout: 5000,              // 5 second timeout
+                    maximumAge: 300000          // 5 minute cache
+                }
+            );
         }
 
         function reverseGeocode(lat, lng) {
