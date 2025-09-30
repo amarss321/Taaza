@@ -251,23 +251,6 @@
     <!-- Include Address API -->
     <script src="../js/addresses-api.js"></script>
     <script>
-        // Generate or get device ID
-        function getDeviceId() {
-            let deviceId = localStorage.getItem('deviceId');
-            if (!deviceId) {
-                deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-                localStorage.setItem('deviceId', deviceId);
-            }
-            return deviceId;
-        }
-
-        // Include device ID in all API requests
-        const originalGetAuthHeaders = AddressAPI.prototype.getAuthHeaders;
-        AddressAPI.prototype.getAuthHeaders = function() {
-            const headers = originalGetAuthHeaders.call(this);
-            headers['X-Device-ID'] = getDeviceId();
-            return headers;
-        };
         // Address management logic
         let addresses = [];
         let addressAPI = new AddressAPI();
@@ -277,11 +260,13 @@
 
         async function loadAddresses() {
             try {
+                console.log('Loading addresses from API...');
                 addresses = await addressAPI.getAddresses();
+                console.log('Addresses loaded:', addresses);
                 renderAddresses();
             } catch (error) {
                 console.error('Error loading addresses:', error);
-                showToast('Failed to load addresses');
+                showToast('Failed to load addresses: ' + error.message);
             }
         }
 
@@ -552,6 +537,10 @@
                 const isDefault = document.getElementById('address-default').checked;
                 const idx = document.getElementById('edit-index').value;
 
+                console.log('Form submitted with data:', {
+                    label, addressLine, city, zipCode, country, lat, lng, isDefault, idx
+                });
+
                 // Validate required fields
                 if (!label || !addressLine || !city || !zipCode || !country) {
                     throw new Error('Please fill all required fields');
@@ -572,13 +561,17 @@
                     addressData.longitude = parseFloat(lng);
                 }
 
+                console.log('Sending address data to API:', addressData);
+
                 let result;
                 if (idx !== '') {
                     // Editing existing address
                     const addressId = addresses[parseInt(idx)].id;
+                    console.log('Updating address ID:', addressId);
                     result = await addressAPI.updateAddress(addressId, addressData);
                 } else {
                     // Adding new address
+                    console.log('Creating new address');
                     result = await addressAPI.createAddress(addressData);
                 }
                 
@@ -590,6 +583,11 @@
             } catch (error) {
                 console.error('Error saving address:', error);
                 showToast(`Failed to save address: ${error.message}`);
+                
+                // Log detailed error for debugging
+                if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+                    console.error('Network error - check if backend is running');
+                }
             } finally {
                 // Reset button state
                 submitBtn.disabled = false;
@@ -639,13 +637,16 @@
             setTimeout(() => toast.classList.add('hidden'), 2000);
         }
 
-        // Enhanced initialization with auth check
+        // Enhanced initialization with better debugging
         async function initializeAddresses() {
+            console.log('Initializing addresses page...');
+            
             const token = addressAPI.getAuthToken();
+            console.log('Auth token found:', !!token);
             
             if (!token) {
                 showToast('Please login first');
-                // Redirect to login after 2 seconds
+                console.log('No token, redirecting to login...');
                 setTimeout(() => {
                     window.location.href = '/auth/3-Taaza-Login.html';
                 }, 2000);
@@ -653,11 +654,16 @@
             }
             
             try {
-                // Test authentication first
-                await testAuthentication();
+                console.log('Testing authentication...');
+                const isAuthenticated = await addressAPI.testAuth();
                 
-                // Load addresses
+                if (!isAuthenticated) {
+                    throw new Error('Authentication failed');
+                }
+                
+                console.log('Authentication successful, loading addresses...');
                 await loadAddresses();
+                console.log('Addresses loaded successfully');
                 
             } catch (error) {
                 console.error('Error initializing addresses:', error);
@@ -670,29 +676,6 @@
                 } else {
                     showToast('Failed to load addresses. Please try again.');
                 }
-            }
-        }
-
-        // Test if user is authenticated
-        async function testAuthentication() {
-            try {
-                const response = await fetch('/api/v1/users/profile', {
-                    headers: {
-                        'Authorization': `Bearer ${addressAPI.getAuthToken()}`
-                    }
-                });
-                
-                if (response.status === 401) {
-                    throw new Error('Authentication failed');
-                }
-                
-                if (!response.ok) {
-                    throw new Error('Authentication test failed');
-                }
-                
-                return true;
-            } catch (error) {
-                throw new Error('Authentication required');
             }
         }
 
