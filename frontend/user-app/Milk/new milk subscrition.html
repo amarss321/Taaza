@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taaza - Milk Subscription</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFD700",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#0C2D57",
+                        "zepto-blue": "#0C2D57",
+                        "zepto-yellow": "#FFD700",
+                        "zepto-light-bg": "#F8F4E9",
+                        "zepto-manage-blue": "#4A7B9D",
+                        "zepto-order-red": "#D5715C",
+                        "zepto-green": "#10B981",
+                        "zepto-gray": "#6B7280",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .time-slot-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .time-slot-card.active {
+            border-color: #0C2D57;
+            box-shadow: 0 4px 12px rgba(12, 45, 87, 0.15);
+        }
+
+        .time-slot-card.disabled {
+            opacity: 0.6;
+            border-color: #e5e7eb;
+        }
+
+        .time-slot-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background-color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dark .time-slot-header {
+            background-color: #1f2937;
+        }
+
+        .time-slot-header:hover {
+            background-color: #f9fafb;
+        }
+
+        .dark .time-slot-header:hover {
+            background-color: #374151;
+        }
+
+        .time-slot-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .time-slot-icon {
+            font-size: 24px;
+            color: #0C2D57;
+        }
+
+        .dark .time-slot-icon {
+            color: #FFD700;
+        }
+
+        .time-slot-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1f2937;
+        }
+
+        .dark .time-slot-name {
+            color: #f9fafb;
+        }
+
+        .time-slot-time {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e5e7eb;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.toggle-slider {
+            background-color: #0C2D57;
+        }
+
+        .dark input:checked+.toggle-slider {
+            background-color: #FFD700;
+        }
+
+        input:checked+.toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .time-slot-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .time-slot-content.expanded {
+            padding: 16px;
+            max-height: 500px;
+        }
+
+        .option-group {
+            margin-bottom: 16px;
+        }
+
+        .option-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .dark .option-group-title {
+            color: #d1d5db;
+        }
+
+        .quantity-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .quantity-option {
+            text-align: center;
+            padding: 10px 6px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .dark .quantity-option {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f9fafb;
+        }
+
+        .quantity-option:hover {
+            border-color: #0C2D57;
+            transform: translateY(-2px);
+        }
+
+        .dark .quantity-option:hover {
+            border-color: #FFD700;
+        }
+
+        .quantity-option.selected {
+            background-color: rgba(12, 45, 87, 0.1);
+            border-color: #0C2D57;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(12, 45, 87, 0.1);
+        }
+
+        .dark .quantity-option.selected {
+            background-color: rgba(255, 215, 0, 0.2);
+            border-color: #FFD700;
+        }
+
+        .quantity-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .quantity-price {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+
+        .dark .quantity-price {
+            color: #9ca3af;
+        }
+
+        .frequency-options {
+            display: flex;
+            gap: 12px;
+        }
+
+        .frequency-option {
+            flex: 1;
+            text-align: center;
+            padding: 12px 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .dark .frequency-option {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f9fafb;
+        }
+
+        .frequency-option:hover {
+            border-color: #0C2D57;
+            transform: translateY(-2px);
+        }
+
+        .dark .frequency-option:hover {
+            border-color: #FFD700;
+        }
+
+        .frequency-option.selected {
+            background-color: rgba(12, 45, 87, 0.1);
+            border-color: #0C2D57;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(12, 45, 87, 0.1);
+        }
+
+        .dark .frequency-option.selected {
+            background-color: rgba(255, 215, 0, 0.2);
+            border-color: #FFD700;
+        }
+
+        .frequency-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .frequency-desc {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 4px;
+        }
+
+        .dark .frequency-desc {
+            color: #9ca3af;
+        }
+
+        .time-slot-summary {
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .dark .time-slot-summary {
+            background-color: #374151;
+            color: #d1d5db;
+        }
+
+        .time-slot-summary strong {
+            color: #0C2D57;
+        }
+
+        .dark .time-slot-summary strong {
+            color: #FFD700;
+        }
+
+        .day-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .day-option {
+            flex: 1;
+            min-width: calc(33.333% - 0.5rem);
+        }
+
+        .day-checkbox:checked+.day-content {
+            background-color: #0C2D57;
+            color: white;
+            border-color: #0C2D57;
+        }
+
+        .dark .day-checkbox:checked+.day-content {
+            background-color: #FFD700;
+            color: #0C2D57;
+        }
+
+        .day-content {
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+        }
+
+        .dark .day-content {
+            background-color: #374151;
+            border-color: #4b5563;
+            color: #f9fafb;
+        }
+
+        .day-content:hover {
+            border-color: #0C2D57;
+        }
+
+        .dark .day-content:hover {
+            border-color: #FFD700;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .dark .modal-content {
+            background-color: #1f2937;
+            color: white;
+        }
+
+        .sticky-summary {
+            position: sticky;
+            top: 80px;
+            z-index: 10;
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #10B981;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #0C2D57;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .dark .toast {
+            background-color: #FFD700;
+            color: #0C2D57;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* Custom animations */
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Accessibility improvements */
+        .focus-visible:focus {
+            outline: 2px solid #FFD700;
+            outline-offset: 2px;
+        }
+
+        /* Milk type selection improvements */
+        .milk-type-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .milk-type-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+        .dark .milk-type-option {
+            background-color: #374151;
+            border-color: #4b5563;
+        }
+
+        .milk-type-option:hover {
+            border-color: #0C2D57;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .milk-type-option:hover {
+            border-color: #FFD700;
+        }
+
+        .milk-type-option.selected {
+            border-color: #0C2D57;
+            background-color: rgba(12, 45, 87, 0.05);
+            box-shadow: 0 4px 12px rgba(12, 45, 87, 0.15);
+        }
+
+        .dark .milk-type-option.selected {
+            border-color: #FFD700;
+            background-color: rgba(255, 215, 0, 0.1);
+        }
+
+        .milk-type-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .milk-type-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .milk-type-price {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .dark .milk-type-price {
+            color: #9ca3af;
+        }
+
+        /* Time slot milk type selection */
+        .slot-milk-type {
+            margin-bottom: 16px;
+        }
+
+        .slot-milk-type-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .dark .slot-milk-type-title {
+            color: #d1d5db;
+        }
+
+        .slot-milk-options {
+            display: flex;
+            gap: 8px;
+        }
+
+        .slot-milk-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px 6px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .dark .slot-milk-option {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f9fafb;
+        }
+
+        .slot-milk-option:hover {
+            border-color: #0C2D57;
+            transform: translateY(-2px);
+        }
+
+        .dark .slot-milk-option:hover {
+            border-color: #FFD700;
+        }
+
+        .slot-milk-option.selected {
+            background-color: rgba(12, 45, 87, 0.1);
+            border-color: #0C2D57;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(12, 45, 87, 0.1);
+        }
+
+        .dark .slot-milk-option.selected {
+            background-color: rgba(255, 215, 0, 0.2);
+            border-color: #FFD700;
+        }
+
+        .slot-milk-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .slot-milk-price {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+
+        .dark .slot-milk-price {
+            color: #9ca3af;
+        }
+
+        /* Improved summary styles */
+        .summary-item {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background-color: #f8fafc;
+            border-left: 4px solid #0C2D57;
+        }
+
+        .dark .summary-item {
+            background-color: #1e293b;
+            border-left-color: #FFD700;
+        }
+
+        .summary-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .summary-item-title {
+            font-weight: 600;
+            color: #0C2D57;
+        }
+
+        .dark .summary-item-title {
+            color: #FFD700;
+        }
+
+        .summary-item-price {
+            font-weight: 600;
+            color: #10B981;
+        }
+
+        .summary-item-details {
+            font-size: 14px;
+            color: #6B7280;
+            line-height: 1.4;
+        }
+
+        .dark .summary-item-details {
+            color: #9ca3af;
+        }
+
+        .summary-item-days {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .day-pill {
+            background-color: #e5e7eb;
+            color: #374151;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .dark .day-pill {
+            background-color: #4b5563;
+            color: #f9fafb;
+        }
+
+        .summary-empty {
+            text-align: center;
+            padding: 20px;
+            color: #6B7280;
+            font-style: italic;
+        }
+
+        .dark .summary-empty {
+            color: #9ca3af;
+        }
+
+        /* New styles for toggle functionality */
+        .time-slot-content .option-group,
+        .time-slot-content .slot-milk-type {
+            transition: opacity 0.3s ease;
+        }
+
+        .time-slot-content.disabled .option-group,
+        .time-slot-content.disabled .slot-milk-type {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+
+<body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="bg-background-dark text-white p-4 sticky top-0 z-20 shadow-md">
+            <div class="container mx-auto flex items-center justify-between">
+                <button class="text-white focus-visible:focus rounded-lg p-2 hover:bg-blue-900 transition-colors"
+                    onclick="goBack()" aria-label="Go back">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <h1 class="text-lg font-bold">New Milk Subscription</h1>
+                <div class="w-8"></div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-4 space-y-6 slide-up">
+            <!-- Delivery Time Slot with Quantity and Frequency Selection -->
+            <div class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
+                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-3">Delivery Schedule</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Customize your delivery times, quantities, and
+                    frequencies</p>
+
+                <!-- Morning Time Slot Card -->
+                <div class="time-slot-card active" id="morning-card">
+                    <div class="time-slot-header" onclick="toggleTimeSlot('morning')">
+                        <div class="time-slot-title">
+                            <span class="time-slot-icon">☀️</span>
+                            <div>
+                                <div class="time-slot-name">Morning Delivery</div>
+                                <div class="time-slot-time">7:00 AM - 9:00 AM</div>
+                            </div>
+                        </div>
+                        <div class="time-slot-toggle">
+                            <span class="text-sm text-gray-600 dark:text-gray-400 mr-2">OFF</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked id="morning-toggle"
+                                    onchange="toggleTimeSlotEnabled('morning')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="text-sm text-zepto-yellow ml-2">ON</span>
+                        </div>
+                    </div>
+                    <div class="time-slot-content expanded" id="morning-content">
+                        <!-- Milk Type Selection for Morning Slot -->
+                        <div class="slot-milk-type">
+                            <div class="slot-milk-type-title">Select Milk Type for Morning Delivery</div>
+                            <div class="milk-type-options">
+                                <!-- Buffalo Milk Option -->
+                                <label class="milk-type-option selected">
+                                    <input class="sr-only" name="morning_milk_type" type="radio" value="buffalo"
+                                        checked />
+                                    <div class="milk-type-icon">🐃</div>
+                                    <div class="milk-type-name">Buffalo Milk</div>
+                                    <div class="milk-type-price">₹50/L - Rich & Creamy</div>
+                                </label>
+
+                                <!-- Cow Milk Option -->
+                                <label class="milk-type-option">
+                                    <input class="sr-only" name="morning_milk_type" type="radio" value="cow" />
+                                    <div class="milk-type-icon">🐄</div>
+                                    <div class="milk-type-name">Cow Milk</div>
+                                    <div class="milk-type-price">₹40/L - Light & Healthy</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Quantity Selection -->
+                        <div class="option-group">
+                            <div class="option-group-title">Select Quantity</div>
+                            <div class="quantity-options" id="morning-quantity-options">
+                                <!-- Quantity options will be dynamically updated based on milk type -->
+                            </div>
+                        </div>
+
+                        <!-- Frequency Selection -->
+                        <div class="option-group">
+                            <div class="option-group-title">Select Frequency</div>
+                            <div class="frequency-options">
+                                <label class="frequency-option selected" data-value="daily">
+                                    <div class="frequency-label">Daily</div>
+                                    <div class="frequency-desc">Every day</div>
+                                </label>
+                                <label class="frequency-option" data-value="alternate">
+                                    <div class="frequency-label">Alternate Days</div>
+                                    <div class="frequency-desc">Select specific days</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Summary for Morning Delivery -->
+                        <div class="time-slot-summary" id="morning-slot-summary">
+                            <strong>Morning Summary:</strong> 1.00L Buffalo Milk delivered daily at 7:00-9:00 AM for
+                            ₹50/day
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evening Time Slot Card -->
+                <div class="time-slot-card" id="evening-card">
+                    <div class="time-slot-header" onclick="toggleTimeSlot('evening')">
+                        <div class="time-slot-title">
+                            <span class="time-slot-icon">🌙</span>
+                            <div>
+                                <div class="time-slot-name">Evening Delivery</div>
+                                <div class="time-slot-time">6:00 PM - 8:00 PM</div>
+                            </div>
+                        </div>
+                        <div class="time-slot-toggle">
+                            <span class="text-sm text-gray-600 dark:text-gray-400 mr-2">OFF</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="evening-toggle" onchange="toggleTimeSlotEnabled('evening')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="text-sm text-zepto-yellow ml-2">ON</span>
+                        </div>
+                    </div>
+                    <div class="time-slot-content" id="evening-content">
+                        <!-- Milk Type Selection for Evening Slot -->
+                        <div class="slot-milk-type">
+                            <div class="slot-milk-type-title">Select Milk Type for Evening Delivery</div>
+                            <div class="milk-type-options">
+                                <!-- Buffalo Milk Option -->
+                                <label class="milk-type-option">
+                                    <input class="sr-only" name="evening_milk_type" type="radio" value="buffalo" />
+                                    <div class="milk-type-icon">🐃</div>
+                                    <div class="milk-type-name">Buffalo Milk</div>
+                                    <div class="milk-type-price">₹50/L - Rich & Creamy</div>
+                                </label>
+
+                                <!-- Cow Milk Option -->
+                                <label class="milk-type-option selected">
+                                    <input class="sr-only" name="evening_milk_type" type="radio" value="cow" checked />
+                                    <div class="milk-type-icon">🐄</div>
+                                    <div class="milk-type-name">Cow Milk</div>
+                                    <div class="milk-type-price">₹40/L - Light & Healthy</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Quantity Selection -->
+                        <div class="option-group">
+                            <div class="option-group-title">Select Quantity</div>
+                            <div class="quantity-options" id="evening-quantity-options">
+                                <!-- Quantity options will be dynamically updated based on milk type -->
+                            </div>
+                        </div>
+
+                        <!-- Frequency Selection -->
+                        <div class="option-group">
+                            <div class="option-group-title">Select Frequency</div>
+                            <div class="frequency-options">
+                                <label class="frequency-option" data-value="daily">
+                                    <div class="frequency-label">Daily</div>
+                                    <div class="frequency-desc">Every day</div>
+                                </label>
+                                <label class="frequency-option selected" data-value="alternate">
+                                    <div class="frequency-label">Alternate Days</div>
+                                    <div class="frequency-desc">Select specific days</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Summary for Evening Delivery -->
+                        <div class="time-slot-summary" id="evening-slot-summary">
+                            <strong>Evening Summary:</strong> 0.50L Cow Milk delivered on alternate days at 6:00-8:00 PM
+                            for ₹20/day
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscription Summary -->
+            <div
+                class="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-gray-100 dark:border-zinc-700 shadow-sm sticky-summary">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
+                    <span class="material-symbols-outlined mr-2">receipt_long</span>
+                    Subscription Summary
+                </h3>
+
+                <div id="summary-container" class="space-y-3 mb-3">
+                    <!-- Summary items will be dynamically inserted here -->
+                </div>
+
+                <div class="border-t border-gray-200 dark:border-zinc-600 my-3"></div>
+                <div class="flex justify-between items-center font-bold">
+                    <p class="text-base text-gray-800 dark:text-gray-200">Estimated Monthly Price</p>
+                    <p class="text-xl text-zepto-blue dark:text-zepto-yellow" id="monthly-price">₹1500/month</p>
+                </div>
+                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400" id="price-breakdown">
+                    Morning: ₹50/day × 30 days = ₹1500<br>
+                    Total: ₹1500/month
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer with Confirm Button -->
+        <footer
+            class="p-4 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200 dark:border-zinc-700 z-[1001]"
+            style="z-index:1001;">
+            <button id="confirm-btn" onclick="confirmSubscription(event)"
+                class="w-full bg-primary text-background-dark font-bold py-3 px-4 rounded-lg text-center hover:bg-yellow-500 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus"
+                style="pointer-events:auto;z-index:1002;">
+                Confirm Subscription
+            </button>
+            <div id="progress-bar" class="progress-bar hidden">
+                <div class="progress" id="progress"></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Days Selection Modal for Morning Delivery -->
+    <div id="morning-days-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Select Morning Delivery Days</h3>
+                <button onclick="closeDaysModal('morning')"
+                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Choose which days you want your morning milk
+                delivered</p>
+
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300">Delivery Days</h3>
+                <div class="flex gap-2">
+                    <button type="button" id="morning-select-all-days"
+                        class="text-xs bg-zepto-blue text-white px-2 py-1 rounded">Select All</button>
+                    <button type="button" id="morning-clear-all-days"
+                        class="text-xs bg-gray-200 text-gray-700 dark:bg-zinc-600 dark:text-gray-300 px-2 py-1 rounded">Clear
+                        All</button>
+                </div>
+            </div>
+            <div class="day-selector">
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="monday">
+                    <div class="day-content">
+                        <span class="font-medium">Mon</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="tuesday">
+                    <div class="day-content">
+                        <span class="font-medium">Tue</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="wednesday">
+                    <div class="day-content">
+                        <span class="font-medium">Wed</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="thursday">
+                    <div class="day-content">
+                        <span class="font-medium">Thu</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="friday">
+                    <div class="day-content">
+                        <span class="font-medium">Fri</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="saturday">
+                    <div class="day-content">
+                        <span class="font-medium">Sat</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="sunday">
+                    <div class="day-content">
+                        <span class="font-medium">Sun</span>
+                    </div>
+                </label>
+            </div>
+            <div id="morning-selected-days-summary" class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Selected days: None
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeDaysModal('morning')"
+                    class="px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">Cancel</button>
+                <button type="button" id="morning-save-days" onclick="saveSelectedDays('morning')"
+                    class="px-4 py-2 bg-zepto-blue text-white rounded-lg hover:bg-blue-700 transition-colors">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Days Selection Modal for Evening Delivery -->
+    <div id="evening-days-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Select Evening Delivery Days</h3>
+                <button onclick="closeDaysModal('evening')"
+                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Choose which days you want your evening milk
+                delivered</p>
+
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300">Delivery Days</h3>
+                <div class="flex gap-2">
+                    <button type="button" id="evening-select-all-days"
+                        class="text-xs bg-zepto-blue text-white px-2 py-1 rounded">Select All</button>
+                    <button type="button" id="evening-clear-all-days"
+                        class="text-xs bg-gray-200 text-gray-700 dark:bg-zinc-600 dark:text-gray-300 px-2 py-1 rounded">Clear
+                        All</button>
+                </div>
+            </div>
+            <div class="day-selector">
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="monday">
+                    <div class="day-content">
+                        <span class="font-medium">Mon</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="tuesday">
+                    <div class="day-content">
+                        <span class="font-medium">Tue</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="wednesday">
+                    <div class="day-content">
+                        <span class="font-medium">Wed</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="thursday">
+                    <div class="day-content">
+                        <span class="font-medium">Thu</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="friday">
+                    <div class="day-content">
+                        <span class="font-medium">Fri</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="saturday">
+                    <div class="day-content">
+                        <span class="font-medium">Sat</span>
+                    </div>
+                </label>
+                <label class="day-option">
+                    <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="sunday">
+                    <div class="day-content">
+                        <span class="font-medium">Sun</span>
+                    </div>
+                </label>
+            </div>
+            <div id="evening-selected-days-summary" class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Selected days: None
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeDaysModal('evening')"
+                    class="px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">Cancel</button>
+                <button type="button" id="evening-save-days" onclick="saveSelectedDays('evening')"
+                    class="px-4 py-2 bg-zepto-blue text-white rounded-lg hover:bg-blue-700 transition-colors">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div class="flex items-center">
+            <span class="material-symbols-outlined mr-2">check_circle</span>
+            <span id="toast-message">Subscription confirmed successfully!</span>
+        </div>
+    </div>
+
+    <script>
+        // Milk pricing configuration
+        const milkPrices = {
+            buffalo: 50, // ₹50 per liter
+            cow: 40      // ₹40 per liter
+        };
+
+        // Quantity options with their liter values
+        const quantityOptions = [
+            { label: "0.5L", value: 0.5 },
+            { label: "1.0L", value: 1.0 },
+            { label: "1.5L", value: 1.5 },
+            { label: "2.0L", value: 2.0 },
+            { label: "2.5L", value: 2.5 }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize milk type selection for both slots
+            initializeMilkTypeSelection('morning');
+            initializeMilkTypeSelection('evening');
+
+            // Initialize quantity options for both slots
+            updateQuantityOptions('morning');
+            updateQuantityOptions('evening');
+
+            // Initialize frequency selection
+            initializeFrequencySelection('morning');
+            initializeFrequencySelection('evening');
+
+            // Update the summary
+            updateSummary();
+        });
+
+        // Initialize milk type selection
+        function initializeMilkTypeSelection(slot) {
+            const milkTypeOptions = document.querySelectorAll(`input[name="${slot}_milk_type"]`);
+            milkTypeOptions.forEach(option => {
+                option.addEventListener('change', function () {
+                    // Update the visual selection
+                    const parent = this.closest('.milk-type-option');
+                    document.querySelectorAll(`.milk-type-options .milk-type-option`).forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    parent.classList.add('selected');
+
+                    // Update quantity options based on selected milk type
+                    updateQuantityOptions(slot);
+
+                    // Update the summary
+                    updateSummary();
+                });
+            });
+        }
+
+        // Update quantity options based on selected milk type
+        function updateQuantityOptions(slot) {
+            const quantityContainer = document.getElementById(`${slot}-quantity-options`);
+            const selectedMilkType = document.querySelector(`input[name="${slot}_milk_type"]:checked`).value;
+            const milkPrice = milkPrices[selectedMilkType];
+
+            // Clear existing options
+            quantityContainer.innerHTML = '';
+
+            // Create new options based on the selected milk type
+            quantityOptions.forEach(option => {
+                const price = option.value * milkPrice;
+                const optionElement = document.createElement('label');
+                optionElement.className = 'quantity-option';
+                if (option.value === 1.0) {
+                    optionElement.classList.add('selected');
+                }
+                optionElement.innerHTML = `
+                    <div class="quantity-label">${option.label}</div>
+                    <div class="quantity-price">₹${price}</div>
+                `;
+                optionElement.addEventListener('click', function () {
+                    // Remove selected class from all options
+                    document.querySelectorAll(`#${slot}-quantity-options .quantity-option`).forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    // Update the summary
+                    updateSummary();
+                });
+                quantityContainer.appendChild(optionElement);
+            });
+        }
+
+        // Initialize frequency selection
+        function initializeFrequencySelection(slot) {
+            const frequencyOptions = document.querySelectorAll(`#${slot}-content .frequency-option`);
+            frequencyOptions.forEach(option => {
+                option.addEventListener('click', function () {
+                    // Remove selected class from all options
+                    frequencyOptions.forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+
+                    // If alternate days is selected, open the days modal
+                    if (this.getAttribute('data-value') === 'alternate') {
+                        openDaysModal(slot);
+                    }
+
+                    // Update the summary
+                    updateSummary();
+                });
+            });
+        }
+
+        // Toggle time slot expansion
+        function toggleTimeSlot(slot) {
+            const content = document.getElementById(`${slot}-content`);
+            const card = document.getElementById(`${slot}-card`);
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                card.classList.remove('active');
+            } else {
+                content.classList.add('expanded');
+                card.classList.add('active');
+            }
+        }
+
+        // Toggle time slot enabled/disabled
+        function toggleTimeSlotEnabled(slot) {
+            const toggle = document.getElementById(`${slot}-toggle`);
+            const content = document.getElementById(`${slot}-content`);
+            const card = document.getElementById(`${slot}-card`);
+
+            if (toggle.checked) {
+                card.classList.remove('disabled');
+                content.classList.remove('disabled');
+            } else {
+                card.classList.add('disabled');
+                content.classList.add('disabled');
+            }
+
+            // Update the summary
+            updateSummary();
+        }
+
+        // Open days selection modal
+        function openDaysModal(slot) {
+            const modal = document.getElementById(`${slot}-days-modal`);
+            modal.style.display = 'flex';
+
+            // Initialize select all and clear all buttons
+            document.getElementById(`${slot}-select-all-days`).addEventListener('click', function () {
+                document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]`).forEach(checkbox => {
+                    checkbox.checked = true;
+                    checkbox.closest('.day-option').querySelector('.day-content').classList.add('day-checkbox:checked');
+                });
+                updateSelectedDaysSummary(slot);
+            });
+
+            document.getElementById(`${slot}-clear-all-days`).addEventListener('click', function () {
+                document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]`).forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.closest('.day-option').querySelector('.day-content').classList.remove('day-checkbox:checked');
+                });
+                updateSelectedDaysSummary(slot);
+            });
+
+            // Add event listeners to day checkboxes
+            document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]`).forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    if (this.checked) {
+                        this.closest('.day-option').querySelector('.day-content').classList.add('day-checkbox:checked');
+                    } else {
+                        this.closest('.day-option').querySelector('.day-content').classList.remove('day-checkbox:checked');
+                    }
+                    updateSelectedDaysSummary(slot);
+                });
+            });
+
+            updateSelectedDaysSummary(slot);
+        }
+
+        // Close days selection modal
+        function closeDaysModal(slot) {
+            const modal = document.getElementById(`${slot}-days-modal`);
+            modal.style.display = 'none';
+        }
+
+        // Update selected days summary text
+        function updateSelectedDaysSummary(slot) {
+            const selectedDays = Array.from(document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]:checked`))
+                .map(checkbox => {
+                    const day = checkbox.value;
+                    return day.charAt(0).toUpperCase() + day.slice(1);
+                });
+
+            const summaryElement = document.getElementById(`${slot}-selected-days-summary`);
+            if (selectedDays.length > 0) {
+                summaryElement.textContent = `Selected days: ${selectedDays.join(', ')}`;
+            } else {
+                summaryElement.textContent = 'Selected days: None';
+            }
+        }
+
+        // Save selected days
+        function saveSelectedDays(slot) {
+            closeDaysModal(slot);
+            updateSummary();
+        }
+
+        // Update the subscription summary
+        function updateSummary() {
+            const summaryContainer = document.getElementById('summary-container');
+            summaryContainer.innerHTML = '';
+
+            let totalMonthlyPrice = 0;
+            let priceBreakdown = '';
+
+            // Process morning delivery if enabled
+            const morningToggle = document.getElementById('morning-toggle');
+            if (morningToggle.checked) {
+                const morningSummary = getSlotSummary('morning');
+                if (morningSummary) {
+                    summaryContainer.appendChild(createSummaryItem(morningSummary));
+                    totalMonthlyPrice += morningSummary.monthlyPrice;
+                    priceBreakdown += `Morning: ₹${morningSummary.dailyPrice}/day × ${morningSummary.daysPerMonth} days = ₹${morningSummary.monthlyPrice}<br>`;
+                }
+            }
+
+            // Process evening delivery if enabled
+            const eveningToggle = document.getElementById('evening-toggle');
+            if (eveningToggle.checked) {
+                const eveningSummary = getSlotSummary('evening');
+                if (eveningSummary) {
+                    summaryContainer.appendChild(createSummaryItem(eveningSummary));
+                    totalMonthlyPrice += eveningSummary.monthlyPrice;
+                    priceBreakdown += `Evening: ₹${eveningSummary.dailyPrice}/day × ${eveningSummary.daysPerMonth} days = ₹${eveningSummary.monthlyPrice}<br>`;
+                }
+            }
+
+            // If no slots are selected, show empty message
+            if (summaryContainer.children.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'summary-empty';
+                emptyMessage.textContent = 'No delivery slots selected. Please enable at least one delivery time.';
+                summaryContainer.appendChild(emptyMessage);
+            }
+
+            // Update monthly price
+            document.getElementById('monthly-price').textContent = `₹${totalMonthlyPrice}/month`;
+            document.getElementById('price-breakdown').innerHTML = priceBreakdown || 'No deliveries selected';
+        }
+
+        // Get summary for a specific time slot
+        function getSlotSummary(slot) {
+            const milkType = document.querySelector(`input[name="${slot}_milk_type"]:checked`).value;
+            const milkPrice = milkPrices[milkType];
+            const quantityOption = document.querySelector(`#${slot}-quantity-options .quantity-option.selected`);
+            const quantityLabel = quantityOption.querySelector('.quantity-label').textContent;
+            const quantityValue = parseFloat(quantityLabel.replace('L', ''));
+            const dailyPrice = quantityValue * milkPrice;
+
+            const frequencyOption = document.querySelector(`#${slot}-content .frequency-option.selected`);
+            const frequency = frequencyOption.getAttribute('data-value');
+
+            let daysPerMonth, deliveryDays;
+
+            if (frequency === 'daily') {
+                daysPerMonth = 30; // Approximate monthly days
+                deliveryDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            } else {
+                // For alternate days, count the selected days
+                const selectedDays = document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]:checked`);
+                daysPerMonth = selectedDays.length * 4; // Approximate 4 weeks per month
+                deliveryDays = Array.from(selectedDays).map(checkbox => {
+                    const day = checkbox.value;
+                    return day.charAt(0).toUpperCase() + day.slice(1, 3);
+                });
+            }
+
+            const monthlyPrice = dailyPrice * daysPerMonth;
+
+            // Update the slot summary
+            const slotSummaryElement = document.getElementById(`${slot}-slot-summary`);
+            const timeRange = slot === 'morning' ? '7:00-9:00 AM' : '6:00-8:00 PM';
+            const milkTypeName = milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
+            slotSummaryElement.innerHTML = `<strong>${slot.charAt(0).toUpperCase() + slot.slice(1)} Summary:</strong> ${quantityLabel} ${milkTypeName} delivered ${frequency === 'daily' ? 'daily' : 'on ' + deliveryDays.join(', ')} at ${timeRange} for ₹${dailyPrice}/day`;
+
+            return {
+                slot: slot,
+                milkType: milkTypeName,
+                quantity: quantityLabel,
+                frequency: frequency,
+                deliveryDays: deliveryDays,
+                dailyPrice: dailyPrice,
+                daysPerMonth: daysPerMonth,
+                monthlyPrice: monthlyPrice,
+                timeRange: timeRange
+            };
+        }
+
+        // Create a summary item element
+        function createSummaryItem(summary) {
+            const item = document.createElement('div');
+            item.className = 'summary-item';
+
+            const header = document.createElement('div');
+            header.className = 'summary-item-header';
+
+            const title = document.createElement('div');
+            title.className = 'summary-item-title';
+            title.textContent = `${summary.slot.charAt(0).toUpperCase() + summary.slot.slice(1)} Delivery`;
+
+            const price = document.createElement('div');
+            price.className = 'summary-item-price';
+            price.textContent = `₹${summary.monthlyPrice}/month`;
+
+            header.appendChild(title);
+            header.appendChild(price);
+
+            const details = document.createElement('div');
+            details.className = 'summary-item-details';
+            details.innerHTML = `${summary.quantity} ${summary.milkType} • ${summary.frequency === 'daily' ? 'Daily' : 'Alternate days'} • ${summary.timeRange}`;
+
+            item.appendChild(header);
+            item.appendChild(details);
+
+            if (summary.deliveryDays.length > 0) {
+                const daysContainer = document.createElement('div');
+                daysContainer.className = 'summary-item-days';
+
+                summary.deliveryDays.forEach(day => {
+                    const dayPill = document.createElement('span');
+                    dayPill.className = 'day-pill';
+                    dayPill.textContent = day;
+                    daysContainer.appendChild(dayPill);
+                });
+
+                item.appendChild(daysContainer);
+            }
+
+            return item;
+        }
+
+        // Confirm subscription
+        function confirmSubscription(event) {
+            // If any modal is open, close it before proceeding
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+
+            const button = document.getElementById('confirm-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const progress = document.getElementById('progress');
+
+            // Show progress bar
+            button.disabled = true;
+            button.textContent = 'Processing...';
+            progressBar.classList.remove('hidden');
+
+            // Simulate processing
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    showToast('Subscription confirmed successfully!');
+                    setTimeout(() => {
+                        window.location.href = 'Subscription Success Page.html';
+                    }, 1000);
+                } else {
+                    width += 10;
+                    progress.style.width = width + '%';
+                }
+            }, 100);
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Go back function
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+
+</html>
