@@ -45,13 +45,57 @@
             to { transform: translateY(0); opacity: 1; }
         }
         
+        /* Enhanced responsive breakpoints */
+        @media (max-width: 374px) {
+            .p-4 {
+                padding: 0.75rem;
+            }
+            
+            .space-y-6 > * + * {
+                margin-top: 1rem;
+            }
+            
+            .space-y-3 > * + * {
+                margin-top: 0.5rem;
+            }
+            
+            .text-lg {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 375px) and (max-width: 639px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .space-y-6 > * + * {
+                margin-top: 2rem;
+            }
+            
+            .max-w-400px {
+                max-width: 500px;
+            }
+        }
+        
         /* Safe area for notched phones */
         .h-safe-area-bottom {
             height: constant(safe-area-inset-bottom);
             height: env(safe-area-inset-bottom);
         }
         
-        /* Custom radio button styling */
+        @supports (padding: max(0px)) {
+            .sticky {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+                padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            }
+        }
+        
+        /* Enhanced radio button styling */
         .custom-radio:checked + .radio-content {
             border-color: var(--zepto-manage-blue);
             background-color: rgba(74, 123, 157, 0.1);
@@ -60,6 +104,36 @@
         .custom-radio:checked + .radio-content .radio-dot {
             background-color: var(--zepto-manage-blue);
             border-color: var(--zepto-manage-blue);
+        }
+        
+        /* Enhanced touch targets */
+        .radio-content {
+            min-height: 56px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .radio-content:hover {
+            background-color: rgba(74, 123, 157, 0.05);
+            transform: translateY(-1px);
+        }
+        
+        .radio-content:active {
+            transform: scale(0.98);
+        }
+        
+        .radio-dot {
+            min-width: 20px;
+            min-height: 20px;
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* Focus indicators */
+        .custom-radio:focus-visible + .radio-content {
+            outline: 2px solid #FFD700;
+            outline-offset: 2px;
         }
         
         /* Custom styling for form elements */
@@ -147,7 +221,7 @@
                     </div>
                     <div class="flex flex-col">
                         <p class="text-sm text-gray-600">Current Subscription</p>
-                        <p class="font-bold text-gray-800">1L Buffalo Milk - Daily</p>
+                        <p id="current-plan" class="font-bold text-gray-800">Loading...</p>
                     </div>
                 </div>
             </section>
@@ -211,7 +285,7 @@
             <!-- Cancellation Notice -->
             <section class="rounded-lg bg-[var(--zepto-manage-blue)]/10 p-4 text-center">
                 <p class="text-sm text-[var(--zepto-blue)] font-medium">
-                    Your deliveries will stop from <span class="font-bold">July 20, 2024.</span>
+                    Your deliveries will stop from <span id="stop-date" class="font-bold">tomorrow.</span>
                 </p>
             </section>
         </main>
@@ -220,11 +294,11 @@
         <footer class="p-4 bg-white/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200">
             <div class="space-y-3">
                 <button onclick="showConfirmationPopup()"
-                    class="w-full h-14 bg-[var(--zepto-order-red)] text-white font-bold text-lg rounded-lg shadow-lg hover:bg-red-600 transition-colors">
+                    class="w-full min-h-[48px] h-14 bg-[var(--zepto-order-red)] text-white font-bold text-lg rounded-lg shadow-lg hover:bg-red-600 transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-yellow-400 focus-visible:outline-offset-2" aria-label="Confirm subscription cancellation">
                     Confirm Cancellation
                 </button>
                 <button onclick="keepSubscription()"
-                    class="w-full h-14 bg-gray-200 text-gray-800 font-bold text-lg rounded-lg hover:bg-gray-300 transition-colors">
+                    class="w-full min-h-[48px] h-14 bg-gray-200 text-gray-800 font-bold text-lg rounded-lg hover:bg-gray-300 transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-yellow-400 focus-visible:outline-offset-2" aria-label="Keep your subscription active">
                     Keep Subscription
                 </button>
             </div>
@@ -250,11 +324,11 @@
                     <div class="bg-gray-50 rounded-lg p-4 mb-4">
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-600">Plan:</span>
-                            <span class="font-medium">1L Buffalo Milk - Daily</span>
+                            <span id="popup-plan" class="font-medium">Loading...</span>
                         </div>
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-600">Last Delivery:</span>
-                            <span class="font-medium">July 20, 2024</span>
+                            <span id="popup-last-delivery" class="font-medium">Tomorrow</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Reason:</span>
@@ -291,8 +365,10 @@
             const reason = document.querySelector('input[name="cancellation_reason"]:checked').value;
             const reasonText = document.querySelector(`input[value="${reason}"]`).closest('label').querySelector('span').textContent;
 
-            // Update the popup with the selected reason
+            // Update the popup with the selected reason and plan data
             document.getElementById('popupReason').textContent = reasonText;
+            document.getElementById('popup-plan').textContent = window.subscriptionData.plan;
+            document.getElementById('popup-last-delivery').textContent = window.subscriptionData.stopDate;
 
             // Show the popup
             document.getElementById('confirmationPopup').classList.add('active');
@@ -312,7 +388,7 @@
             hideConfirmationPopup();
 
             // Show confirmation message
-            showToast("Your subscription has been cancelled successfully");
+            showToast("Cancelled ✓");
 
             // Redirect to homepage after a delay
             setTimeout(() => {
@@ -323,7 +399,7 @@
         // Keep subscription
         function keepSubscription() {
             // Redirect back to milk plan page
-            window.location.href = 'your_milk_plan_1.html';
+            window.location.href = 'Your Milk Plan.html';
         }
 
         // Show toast notification
@@ -337,8 +413,72 @@
             }, 1800);
         }
 
+        // Get formatted date
+        function getFormattedDate(daysFromNow = 0) {
+            const date = new Date();
+            date.setDate(date.getDate() + daysFromNow);
+            return date.toLocaleDateString('en-IN', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // Load subscription data
+        function loadSubscriptionData() {
+            const morningEnabled = localStorage.getItem('morningDelivery') === 'true';
+            const eveningEnabled = localStorage.getItem('eveningDelivery') === 'true';
+            
+            let planText = '';
+            let timeSlotText = '';
+            
+            if (morningEnabled && eveningEnabled) {
+                const morningQty = localStorage.getItem('morningQuantity') || '0.5';
+                const morningType = localStorage.getItem('morningMilkType') || 'buffalo';
+                const eveningQty = localStorage.getItem('eveningQuantity') || '0.5';
+                const eveningType = localStorage.getItem('eveningMilkType') || 'cow';
+                const morningTimeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
+                const eveningTimeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
+                
+                planText = `Morning: ${morningQty}L ${morningType === 'buffalo' ? 'Buffalo' : 'Cow'} + Evening: ${eveningQty}L ${eveningType === 'buffalo' ? 'Buffalo' : 'Cow'}`;
+                timeSlotText = `Morning: ${morningTimeSlot.replace('-', ' - ')} AM, Evening: ${eveningTimeSlot.replace('-', ' - ')} PM`;
+            } else if (morningEnabled) {
+                const qty = localStorage.getItem('morningQuantity') || '0.5';
+                const type = localStorage.getItem('morningMilkType') || 'buffalo';
+                const freq = localStorage.getItem('morningFrequency') || 'daily';
+                const timeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
+                planText = `${qty}L ${type === 'buffalo' ? 'Buffalo' : 'Cow'} Milk - ${freq === 'daily' ? 'Daily' : 'Alternate Days'} (Morning)`;
+                timeSlotText = `${timeSlot.replace('-', ' - ')} AM`;
+            } else if (eveningEnabled) {
+                const qty = localStorage.getItem('eveningQuantity') || '0.5';
+                const type = localStorage.getItem('eveningMilkType') || 'cow';
+                const freq = localStorage.getItem('eveningFrequency') || 'alternate';
+                const timeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
+                planText = `${qty}L ${type === 'buffalo' ? 'Buffalo' : 'Cow'} Milk - ${freq === 'daily' ? 'Daily' : 'Alternate Days'} (Evening)`;
+                timeSlotText = `${timeSlot.replace('-', ' - ')} PM`;
+            } else {
+                planText = 'No active subscription';
+                timeSlotText = 'N/A';
+            }
+            
+            document.getElementById('current-plan').textContent = planText;
+            
+            // Set stop date (tomorrow)
+            const stopDate = getFormattedDate(1);
+            document.getElementById('stop-date').textContent = stopDate;
+            
+            // Store for popup use
+            window.subscriptionData = {
+                plan: planText,
+                timeSlot: timeSlotText,
+                stopDate: stopDate
+            };
+        }
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', function () {
+            // Load subscription data
+            loadSubscriptionData();
             // Add event listeners to all radio buttons
             const radioButtons = document.querySelectorAll('input[type="radio"]');
             radioButtons.forEach(radio => {

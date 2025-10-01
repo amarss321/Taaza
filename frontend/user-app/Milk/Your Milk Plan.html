@@ -237,17 +237,67 @@
         <!-- Main Content -->
         <main class="flex-grow p-4 slide-up">
             <!-- Current Plan Summary -->
-            <div
-                class="bg-white dark:bg-zinc-800 rounded-xl p-4 mb-6 shadow-sm border border-gray-100 dark:border-zinc-700">
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Plan</p>
-                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">1L Buffalo Milk · Daily · Morning
-                    Delivery</h2>
-                <div class="mt-3 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Next Delivery</p>
-                        <p class="font-medium text-gray-800 dark:text-gray-200">Tomorrow, 7-9 AM</p>
+            <div id="subscription-summary" class="space-y-4 mb-6">
+                <!-- Morning Plan -->
+                <div id="morning-plan" class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700 hidden">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-2xl">☀️</span>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Morning Plan</p>
+                            <h3 id="morning-plan-title" class="text-lg font-bold text-gray-800 dark:text-gray-200"></h3>
+                        </div>
                     </div>
-                    <div class="milk-bottle"></div>
+                    <div class="grid grid-cols-3 gap-3 text-sm">
+                        <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
+                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Delivery Time</p>
+                            <p id="morning-time-display" class="font-medium">7:00 AM - 9:00 AM</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
+                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Frequency</p>
+                            <p id="morning-frequency" class="font-medium text-zepto-blue dark:text-primary"></p>
+                            <div id="morning-days" class="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden"></div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
+                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Monthly Cost</p>
+                            <p id="morning-cost" class="font-medium text-primary text-lg"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Evening Plan -->
+                <div id="evening-plan" class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700 hidden">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-2xl">🌙</span>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Evening Plan</p>
+                            <h3 id="evening-plan-title" class="text-lg font-bold text-gray-800 dark:text-gray-200"></h3>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-sm">
+                        <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
+                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Delivery Time</p>
+                            <p id="evening-time-display" class="font-medium">6:00 PM - 8:00 PM</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
+                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Frequency</p>
+                            <p id="evening-frequency" class="font-medium text-zepto-blue dark:text-primary"></p>
+                            <div id="evening-days" class="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden"></div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
+                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Monthly Cost</p>
+                            <p id="evening-cost" class="font-medium text-primary text-lg"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- No Plan Message -->
+                <div id="no-plan" class="bg-white dark:bg-zinc-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-zinc-700 text-center">
+                    <div class="milk-bottle mx-auto mb-4 opacity-50"></div>
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">No Active Subscription</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Start your milk delivery subscription today</p>
+                    <button onclick="window.location.href='new milk subscrition.html'" class="bg-primary text-background-dark font-bold py-2 px-6 rounded-lg hover:bg-yellow-500 transition-colors">
+                        Create Subscription
+                    </button>
                 </div>
             </div>
 
@@ -259,60 +309,18 @@
                 </button>
             </div>
 
-            <!-- Delivery Schedule -->
-            <div class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
-                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-3">Next 2 Weeks</h2>
-
-                <div class="space-y-3">
-                    <!-- Today's Delivery -->
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-zinc-100 dark:bg-zinc-700">
-                        <div>
-                            <p class="font-semibold text-gray-800 dark:text-gray-200">Today</p>
-                            <p class="text-sm text-background-dark dark:text-primary">1L AM Delivery</p>
-                        </div>
-                        <button onclick="skipDelivery('today', this)"
-                            class="bg-primary/20 text-background-dark text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-primary/30 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] focus-visible:focus">
-                            Skip
-                        </button>
-                    </div>
-
-                    <!-- Tomorrow's Delivery -->
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-zinc-100 dark:bg-zinc-700">
-                        <div>
-                            <p class="font-semibold text-gray-800 dark:text-gray-200">Tomorrow</p>
-                            <p class="text-sm text-background-dark dark:text-primary">1L AM Delivery</p>
-                        </div>
-                        <button onclick="skipDelivery('tomorrow', this)"
-                            class="bg-primary/20 text-background-dark text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-primary/30 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] focus-visible:focus">
-                            Skip
-                        </button>
-                    </div>
-
-                    <!-- Skipped Delivery -->
-                    <div id="day-after-tomorrow"
-                        class="flex items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-zinc-600 opacity-70">
-                        <div class="text-gray-500 dark:text-gray-400">
-                            <p class="font-semibold">Day After Tomorrow</p>
-                            <p class="text-sm">Skipped</p>
-                        </div>
-                        <button id="undo-skip-btn"
-                            class="bg-zepto-green/20 text-zepto-green text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-zepto-green/30 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] focus-visible:focus fade-in"
-                            onclick="undoSkip('day-after-tomorrow')">
-                            Undo Skip
-                        </button>
-                    </div>
-
-                    <!-- Future Deliveries -->
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-zinc-100 dark:bg-zinc-700">
-                        <div>
-                            <p class="font-semibold text-gray-800 dark:text-gray-200">In 3 Days</p>
-                            <p class="text-sm text-background-dark dark:text-primary">1L AM Delivery</p>
-                        </div>
-                        <button onclick="skipDelivery('future', this)"
-                            class="bg-primary/20 text-background-dark text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-primary/30 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] focus-visible:focus">
-                            Skip
-                        </button>
-                    </div>
+            <!-- Upcoming Deliveries -->
+            <div id="delivery-schedule" class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
+                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-3">Upcoming 5 Days</h2>
+                <div id="deliveries-list" class="space-y-3">
+                    <!-- Deliveries will be populated dynamically -->
+                </div>
+                
+                <!-- No Deliveries Message -->
+                <div id="no-deliveries" class="text-center py-8 hidden">
+                    <span class="material-symbols-outlined text-4xl text-gray-400 mb-2">event_busy</span>
+                    <p class="text-gray-600 dark:text-gray-400">No upcoming deliveries</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-1">Create a subscription to see your delivery schedule</p>
                 </div>
             </div>
         </main>
@@ -417,79 +425,107 @@
         }
 
         function changePlan() {
+            // Set editing flag to load existing data
+            localStorage.setItem('editingSubscription', 'true');
+            
             // Show loading state
             const button = document.querySelector('button[onclick="changePlan()"]');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<span class="spinner"><i class="fas fa-spinner fa-spin"></i></span> Changing...';
+            button.innerHTML = 'Loading...';
             button.disabled = true;
 
-            // Simulate API call
+            // Redirect to edit subscription
             setTimeout(() => {
-                // Redirect to plan selection page
                 window.location.href = 'new milk subscrition.html';
-            }, 1000);
+            }, 300);
         }
 
-        function skipDelivery(day, button) {
+        function skipDelivery(dayIndex, slot, button) {
+            const dayName = dayIndex === 0 ? 'Today' : dayIndex === 1 ? 'Tomorrow' : `Day ${dayIndex + 1}`;
             showConfirmation(
                 "Skip Delivery",
-                `Are you sure you want to skip the delivery for ${day}?`,
+                `Are you sure you want to skip the ${slot} delivery for ${dayName}?`,
                 function (confirmed) {
                     if (confirmed) {
-                        // Get the parent delivery card
-                        const deliveryCard = button.closest('.flex.items-center.justify-between');
+                        // Get the parent delivery item
+                        const deliveryItem = button.closest('.flex.items-center.justify-between');
+                        const deliveryDetails = deliveryItem.querySelector('.text-xs').textContent;
+                        const deliveryTime = deliveryItem.querySelector('.font-medium').textContent;
+                        const deliveryIcon = deliveryItem.querySelector('.text-lg').textContent;
 
-                        // Update the delivery card to show as skipped
-                        deliveryCard.innerHTML = `
-                            <div class="text-gray-500 dark:text-gray-400">
-                                <p class="font-semibold">${deliveryCard.querySelector('p.font-semibold').textContent}</p>
-                                <p class="text-sm">Skipped</p>
+                        // Update the delivery item to show as skipped
+                        deliveryItem.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <span class="text-lg opacity-50">${deliveryIcon}</span>
+                                <div class="text-gray-500 dark:text-gray-400">
+                                    <p class="font-medium text-sm line-through">${deliveryTime}</p>
+                                    <p class="text-xs">Skipped - ${deliveryDetails}</p>
+                                </div>
                             </div>
-                            <button class="bg-zepto-green/20 text-zepto-green text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-zepto-green/30 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] focus-visible:focus fade-in"
-                                onclick="undoSkipDelivery(this, '${day}')">
-                                Undo Skip
+                            <button onclick="undoSkipDelivery(${dayIndex}, '${slot}', this)" 
+                                    class="bg-zepto-green/20 text-zepto-green text-sm font-semibold px-4 py-2 rounded-full hover:bg-zepto-green/30 transition-all duration-200 min-h-[44px] min-w-[80px] flex items-center justify-center">
+                                Unskip
                             </button>
                         `;
 
-                        // Apply skipped styling
-                        deliveryCard.classList.remove('bg-zinc-100', 'dark:bg-zinc-700');
-                        deliveryCard.classList.add('bg-gray-100', 'dark:bg-zinc-600', 'opacity-70');
-
-                        showToast("Delivery skipped successfully");
-
-                        // Set a timeout to remove the undo option after 2 hours (for demo, using 10 seconds)
-                        setTimeout(() => {
-                            if (deliveryCard.querySelector('button') && deliveryCard.querySelector('button').textContent === 'Undo Skip') {
-                                deliveryCard.querySelector('button').remove();
-                                showToast("Undo option expired");
-                            }
-                        }, 10000); // 10 seconds for demo, change to 7200000 (2 hours) in production
+                        showToast("Skipped ✓");
                     }
                 }
             );
         }
 
-        function undoSkipDelivery(button, day) {
-            // Get the parent delivery card
-            const deliveryCard = button.closest('.flex.items-center.justify-between');
+        function undoSkipDelivery(dayIndex, slot, button) {
+            // Get the parent delivery item
+            const deliveryItem = button.closest('.flex.items-center.justify-between');
+            
+            // Get subscription data to restore original delivery info
+            const subscriptionData = getStoredSubscriptionData();
+            const planData = subscriptionData[slot];
+            
+            if (planData) {
+                const morningTimeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
+                const eveningTimeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
+                const morningTimeMap = {
+                    '7:00-7:30': '7:00 - 7:30 AM',
+                    '7:30-8:00': '7:30 - 8:00 AM',
+                    '8:00-8:30': '8:00 - 8:30 AM',
+                    '8:30-9:00': '8:30 - 9:00 AM'
+                };
+                const eveningTimeMap = {
+                    '6:00-6:30': '6:00 - 6:30 PM',
+                    '6:30-7:00': '6:30 - 7:00 PM',
+                    '7:00-7:30': '7:00 - 7:30 PM',
+                    '7:30-8:00': '7:30 - 8:00 PM'
+                };
+                const deliveryTime = slot === 'morning' ? 
+                    (morningTimeMap[morningTimeSlot] || '7:00 - 7:30 AM') : 
+                    (eveningTimeMap[eveningTimeSlot] || '6:00 - 6:30 PM');
+                const deliveryDetails = `${planData.quantity}L ${planData.milkType === 'buffalo' ? 'Buffalo' : 'Cow'} Milk`;
+                const deliveryIcon = slot === 'morning' ? '☀️' : '🌙';
+                
+                const canSkip = canSkipDelivery(dayIndex);
+                const skipButton = canSkip ? 
+                    `<button onclick="skipDelivery(${dayIndex}, '${slot}', this)" 
+                            class="bg-primary/20 text-background-dark text-sm font-semibold px-4 py-2 rounded-full hover:bg-primary/30 transition-all duration-200 min-h-[44px] min-w-[70px] flex items-center justify-center">
+                        Skip
+                    </button>` : 
+                    `<span class="text-xs text-gray-400 px-3 py-1">
+                        ${dayIndex === 0 ? 'Today' : 'Too late to skip'}
+                    </span>`;
 
-            // Restore the delivery card to active state
-            deliveryCard.innerHTML = `
-                <div>
-                    <p class="font-semibold text-gray-800 dark:text-gray-200">${day.charAt(0).toUpperCase() + day.slice(1)}</p>
-                    <p class="text-sm text-background-dark dark:text-primary">1L AM Delivery</p>
-                </div>
-                <button onclick="skipDelivery('${day}', this)"
-                    class="bg-primary/20 text-background-dark text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-primary/30 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] focus-visible:focus">
-                    Skip
-                </button>
-            `;
+                // Restore the delivery item to active state
+                deliveryItem.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg">${deliveryIcon}</span>
+                        <div>
+                            <p class="font-medium text-sm">${deliveryTime}</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400">${deliveryDetails}</p>
+                        </div>
+                    </div>
+                    ${skipButton}
+                `;
 
-            // Remove skipped styling
-            deliveryCard.classList.remove('bg-gray-100', 'dark:bg-zinc-600', 'opacity-70');
-            deliveryCard.classList.add('bg-zinc-100', 'dark:bg-zinc-700');
-
-            showToast("Delivery reinstated successfully");
+                showToast("Restored ✓");
+            }
         }
 
         function undoSkip(deliveryId) {
@@ -512,31 +548,17 @@
             deliveryCard.classList.remove('bg-gray-100', 'dark:bg-zinc-600', 'opacity-70');
             deliveryCard.classList.add('bg-zinc-100', 'dark:bg-zinc-700');
 
-            showToast("Delivery reinstated successfully");
+            showToast("Restored ✓");
         }
 
         function cancelSubscription() {
-            showConfirmation(
-                "Cancel Subscription",
-                "Are you sure you want to cancel your milk subscription? This action cannot be undone.",
-                function (confirmed) {
-                    if (confirmed) {
-                        // Implementation for canceling subscription
-                        showToast("Your milk subscription has been canceled");
-                        // Redirect after a delay
-                        setTimeout(() => {
-                            window.location.href = 'Cancel Subscription.html';
-                        }, 1500);
-                    }
-                },
-                true // Mark as destructive action
-            );
+            window.location.href = 'Cancel Subscription.html';
         }
 
         function showToast(message) {
-            // Create and show a toast notification
+            // Create and show a toast notification at the top
             const toast = document.createElement('div');
-            toast.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 fade-in';
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 fade-in';
             toast.textContent = message;
             document.body.appendChild(toast);
             setTimeout(() => {
@@ -544,13 +566,322 @@
             }, 1800);
         }
 
-        // Add subtle animation to delivery cards
-        document.addEventListener('DOMContentLoaded', function () {
-            const cards = document.querySelectorAll('.bg-zinc-100, .bg-gray-100');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-                card.classList.add('slide-up');
+        // Milk pricing configuration
+        const milkPrices = {
+            buffalo: 50,
+            cow: 40
+        };
+
+        // Load subscription data from localStorage
+        function loadSubscriptionData() {
+            const hasSubscription = localStorage.getItem('milkSubscription');
+            if (!hasSubscription) {
+                showNoSubscription();
+                return;
+            }
+
+            // Get subscription data (in real app, this would come from API)
+            const subscriptionData = getStoredSubscriptionData();
+            
+            if (subscriptionData) {
+                displaySubscriptionPlans(subscriptionData);
+                generateUpcomingDeliveries(subscriptionData);
+            } else {
+                showNoSubscription();
+            }
+        }
+
+        // Get stored subscription data
+        function getStoredSubscriptionData() {
+            // In a real app, this would be an API call
+            // For demo, we'll create sample data based on localStorage
+            const morningEnabled = localStorage.getItem('morningDelivery') === 'true';
+            const eveningEnabled = localStorage.getItem('eveningDelivery') === 'true';
+            
+            if (!morningEnabled && !eveningEnabled) {
+                return null;
+            }
+
+            return {
+                morning: morningEnabled ? {
+                    enabled: true,
+                    milkType: localStorage.getItem('morningMilkType') || 'buffalo',
+                    quantity: parseFloat(localStorage.getItem('morningQuantity') || '1.0'),
+                    frequency: localStorage.getItem('morningFrequency') || 'daily',
+                    days: JSON.parse(localStorage.getItem('morningDays') || '["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]')
+                } : null,
+                evening: eveningEnabled ? {
+                    enabled: true,
+                    milkType: localStorage.getItem('eveningMilkType') || 'cow',
+                    quantity: parseFloat(localStorage.getItem('eveningQuantity') || '0.5'),
+                    frequency: localStorage.getItem('eveningFrequency') || 'alternate',
+                    days: JSON.parse(localStorage.getItem('eveningDays') || '["monday","wednesday","friday"]')
+                } : null
+            };
+        }
+
+        // Display subscription plans
+        function displaySubscriptionPlans(data) {
+            document.getElementById('no-plan').classList.add('hidden');
+            
+            if (data.morning) {
+                const morningPlan = document.getElementById('morning-plan');
+                morningPlan.classList.remove('hidden');
+                
+                const milkTypeName = data.morning.milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
+                const dailyPrice = data.morning.quantity * milkPrices[data.morning.milkType];
+                const daysPerMonth = data.morning.frequency === 'daily' ? 30 : data.morning.days.length * 4;
+                const monthlyPrice = dailyPrice * daysPerMonth;
+                
+                document.getElementById('morning-plan-title').textContent = 
+                    `${data.morning.quantity}L ${milkTypeName}`;
+                document.getElementById('morning-frequency').textContent = 
+                    data.morning.frequency === 'daily' ? 'Daily' : 'Alternate Days';
+                
+                // Show selected time slot
+                const morningTimeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
+                const timeSlotMap = {
+                    '7:00-7:30': '7:00 - 7:30 AM',
+                    '7:30-8:00': '7:30 - 8:00 AM',
+                    '8:00-8:30': '8:00 - 8:30 AM',
+                    '8:30-9:00': '8:30 - 9:00 AM'
+                };
+                document.getElementById('morning-time-display').textContent = 
+                    timeSlotMap[morningTimeSlot] || '7:00 AM - 9:00 AM';
+                
+                // Show days for alternate frequency
+                const morningDaysElement = document.getElementById('morning-days');
+                if (data.morning.frequency === 'alternate') {
+                    const dayNames = {
+                        'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
+                        'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
+                    };
+                    const shortDays = data.morning.days.map(day => dayNames[day]).join(', ');
+                    morningDaysElement.textContent = shortDays;
+                    morningDaysElement.classList.remove('hidden');
+                } else {
+                    morningDaysElement.classList.add('hidden');
+                }
+                
+                document.getElementById('morning-cost').innerHTML = `<span class="text-lg font-bold">₹${monthlyPrice}</span><span class="text-sm">/month</span>`;
+            }
+            
+            if (data.evening) {
+                const eveningPlan = document.getElementById('evening-plan');
+                eveningPlan.classList.remove('hidden');
+                
+                const milkTypeName = data.evening.milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
+                const dailyPrice = data.evening.quantity * milkPrices[data.evening.milkType];
+                const daysPerMonth = data.evening.frequency === 'daily' ? 30 : data.evening.days.length * 4;
+                const monthlyPrice = dailyPrice * daysPerMonth;
+                
+                document.getElementById('evening-plan-title').textContent = 
+                    `${data.evening.quantity}L ${milkTypeName}`;
+                document.getElementById('evening-frequency').textContent = 
+                    data.evening.frequency === 'daily' ? 'Daily' : 'Alternate Days';
+                
+                // Show selected time slot
+                const eveningTimeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
+                const timeSlotMap = {
+                    '6:00-6:30': '6:00 - 6:30 PM',
+                    '6:30-7:00': '6:30 - 7:00 PM',
+                    '7:00-7:30': '7:00 - 7:30 PM',
+                    '7:30-8:00': '7:30 - 8:00 PM'
+                };
+                document.getElementById('evening-time-display').textContent = 
+                    timeSlotMap[eveningTimeSlot] || '6:00 PM - 8:00 PM';
+                
+                // Show days for alternate frequency
+                const eveningDaysElement = document.getElementById('evening-days');
+                if (data.evening.frequency === 'alternate') {
+                    const dayNames = {
+                        'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
+                        'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
+                    };
+                    const shortDays = data.evening.days.map(day => dayNames[day]).join(', ');
+                    eveningDaysElement.textContent = shortDays;
+                    eveningDaysElement.classList.remove('hidden');
+                } else {
+                    eveningDaysElement.classList.add('hidden');
+                }
+                
+                document.getElementById('evening-cost').innerHTML = `<span class="text-lg font-bold">₹${monthlyPrice}</span><span class="text-sm">/month</span>`;
+            }
+        }
+
+        // Generate upcoming deliveries for next 5 days
+        function generateUpcomingDeliveries(data) {
+            const deliveriesList = document.getElementById('deliveries-list');
+            const noDeliveries = document.getElementById('no-deliveries');
+            
+            deliveriesList.innerHTML = '';
+            
+            const today = new Date();
+            const currentHour = today.getHours();
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            
+            let hasDeliveries = false;
+            
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                
+                const dayName = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : dayNames[date.getDay()];
+                const dayKey = dayKeys[date.getDay()];
+                const dateStr = date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+                
+                const dayDeliveries = [];
+                
+                // Check morning delivery - skip if today and past 9 AM
+                if (data.morning && shouldDeliverOnDay(data.morning, dayKey)) {
+                    if (i === 0 && currentHour >= 9) {
+                        // Skip today's morning delivery if it's past 9 AM
+                    } else {
+                        const morningTimeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
+                        const timeSlotMap = {
+                            '7:00-7:30': '7:00 - 7:30 AM',
+                            '7:30-8:00': '7:30 - 8:00 AM',
+                            '8:00-8:30': '8:00 - 8:30 AM',
+                            '8:30-9:00': '8:30 - 9:00 AM'
+                        };
+                        const displayTime = timeSlotMap[morningTimeSlot] || '7:00 - 7:30 AM';
+                        
+                        dayDeliveries.push({
+                            time: displayTime,
+                            details: `${data.morning.quantity}L ${data.morning.milkType === 'buffalo' ? 'Buffalo' : 'Cow'} Milk`,
+                            icon: '☀️',
+                            slot: 'morning'
+                        });
+                    }
+                }
+                
+                // Check evening delivery - always show for today if scheduled
+                if (data.evening && shouldDeliverOnDay(data.evening, dayKey)) {
+                    const eveningTimeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
+                    const timeSlotMap = {
+                        '6:00-6:30': '6:00 - 6:30 PM',
+                        '6:30-7:00': '6:30 - 7:00 PM',
+                        '7:00-7:30': '7:00 - 7:30 PM',
+                        '7:30-8:00': '7:30 - 8:00 PM'
+                    };
+                    const displayTime = timeSlotMap[eveningTimeSlot] || '6:00 - 6:30 PM';
+                    
+                    dayDeliveries.push({
+                        time: displayTime,
+                        details: `${data.evening.quantity}L ${data.evening.milkType === 'buffalo' ? 'Buffalo' : 'Cow'} Milk`,
+                        icon: '🌙',
+                        slot: 'evening',
+                        status: i === 0 && currentHour < 18 ? 'pending' : null
+                    });
+                }
+                
+                if (dayDeliveries.length > 0) {
+                    hasDeliveries = true;
+                    const deliveryCard = createDeliveryCard(dayName, dateStr, dayDeliveries, i);
+                    deliveriesList.appendChild(deliveryCard);
+                }
+            }
+            
+            if (!hasDeliveries) {
+                noDeliveries.classList.remove('hidden');
+            }
+        }
+
+        // Check if delivery should happen on a specific day
+        function shouldDeliverOnDay(planData, dayKey) {
+            if (planData.frequency === 'daily') {
+                return true;
+            }
+            return planData.days.includes(dayKey);
+        }
+
+        // Create delivery card element
+        function createDeliveryCard(dayName, dateStr, deliveries, dayIndex) {
+            const card = document.createElement('div');
+            card.className = 'border border-gray-200 dark:border-zinc-600 rounded-lg p-3';
+            
+            let deliveriesHtml = '';
+            deliveries.forEach(delivery => {
+                const canSkip = canSkipDelivery(dayIndex);
+                let actionButton = '';
+                
+                if (delivery.status === 'pending' && dayIndex === 0) {
+                    actionButton = `<span class="text-sm bg-orange-100 text-orange-600 px-4 py-2 rounded-full min-h-[44px] flex items-center justify-center">
+                        Pending
+                    </span>`;
+                } else if (canSkip) {
+                    actionButton = `<button onclick="skipDelivery(${dayIndex}, '${delivery.slot}', this)" 
+                            class="bg-primary/20 text-background-dark text-sm font-semibold px-4 py-2 rounded-full hover:bg-primary/30 transition-all duration-200 min-h-[44px] min-w-[70px] flex items-center justify-center">
+                        Skip
+                    </button>`;
+                } else {
+                    actionButton = `<span class="text-sm text-gray-400 px-4 py-2 min-h-[44px] flex items-center justify-center">
+                        ${dayIndex === 0 ? 'Today' : 'Too late'}
+                    </span>`;
+                }
+                
+                deliveriesHtml += `
+                    <div class="flex items-center justify-between mb-2 last:mb-0">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg">${delivery.icon}</span>
+                            <div>
+                                <p class="font-medium text-sm">${delivery.time}</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">${delivery.details}</p>
+                                ${delivery.status === 'pending' ? '<p class="text-xs text-orange-600">Not delivered yet</p>' : ''}
+                            </div>
+                        </div>
+                        ${actionButton}
+                    </div>
+                `;
             });
+            
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <p class="font-semibold text-gray-800 dark:text-gray-200">${dayName}</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400">${dateStr}</p>
+                    </div>
+                    <span class="text-xs bg-zepto-green/20 text-zepto-green px-2 py-1 rounded-full">
+                        ${deliveries.length} delivery${deliveries.length > 1 ? 's' : ''}
+                    </span>
+                </div>
+                ${deliveriesHtml}
+            `;
+            
+            return card;
+        }
+
+        // Show no subscription state
+        function showNoSubscription() {
+            document.getElementById('morning-plan').classList.add('hidden');
+            document.getElementById('evening-plan').classList.add('hidden');
+            document.getElementById('no-plan').classList.remove('hidden');
+            document.getElementById('no-deliveries').classList.remove('hidden');
+        }
+
+        // Check if delivery can be skipped based on day and time
+        function canSkipDelivery(dayIndex) {
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            // Can't skip today's delivery
+            if (dayIndex === 0) {
+                return false;
+            }
+            
+            // Can skip tomorrow's delivery only until 6 PM today
+            if (dayIndex === 1) {
+                return currentHour < 18; // Before 6 PM
+            }
+            
+            // Can skip deliveries for day 2 onwards
+            return true;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function () {
+            loadSubscriptionData();
         });
     </script>
 </body>

@@ -72,6 +72,14 @@
             transition: background-color 0.2s;
         }
 
+        @media (max-width: 640px) {
+            .time-slot-header {
+                padding: 12px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+        }
+
         .dark .time-slot-header {
             background-color: #1f2937;
         }
@@ -88,6 +96,14 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        @media (max-width: 640px) {
+            .time-slot-title {
+                gap: 8px;
+            }
         }
 
         .time-slot-icon {
@@ -105,6 +121,12 @@
             color: #1f2937;
         }
 
+        @media (max-width: 640px) {
+            .time-slot-name {
+                font-size: 14px;
+            }
+        }
+
         .dark .time-slot-name {
             color: #f9fafb;
         }
@@ -112,6 +134,12 @@
         .time-slot-time {
             font-size: 14px;
             color: #6b7280;
+        }
+
+        @media (max-width: 640px) {
+            .time-slot-time {
+                font-size: 12px;
+            }
         }
 
         .toggle-switch {
@@ -172,7 +200,14 @@
 
         .time-slot-content.expanded {
             padding: 16px;
-            max-height: 500px;
+            max-height: 700px;
+        }
+
+        @media (max-width: 640px) {
+            .time-slot-content.expanded {
+                padding: 12px;
+                max-height: 800px;
+            }
         }
 
         .option-group {
@@ -188,6 +223,13 @@
             font-weight: 600;
             color: #374151;
             margin-bottom: 8px;
+        }
+
+        @media (max-width: 640px) {
+            .option-group-title {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
         }
 
         .dark .option-group-title {
@@ -257,6 +299,13 @@
             gap: 12px;
         }
 
+        @media (max-width: 640px) {
+            .frequency-options {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
         .frequency-option {
             flex: 1;
             text-align: center;
@@ -266,6 +315,12 @@
             cursor: pointer;
             transition: all 0.2s;
             background: white;
+        }
+
+        @media (max-width: 640px) {
+            .frequency-option {
+                padding: 10px 8px;
+            }
         }
 
         .dark .frequency-option {
@@ -310,28 +365,6 @@
             color: #9ca3af;
         }
 
-        .time-slot-summary {
-            background-color: #f3f4f6;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 12px;
-            font-size: 14px;
-            color: #374151;
-        }
-
-        .dark .time-slot-summary {
-            background-color: #374151;
-            color: #d1d5db;
-        }
-
-        .time-slot-summary strong {
-            color: #0C2D57;
-        }
-
-        .dark .time-slot-summary strong {
-            color: #FFD700;
-        }
-
         .day-selector {
             display: flex;
             gap: 0.5rem;
@@ -341,6 +374,22 @@
         .day-option {
             flex: 1;
             min-width: calc(33.333% - 0.5rem);
+        }
+
+        @media (max-width: 640px) {
+            .day-selector {
+                gap: 0.25rem;
+            }
+            
+            .day-option {
+                min-width: calc(50% - 0.25rem);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .day-option {
+                min-width: calc(33.333% - 0.25rem);
+            }
         }
 
         .day-checkbox:checked+.day-content {
@@ -362,6 +411,13 @@
             cursor: pointer;
             transition: all 0.2s;
             background-color: white;
+        }
+
+        @media (max-width: 640px) {
+            .day-content {
+                padding: 0.5rem;
+                font-size: 14px;
+            }
         }
 
         .dark .day-content {
@@ -399,6 +455,14 @@
             max-width: 500px;
             max-height: 80vh;
             overflow-y: auto;
+        }
+
+        @media (max-width: 640px) {
+            .modal-content {
+                width: 95%;
+                padding: 16px;
+                max-height: 85vh;
+            }
         }
 
         .dark .modal-content {
@@ -493,6 +557,13 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .milk-type-options {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
         }
 
         .milk-type-option {
@@ -712,6 +783,137 @@
             opacity: 0.5;
             pointer-events: none;
         }
+
+        /* Custom select dropdown styling */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        @media (max-width: 640px) {
+            select {
+                padding: 10px 2rem 10px 12px;
+                font-size: 14px;
+            }
+        }
+
+        .dark select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%9ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(12, 45, 87, 0.1);
+        }
+
+        .dark select:focus {
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        /* UI Improvements */
+        .price-highlight {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0C2D57;
+        }
+
+        .dark .price-highlight {
+            color: #FFD700;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .section-icon {
+            font-size: 20px;
+            color: #0C2D57;
+        }
+
+        .dark .section-icon {
+            color: #FFD700;
+        }
+
+        /* Mobile-specific improvements */
+        @media (max-width: 640px) {
+            .time-slot-icon {
+                font-size: 20px;
+            }
+            
+            .milk-type-icon {
+                font-size: 28px;
+                margin-bottom: 6px;
+            }
+            
+            .milk-type-name {
+                font-size: 14px;
+                margin-bottom: 2px;
+            }
+            
+            .milk-type-price {
+                font-size: 12px;
+            }
+            
+            .milk-type-option {
+                padding: 12px;
+            }
+            
+            .section-header {
+                margin-bottom: 8px;
+            }
+            
+            .section-icon {
+                font-size: 18px;
+            }
+            
+            /* Better touch targets */
+            .toggle-switch {
+                width: 40px;
+                height: 22px;
+            }
+            
+            .toggle-slider:before {
+                height: 16px;
+                width: 16px;
+                left: 3px;
+                bottom: 3px;
+            }
+            
+            input:checked+.toggle-slider:before {
+                transform: translateX(18px);
+            }
+            
+            /* Improved spacing */
+            .option-group {
+                margin-bottom: 12px;
+            }
+            
+            .time-slot-card {
+                margin-bottom: 12px;
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .time-slot-header {
+                padding: 10px;
+            }
+            
+            .time-slot-content.expanded {
+                padding: 10px;
+            }
+            
+            .milk-type-option {
+                padding: 10px;
+            }
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
@@ -731,12 +933,13 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-grow p-4 space-y-6 slide-up">
+        <main class="flex-grow p-3 sm:p-4 space-y-4 sm:space-y-6 slide-up">
             <!-- Delivery Time Slot with Quantity and Frequency Selection -->
-            <div class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
-                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-3">Delivery Schedule</h2>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Customize your delivery times, quantities, and
-                    frequencies</p>
+            <div class="bg-white dark:bg-zinc-800 rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
+                <div class="section-header">
+                    <span class="material-symbols-outlined section-icon">schedule</span>
+                    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Delivery Schedule</h2>
+                </div>
 
                 <!-- Morning Time Slot Card -->
                 <div class="time-slot-card active" id="morning-card">
@@ -748,14 +951,14 @@
                                 <div class="time-slot-time">7:00 AM - 9:00 AM</div>
                             </div>
                         </div>
-                        <div class="time-slot-toggle">
-                            <span class="text-sm text-gray-600 dark:text-gray-400 mr-2">OFF</span>
+                        <div class="time-slot-toggle flex items-center gap-2 flex-shrink-0">
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">OFF</span>
                             <label class="toggle-switch">
                                 <input type="checkbox" checked id="morning-toggle"
                                     onchange="toggleTimeSlotEnabled('morning')">
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span class="text-sm text-zepto-yellow ml-2">ON</span>
+                            <span class="text-xs sm:text-sm text-zepto-yellow">ON</span>
                         </div>
                     </div>
                     <div class="time-slot-content expanded" id="morning-content">
@@ -782,12 +985,25 @@
                             </div>
                         </div>
 
+                        <!-- Delivery Time Selection -->
+                        <div class="option-group">
+                            <div class="option-group-title">🕐 When would you like your milk delivered?</div>
+                            <select id="morning-time-select" class="w-full p-3 sm:p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent transition-all text-sm sm:text-base">
+                                <option value="6:00-6:30">6:00 - 6:30 AM</option>
+                                <option value="6:30-7:00">6:30 - 7:00 AM</option>
+                                <option value="7:00-7:30" selected>7:00 - 7:30 AM</option>
+                                <option value="7:30-8:00">7:30 - 8:00 AM</option>
+                                <option value="8:00-8:30">8:00 - 8:30 AM</option>
+                                <option value="8:30-9:00">8:30 - 9:00 AM</option>
+                            </select>
+                        </div>
+
                         <!-- Quantity Selection -->
                         <div class="option-group">
                             <div class="option-group-title">Select Quantity</div>
-                            <div class="quantity-options" id="morning-quantity-options">
+                            <select id="morning-quantity-select" class="w-full p-3 sm:p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent transition-all text-sm sm:text-base">
                                 <!-- Quantity options will be dynamically updated based on milk type -->
-                            </div>
+                            </select>
                         </div>
 
                         <!-- Frequency Selection -->
@@ -804,10 +1020,6 @@
                                 </label>
                             </div>
                         </div>
-
-                        <!-- Summary for Morning Delivery -->
-                        <div class="time-slot-summary" id="morning-slot-summary">
-                        </div>
                     </div>
                 </div>
 
@@ -821,13 +1033,13 @@
                                 <div class="time-slot-time">6:00 PM - 8:00 PM</div>
                             </div>
                         </div>
-                        <div class="time-slot-toggle">
-                            <span class="text-sm text-gray-600 dark:text-gray-400 mr-2">OFF</span>
+                        <div class="time-slot-toggle flex items-center gap-2 flex-shrink-0">
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">OFF</span>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="evening-toggle" onchange="toggleTimeSlotEnabled('evening')">
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span class="text-sm text-zepto-yellow ml-2">ON</span>
+                            <span class="text-xs sm:text-sm text-zepto-yellow">ON</span>
                         </div>
                     </div>
                     <div class="time-slot-content" id="evening-content">
@@ -853,12 +1065,23 @@
                             </div>
                         </div>
 
+                        <!-- Delivery Time Selection -->
+                        <div class="option-group">
+                            <div class="option-group-title">🕕 When would you like your milk delivered?</div>
+                            <select id="evening-time-select" class="w-full p-3 sm:p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent transition-all text-sm sm:text-base">
+                                <option value="5:30-6:00">5:30 - 6:00 PM</option>
+                                <option value="6:00-6:30" selected>6:00 - 6:30 PM</option>
+                                <option value="6:30-7:00">6:30 - 7:00 PM</option>
+                                <option value="7:00-7:30">7:00 - 7:30 PM</option>
+                            </select>
+                        </div>
+
                         <!-- Quantity Selection -->
                         <div class="option-group">
                             <div class="option-group-title">Select Quantity</div>
-                            <div class="quantity-options" id="evening-quantity-options">
+                            <select id="evening-quantity-select" class="w-full p-3 sm:p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent transition-all text-sm sm:text-base">
                                 <!-- Quantity options will be dynamically updated based on milk type -->
-                            </div>
+                            </select>
                         </div>
 
                         <!-- Frequency Selection -->
@@ -875,21 +1098,17 @@
                                 </label>
                             </div>
                         </div>
-
-                        <!-- Summary for Evening Delivery -->
-                        <div class="time-slot-summary" id="evening-slot-summary">
-                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Subscription Summary -->
             <div
-                class="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-gray-100 dark:border-zinc-700 shadow-sm sticky-summary">
-                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
-                    <span class="material-symbols-outlined mr-2">receipt_long</span>
-                    Subscription Summary
-                </h3>
+                class="bg-white dark:bg-zinc-800 p-3 sm:p-4 rounded-xl border border-gray-100 dark:border-zinc-700 shadow-sm sticky-summary">
+                <div class="section-header">
+                    <span class="material-symbols-outlined section-icon">receipt_long</span>
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Subscription Summary</h3>
+                </div>
 
                 <div id="summary-container" class="space-y-3 mb-3">
                     <!-- Summary items will be dynamically inserted here -->
@@ -898,7 +1117,7 @@
                 <div class="border-t border-gray-200 dark:border-zinc-600 my-3"></div>
                 <div class="flex justify-between items-center font-bold">
                     <p class="text-base text-gray-800 dark:text-gray-200">Estimated Monthly Price</p>
-                    <p class="text-xl text-zepto-blue dark:text-zepto-yellow" id="monthly-price">₹1500/month</p>
+                    <p class="text-xl price-highlight" id="monthly-price">₹1500/month</p>
                 </div>
                 <div class="mt-2 text-xs text-gray-500 dark:text-gray-400" id="price-breakdown">
                     Morning: ₹50/day × 30 days = ₹1500<br>
@@ -909,7 +1128,7 @@
 
         <!-- Footer with Confirm Button -->
         <footer
-            class="p-4 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200 dark:border-zinc-700 z-[1001]"
+            class="p-3 sm:p-4 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200 dark:border-zinc-700 z-[1001]"
             style="z-index:1001;">
             <button id="confirm-btn" onclick="confirmSubscription(event)"
                 class="w-full bg-primary text-background-dark font-bold py-3 px-4 rounded-lg text-center hover:bg-yellow-500 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus"
@@ -946,48 +1165,48 @@
                 </div>
             </div>
             <div class="day-selector">
-                <label class="day-option">
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="monday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Mon</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="tuesday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Tue</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="wednesday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Wed</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="thursday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Thu</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="friday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Fri</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="saturday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Sat</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="morning_delivery_days" value="sunday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Sun</span>
                     </div>
-                </label>
+                </div>
             </div>
             <div id="morning-selected-days-summary" class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 Selected days: None
@@ -1025,48 +1244,48 @@
                 </div>
             </div>
             <div class="day-selector">
-                <label class="day-option">
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="monday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Mon</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="tuesday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Tue</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="wednesday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Wed</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="thursday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Thu</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="friday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Fri</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="saturday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Sat</span>
                     </div>
-                </label>
-                <label class="day-option">
+                </div>
+                <div class="day-option">
                     <input type="checkbox" class="sr-only day-checkbox" name="evening_delivery_days" value="sunday">
-                    <div class="day-content">
+                    <div class="day-content cursor-pointer">
                         <span class="font-medium">Sun</span>
                     </div>
-                </label>
+                </div>
             </div>
             <div id="evening-selected-days-summary" class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 Selected days: None
@@ -1106,6 +1325,9 @@
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function () {
+            // Check if we're editing an existing subscription
+            const isEditing = localStorage.getItem('editingSubscription') === 'true';
+            
             // Initialize milk type selection for both slots
             initializeMilkTypeSelection('morning');
             initializeMilkTypeSelection('evening');
@@ -1114,9 +1336,20 @@
             updateQuantityOptions('morning');
             updateQuantityOptions('evening');
 
+            // Initialize time slot dropdowns
+            initializeTimeSlotDropdowns();
+
             // Initialize frequency selection
             initializeFrequencySelection('morning');
             initializeFrequencySelection('evening');
+
+            // Load existing subscription data if editing
+            if (isEditing) {
+                loadExistingSubscriptionData();
+                // Update header to show we're editing
+                document.querySelector('header h1').textContent = 'Edit Milk Subscription';
+                document.getElementById('confirm-btn').textContent = 'Update Subscription';
+            }
 
             // Update the summary
             updateSummary();
@@ -1145,37 +1378,48 @@
 
         // Update quantity options based on selected milk type
         function updateQuantityOptions(slot) {
-            const quantityContainer = document.getElementById(`${slot}-quantity-options`);
-            const selectedMilkType = document.querySelector(`input[name="${slot}_milk_type"]:checked`).value;
-            const milkPrice = milkPrices[selectedMilkType];
+            const quantitySelect = document.getElementById(`${slot}-quantity-select`);
 
             // Clear existing options
-            quantityContainer.innerHTML = '';
+            quantitySelect.innerHTML = '';
 
-            // Create new options based on the selected milk type
+            // Create new options without prices
             quantityOptions.forEach(option => {
-                const price = option.value * milkPrice;
-                const optionElement = document.createElement('label');
-                optionElement.className = 'quantity-option';
-                if (option.value === 1.0) {
-                    optionElement.classList.add('selected');
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.label;
+                if (option.value === 0.5) {
+                    optionElement.selected = true;
                 }
-                optionElement.innerHTML = `
-                    <div class="quantity-label">${option.label}</div>
-                    <div class="quantity-price">₹${price}</div>
-                `;
-                optionElement.addEventListener('click', function () {
-                    // Remove selected class from all options
-                    document.querySelectorAll(`#${slot}-quantity-options .quantity-option`).forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    // Add selected class to clicked option
-                    this.classList.add('selected');
-                    // Update the summary
-                    updateSummary();
-                });
-                quantityContainer.appendChild(optionElement);
+                quantitySelect.appendChild(optionElement);
             });
+
+            // Add event listener for changes
+            quantitySelect.addEventListener('change', updateSummary);
+        }
+
+        // Initialize time slot dropdowns
+        function initializeTimeSlotDropdowns() {
+            const morningSelect = document.getElementById('morning-time-select');
+            const eveningSelect = document.getElementById('evening-time-select');
+            const morningQuantitySelect = document.getElementById('morning-quantity-select');
+            const eveningQuantitySelect = document.getElementById('evening-quantity-select');
+            
+            if (morningSelect) {
+                morningSelect.addEventListener('change', updateSummary);
+            }
+            
+            if (eveningSelect) {
+                eveningSelect.addEventListener('change', updateSummary);
+            }
+            
+            if (morningQuantitySelect) {
+                morningQuantitySelect.addEventListener('change', updateSummary);
+            }
+            
+            if (eveningQuantitySelect) {
+                eveningQuantitySelect.addEventListener('change', updateSummary);
+            }
         }
 
         // Initialize frequency selection
@@ -1215,7 +1459,7 @@
             }
         }
 
-        // Toggle time slot enabled/disabled
+        // Toggle time slot enabled/disabled - now auto-expands when enabled
         function toggleTimeSlotEnabled(slot) {
             const toggle = document.getElementById(`${slot}-toggle`);
             const content = document.getElementById(`${slot}-content`);
@@ -1224,9 +1468,15 @@
             if (toggle.checked) {
                 card.classList.remove('disabled');
                 content.classList.remove('disabled');
+                // Auto-expand the section when enabled
+                content.classList.add('expanded');
+                card.classList.add('active');
             } else {
                 card.classList.add('disabled');
                 content.classList.add('disabled');
+                // Collapse the section when disabled
+                content.classList.remove('expanded');
+                card.classList.remove('active');
             }
 
             // Update the summary
@@ -1238,36 +1488,72 @@
             const modal = document.getElementById(`${slot}-days-modal`);
             modal.style.display = 'flex';
 
-            // Initialize select all and clear all buttons
-            document.getElementById(`${slot}-select-all-days`).addEventListener('click', function () {
+            // Remove existing event listeners to prevent duplicates
+            const selectAllBtn = document.getElementById(`${slot}-select-all-days`);
+            const clearAllBtn = document.getElementById(`${slot}-clear-all-days`);
+            
+            // Clone buttons to remove all event listeners
+            const newSelectAllBtn = selectAllBtn.cloneNode(true);
+            const newClearAllBtn = clearAllBtn.cloneNode(true);
+            selectAllBtn.parentNode.replaceChild(newSelectAllBtn, selectAllBtn);
+            clearAllBtn.parentNode.replaceChild(newClearAllBtn, clearAllBtn);
+
+            // Add fresh event listeners
+            newSelectAllBtn.addEventListener('click', function () {
                 document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]`).forEach(checkbox => {
                     checkbox.checked = true;
-                    checkbox.closest('.day-option').querySelector('.day-content').classList.add('day-checkbox:checked');
+                    updateDayVisualState(checkbox);
                 });
                 updateSelectedDaysSummary(slot);
             });
 
-            document.getElementById(`${slot}-clear-all-days`).addEventListener('click', function () {
+            newClearAllBtn.addEventListener('click', function () {
                 document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]`).forEach(checkbox => {
                     checkbox.checked = false;
-                    checkbox.closest('.day-option').querySelector('.day-content').classList.remove('day-checkbox:checked');
+                    updateDayVisualState(checkbox);
                 });
                 updateSelectedDaysSummary(slot);
             });
 
-            // Add event listeners to day checkboxes
-            document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]`).forEach(checkbox => {
+            // Add click listeners to day labels for better mobile interaction
+            document.querySelectorAll(`#${slot}-days-modal .day-option`).forEach(dayOption => {
+                const checkbox = dayOption.querySelector('input[type="checkbox"]');
+                const dayContent = dayOption.querySelector('.day-content');
+                
+                // Remove existing listeners
+                const newDayContent = dayContent.cloneNode(true);
+                dayContent.parentNode.replaceChild(newDayContent, dayContent);
+                
+                // Add click listener to the day content
+                newDayContent.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    checkbox.checked = !checkbox.checked;
+                    updateDayVisualState(checkbox);
+                    updateSelectedDaysSummary(slot);
+                });
+                
+                // Also add change listener to checkbox
                 checkbox.addEventListener('change', function () {
-                    if (this.checked) {
-                        this.closest('.day-option').querySelector('.day-content').classList.add('day-checkbox:checked');
-                    } else {
-                        this.closest('.day-option').querySelector('.day-content').classList.remove('day-checkbox:checked');
-                    }
+                    updateDayVisualState(this);
                     updateSelectedDaysSummary(slot);
                 });
             });
 
             updateSelectedDaysSummary(slot);
+        }
+        
+        // Helper function to update day visual state
+        function updateDayVisualState(checkbox) {
+            const dayContent = checkbox.closest('.day-option').querySelector('.day-content');
+            if (checkbox.checked) {
+                dayContent.style.backgroundColor = '#0C2D57';
+                dayContent.style.color = 'white';
+                dayContent.style.borderColor = '#0C2D57';
+            } else {
+                dayContent.style.backgroundColor = 'white';
+                dayContent.style.color = '#374151';
+                dayContent.style.borderColor = '#e5e7eb';
+            }
         }
 
         // Close days selection modal
@@ -1345,10 +1631,14 @@
         function getSlotSummary(slot) {
             const milkType = document.querySelector(`input[name="${slot}_milk_type"]:checked`).value;
             const milkPrice = milkPrices[milkType];
-            const quantityOption = document.querySelector(`#${slot}-quantity-options .quantity-option.selected`);
-            const quantityLabel = quantityOption.querySelector('.quantity-label').textContent;
-            const quantityValue = parseFloat(quantityLabel.replace('L', ''));
+            const quantitySelect = document.getElementById(`${slot}-quantity-select`);
+            const quantityValue = parseFloat(quantitySelect.value);
+            const quantityLabel = `${quantityValue}L`;
             const dailyPrice = quantityValue * milkPrice;
+
+            const timeSlotSelect = document.getElementById(`${slot}-time-select`);
+            const timeSlot = timeSlotSelect ? timeSlotSelect.value : (slot === 'morning' ? '7:00-7:30' : '6:00-6:30');
+            const timeSlotLabel = timeSlotSelect ? timeSlotSelect.options[timeSlotSelect.selectedIndex].text : (slot === 'morning' ? '7:00 - 7:30 AM' : '6:00 - 6:30 PM');
 
             const frequencyOption = document.querySelector(`#${slot}-content .frequency-option.selected`);
             const frequency = frequencyOption.getAttribute('data-value');
@@ -1370,22 +1660,17 @@
 
             const monthlyPrice = dailyPrice * daysPerMonth;
 
-            // Update the slot summary
-            const slotSummaryElement = document.getElementById(`${slot}-slot-summary`);
-            const timeRange = slot === 'morning' ? '7:00-9:00 AM' : '6:00-8:00 PM';
-            const milkTypeName = milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
-            slotSummaryElement.innerHTML = `<strong>${slot.charAt(0).toUpperCase() + slot.slice(1)} Summary:</strong> ${quantityLabel} ${milkTypeName} delivered ${frequency === 'daily' ? 'daily' : 'on ' + deliveryDays.join(', ')} at ${timeRange} for ₹${dailyPrice}/day`;
-
             return {
                 slot: slot,
-                milkType: milkTypeName,
+                milkType: milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk',
                 quantity: quantityLabel,
                 frequency: frequency,
                 deliveryDays: deliveryDays,
                 dailyPrice: dailyPrice,
                 daysPerMonth: daysPerMonth,
                 monthlyPrice: monthlyPrice,
-                timeRange: timeRange
+                timeRange: timeSlotLabel,
+                timeSlot: timeSlot
             };
         }
 
@@ -1443,29 +1728,84 @@
             const progressBar = document.getElementById('progress-bar');
             const progress = document.getElementById('progress');
 
-            // Show progress bar
+            // Show loading state
             button.disabled = true;
             button.textContent = 'Processing...';
-            progressBar.classList.remove('hidden');
 
             // Simulate processing
-            let width = 0;
-            const interval = setInterval(() => {
-                if (width >= 100) {
-                    clearInterval(interval);
+            setTimeout(() => {
                     
-                    // Save subscription status
+                    // Save subscription status and detailed data
                     localStorage.setItem('milkSubscription', 'true');
                     
-                    showToast('Subscription confirmed successfully!');
+                    // Save morning delivery data if enabled
+                    const morningToggle = document.getElementById('morning-toggle');
+                    if (morningToggle && morningToggle.checked) {
+                        localStorage.setItem('morningDelivery', 'true');
+                        const morningMilkType = document.querySelector('input[name="morning_milk_type"]:checked')?.value || 'buffalo';
+                        const morningQuantity = document.getElementById('morning-quantity-select')?.value || '0.5';
+                        const morningFrequency = document.querySelector('#morning-content .frequency-option.selected')?.getAttribute('data-value') || 'daily';
+                        const morningTimeSlot = document.getElementById('morning-time-select')?.value || '7:00-7:30';
+                        
+                        localStorage.setItem('morningMilkType', morningMilkType);
+                        localStorage.setItem('morningQuantity', morningQuantity);
+                        localStorage.setItem('morningFrequency', morningFrequency);
+                        localStorage.setItem('morningTimeSlot', morningTimeSlot);
+                        
+                        if (morningFrequency === 'alternate') {
+                            const selectedDays = Array.from(document.querySelectorAll('#morning-days-modal input[type="checkbox"]:checked'))
+                                .map(cb => cb.value);
+                            localStorage.setItem('morningDays', JSON.stringify(selectedDays));
+                        } else {
+                            localStorage.setItem('morningDays', JSON.stringify(['monday','tuesday','wednesday','thursday','friday','saturday','sunday']));
+                        }
+                    } else {
+                        localStorage.setItem('morningDelivery', 'false');
+                    }
+                    
+                    // Save evening delivery data if enabled
+                    const eveningToggle = document.getElementById('evening-toggle');
+                    if (eveningToggle && eveningToggle.checked) {
+                        localStorage.setItem('eveningDelivery', 'true');
+                        const eveningMilkType = document.querySelector('input[name="evening_milk_type"]:checked')?.value || 'cow';
+                        const eveningQuantity = document.getElementById('evening-quantity-select')?.value || '0.5';
+                        const eveningFrequency = document.querySelector('#evening-content .frequency-option.selected')?.getAttribute('data-value') || 'alternate';
+                        const eveningTimeSlot = document.getElementById('evening-time-select')?.value || '6:00-6:30';
+                        
+                        localStorage.setItem('eveningMilkType', eveningMilkType);
+                        localStorage.setItem('eveningQuantity', eveningQuantity);
+                        localStorage.setItem('eveningFrequency', eveningFrequency);
+                        localStorage.setItem('eveningTimeSlot', eveningTimeSlot);
+                        
+                        if (eveningFrequency === 'alternate') {
+                            const selectedDays = Array.from(document.querySelectorAll('#evening-days-modal input[type="checkbox"]:checked'))
+                                .map(cb => cb.value);
+                            localStorage.setItem('eveningDays', JSON.stringify(selectedDays));
+                        } else {
+                            localStorage.setItem('eveningDays', JSON.stringify(['monday','tuesday','wednesday','thursday','friday','saturday','sunday']));
+                        }
+                    } else {
+                        localStorage.setItem('eveningDelivery', 'false');
+                    }
+                    
+                    // Check if this was an update
+                    const isEditing = localStorage.getItem('editingSubscription') === 'true';
+                    
+                    // Set update flag if editing
+                    if (isEditing) {
+                        localStorage.setItem('subscriptionUpdate', 'true');
+                    }
+                    
+                    // Clear editing flag
+                    localStorage.removeItem('editingSubscription');
+                    
+                    const message = isEditing ? 'Updated ✓' : 'Subscribed ✓';
+                    showToast(message);
+                    
                     setTimeout(() => {
-                        window.location.href = 'Subscription Success Page.html';
+                        window.location.href = 'Subscription Confirmed page.html';
                     }, 1000);
-                } else {
-                    width += 10;
-                    progress.style.width = width + '%';
-                }
-            }, 100);
+            }, 1000);
         }
 
         // Show toast notification
@@ -1479,8 +1819,129 @@
             }, 3000);
         }
 
+        // Load existing subscription data for editing
+        function loadExistingSubscriptionData() {
+            // Load morning delivery data
+            const morningEnabled = localStorage.getItem('morningDelivery') === 'true';
+            if (morningEnabled) {
+                const morningToggle = document.getElementById('morning-toggle');
+                morningToggle.checked = true;
+                toggleTimeSlotEnabled('morning');
+                
+                // Set milk type
+                const morningMilkType = localStorage.getItem('morningMilkType') || 'buffalo';
+                const morningMilkRadio = document.querySelector(`input[name="morning_milk_type"][value="${morningMilkType}"]`);
+                if (morningMilkRadio) {
+                    morningMilkRadio.checked = true;
+                    morningMilkRadio.closest('.milk-type-option').classList.add('selected');
+                    document.querySelectorAll('input[name="morning_milk_type"]').forEach(radio => {
+                        if (radio !== morningMilkRadio) {
+                            radio.closest('.milk-type-option').classList.remove('selected');
+                        }
+                    });
+                }
+                
+                // Set quantity
+                setTimeout(() => {
+                    const morningQuantity = localStorage.getItem('morningQuantity') || '0.5';
+                    const quantitySelect = document.getElementById('morning-quantity-select');
+                    if (quantitySelect) {
+                        quantitySelect.value = morningQuantity;
+                    }
+                }, 100);
+                
+                // Set time slot
+                const morningTimeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
+                const morningTimeSelect = document.getElementById('morning-time-select');
+                if (morningTimeSelect) {
+                    morningTimeSelect.value = morningTimeSlot;
+                }
+                
+                // Set frequency
+                const morningFrequency = localStorage.getItem('morningFrequency') || 'daily';
+                const morningFreqOption = document.querySelector(`#morning-content .frequency-option[data-value="${morningFrequency}"]`);
+                if (morningFreqOption) {
+                    document.querySelectorAll('#morning-content .frequency-option').forEach(opt => opt.classList.remove('selected'));
+                    morningFreqOption.classList.add('selected');
+                }
+                
+                // Set days if alternate frequency
+                if (morningFrequency === 'alternate') {
+                    const morningDays = JSON.parse(localStorage.getItem('morningDays') || '[]');
+                    setTimeout(() => {
+                        morningDays.forEach(day => {
+                            const checkbox = document.querySelector(`#morning-days-modal input[value="${day}"]`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    }, 200);
+                }
+            }
+            
+            // Load evening delivery data
+            const eveningEnabled = localStorage.getItem('eveningDelivery') === 'true';
+            if (eveningEnabled) {
+                const eveningToggle = document.getElementById('evening-toggle');
+                eveningToggle.checked = true;
+                toggleTimeSlotEnabled('evening');
+                
+                // Set milk type
+                const eveningMilkType = localStorage.getItem('eveningMilkType') || 'cow';
+                const eveningMilkRadio = document.querySelector(`input[name="evening_milk_type"][value="${eveningMilkType}"]`);
+                if (eveningMilkRadio) {
+                    eveningMilkRadio.checked = true;
+                    eveningMilkRadio.closest('.milk-type-option').classList.add('selected');
+                    document.querySelectorAll('input[name="evening_milk_type"]').forEach(radio => {
+                        if (radio !== eveningMilkRadio) {
+                            radio.closest('.milk-type-option').classList.remove('selected');
+                        }
+                    });
+                }
+                
+                // Set quantity
+                setTimeout(() => {
+                    const eveningQuantity = localStorage.getItem('eveningQuantity') || '0.5';
+                    const quantitySelect = document.getElementById('evening-quantity-select');
+                    if (quantitySelect) {
+                        quantitySelect.value = eveningQuantity;
+                    }
+                }, 100);
+                
+                // Set time slot
+                const eveningTimeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
+                const eveningTimeSelect = document.getElementById('evening-time-select');
+                if (eveningTimeSelect) {
+                    eveningTimeSelect.value = eveningTimeSlot;
+                }
+                
+                // Set frequency
+                const eveningFrequency = localStorage.getItem('eveningFrequency') || 'alternate';
+                const eveningFreqOption = document.querySelector(`#evening-content .frequency-option[data-value="${eveningFrequency}"]`);
+                if (eveningFreqOption) {
+                    document.querySelectorAll('#evening-content .frequency-option').forEach(opt => opt.classList.remove('selected'));
+                    eveningFreqOption.classList.add('selected');
+                }
+                
+                // Set days if alternate frequency
+                if (eveningFrequency === 'alternate') {
+                    const eveningDays = JSON.parse(localStorage.getItem('eveningDays') || '[]');
+                    setTimeout(() => {
+                        eveningDays.forEach(day => {
+                            const checkbox = document.querySelector(`#evening-days-modal input[value="${day}"]`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    }, 200);
+                }
+            }
+        }
+
         // Go back function
         function goBack() {
+            // Clear editing flag when going back
+            localStorage.removeItem('editingSubscription');
             window.history.back();
         }
     </script>

@@ -822,7 +822,7 @@
                 console.log('✅ Address saved successfully:', result);
                 closeModal();
                 loadAddresses();
-                showToast('✅ Address saved successfully!');
+                showToast('Saved ✓');
                 
             } catch (error) {
                 console.error('❌ Save error:', error);
@@ -855,7 +855,7 @@
                 try {
                     await addressAPI.deleteAddress(addressId);
                     loadAddresses();
-                    showToast('Address deleted!');
+                    showToast('Deleted ✓');
                 } catch (error) {
                     if (error.message.includes('401')) {
                         showToast('Session expired. Please login again.');
@@ -871,7 +871,7 @@
             try {
                 await addressAPI.setDefaultAddress(addressId);
                 loadAddresses();
-                showToast('Default address updated!');
+                showToast('Updated ✓');
             } catch (error) {
                 if (error.message.includes('401')) {
                     showToast('Session expired. Please login again.');
