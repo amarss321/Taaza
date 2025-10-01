@@ -807,8 +807,6 @@
 
                         <!-- Summary for Morning Delivery -->
                         <div class="time-slot-summary" id="morning-slot-summary">
-                            <strong>Morning Summary:</strong> 1.00L Buffalo Milk delivered daily at 7:00-9:00 AM for
-                            ₹50/day
                         </div>
                     </div>
                 </div>
@@ -880,8 +878,6 @@
 
                         <!-- Summary for Evening Delivery -->
                         <div class="time-slot-summary" id="evening-slot-summary">
-                            <strong>Evening Summary:</strong> 0.50L Cow Milk delivered on alternate days at 6:00-8:00 PM
-                            for ₹20/day
                         </div>
                     </div>
                 </div>
@@ -1457,6 +1453,10 @@
             const interval = setInterval(() => {
                 if (width >= 100) {
                     clearInterval(interval);
+                    
+                    // Save subscription status
+                    localStorage.setItem('milkSubscription', 'true');
+                    
                     showToast('Subscription confirmed successfully!');
                     setTimeout(() => {
                         window.location.href = 'Subscription Success Page.html';

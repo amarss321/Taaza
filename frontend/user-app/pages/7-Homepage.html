@@ -403,7 +403,14 @@
         });
 
         function manageMilkSubscription() {
-            window.location.href = '../Milk/Your Milk Plan.html';
+            // Check if user has existing milk subscription
+            const hasSubscription = localStorage.getItem('milkSubscription') || false;
+            
+            if (hasSubscription) {
+                window.location.href = '../Milk/Your Milk Plan.html';
+            } else {
+                window.location.href = '../Milk/new milk subscrition.html';
+            }
         }
 
         function orderFreshMeat() {
