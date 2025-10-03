@@ -541,7 +541,7 @@
             
             // Check if geolocation is supported
             if (!navigator.geolocation) {
-                showToast('❌ Geolocation not supported by your browser');
+                showToast('Location not supported');
                 return;
             }
 
@@ -551,7 +551,7 @@
                            window.location.hostname === '127.0.0.1';
             
             if (!isSecure) {
-                showToast('⚠️ Location requires HTTPS. Try accessing via HTTPS.');
+                showToast('HTTPS required');
                 console.warn('Geolocation requires HTTPS in production');
             }
 
@@ -563,7 +563,7 @@
             const forceTimeout = setTimeout(() => {
                 document.getElementById('locate-btn').classList.remove('hidden');
                 document.getElementById('locate-loading').classList.add('hidden');
-                showToast('⏱️ Location request timed out. Check permissions and try again.');
+                showToast('Location timeout');
                 console.log('🚫 Forced timeout after 15 seconds');
             }, 15000);
 
@@ -588,7 +588,7 @@
                         reverseGeocode(userLocation.lat, userLocation.lng);
                     }
                     
-                    showToast('📍 Location found successfully!');
+                    showToast('Location found');
 
                     // Hide loading state
                     document.getElementById('locate-btn').classList.remove('hidden');
@@ -609,22 +609,22 @@
                     
                     switch (error.code) {
                         case 1: // PERMISSION_DENIED
-                            errorMsg = '🚫 Location access denied';
-                            instructions = 'Click the 🔒 icon in your address bar and allow location access, then try again.';
+                            errorMsg = 'Location denied';
+                            instructions = 'Allow location in browser';
                             console.log('🚫 User denied location permission');
                             break;
                         case 2: // POSITION_UNAVAILABLE
-                            errorMsg = '📡 Location unavailable';
-                            instructions = 'Check your GPS/WiFi connection and try again.';
+                            errorMsg = 'Location unavailable';
+                            instructions = 'Check GPS/WiFi';
                             console.log('📡 Position unavailable - GPS/network issue');
                             break;
                         case 3: // TIMEOUT
-                            errorMsg = '⏱️ Location request timed out';
-                            instructions = 'Please try again. Make sure GPS is enabled.';
+                            errorMsg = 'Location timeout';
+                            instructions = 'Try again';
                             console.log('⏱️ Geolocation timeout');
                             break;
                         default:
-                            errorMsg = `❌ Location error (${error.code})`;
+                            errorMsg = `Location error (${error.code})`;
                             instructions = error.message;
                             console.log('❓ Unknown geolocation error:', error);
                     }
@@ -738,15 +738,15 @@
                         `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
                     
                     console.log('✅ Location confirmed:', lat, lng);
-                    showToast('📍 Location selected successfully!');
+                    showToast('Location selected');
                 } else {
                     console.error('❌ Invalid location data:', selectedLocation);
-                    showToast('❌ Invalid location data. Please try again.');
+                    showToast('Invalid location');
                     return;
                 }
             } else {
                 console.warn('⚠️ No location selected');
-                showToast('⚠️ Please select a location on the map first.');
+                showToast('Select location first');
                 return;
             }
             
@@ -774,7 +774,7 @@
             
             // Validate required fields
             if (!label || !addressLine || !city || !zipCode || !country) {
-                showToast('❌ Please fill in all required fields');
+                showToast('Fill all fields');
                 return;
             }
             
@@ -832,14 +832,14 @@
                 });
                 
                 if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-                    showToast('🔒 Session expired. Please login again.');
+                    showToast('Session expired');
                     setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
                 } else if (error.message.includes('400')) {
-                    showToast('❌ Invalid data. Please check all fields.');
+                    showToast('Invalid data');
                 } else if (error.message.includes('500')) {
-                    showToast('🔧 Server error. Please try again.');
+                    showToast('Server error');
                 } else {
-                    showToast(`❌ Failed to save: ${error.message}`);
+                    showToast('Save failed');
                 }
             }
         };
@@ -858,10 +858,10 @@
                     showToast('Deleted ✓');
                 } catch (error) {
                     if (error.message.includes('401')) {
-                        showToast('Session expired. Please login again.');
+                        showToast('Session expired');
                         setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
                     } else {
-                        showToast('Failed to delete address');
+                        showToast('Delete failed');
                     }
                 }
             }
@@ -874,10 +874,10 @@
                 showToast('Updated ✓');
             } catch (error) {
                 if (error.message.includes('401')) {
-                    showToast('Session expired. Please login again.');
+                    showToast('Session expired');
                     setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
                 } else {
-                    showToast('Failed to update default address');
+                    showToast('Update failed');
                 }
             }
         }
@@ -911,7 +911,7 @@
             
             if (confirm(helpMsg + '\n\nOpen browser location settings?')) {
                 // This will prompt user to check their browser settings
-                showToast('🔧 Check browser settings for location permissions');
+                showToast('Check location settings');
             }
         }
 
@@ -961,12 +961,12 @@
             } catch (error) {
                 console.error('Failed to load addresses:', error);
                 if (error.message.includes('401') || error.message.includes('Invalid token')) {
-                    showToast('Session expired. Please login again.');
+                    showToast('Session expired');
                     setTimeout(() => {
                         window.location.href = '/auth/3-Taaza-Login.html';
                     }, 2000);
                 } else {
-                    showToast('Failed to load addresses');
+                    showToast('Load failed');
                 }
             }
         }
