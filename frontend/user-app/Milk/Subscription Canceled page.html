@@ -253,6 +253,15 @@
                 });
             }
 
+            // Helper function to get day names
+            function getDayNames(days) {
+                const dayMap = {
+                    'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
+                    'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
+                };
+                return days.map(day => dayMap[day]).join(', ');
+            }
+
             // Load cancellation data
             function loadCancellationData() {
                 const morningEnabled = localStorage.getItem('morningDelivery') === 'true';
@@ -263,20 +272,38 @@
                 if (morningEnabled && eveningEnabled) {
                     const morningQty = localStorage.getItem('morningQuantity') || '0.5';
                     const morningType = localStorage.getItem('morningMilkType') || 'buffalo';
+                    const morningFreq = localStorage.getItem('morningFrequency') || 'daily';
+                    const morningDays = JSON.parse(localStorage.getItem('morningDays') || '[]');
+                    const morningTimeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
+                    
                     const eveningQty = localStorage.getItem('eveningQuantity') || '0.5';
                     const eveningType = localStorage.getItem('eveningMilkType') || 'cow';
+                    const eveningFreq = localStorage.getItem('eveningFrequency') || 'alternate';
+                    const eveningDays = JSON.parse(localStorage.getItem('eveningDays') || '[]');
+                    const eveningTimeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
                     
-                    planText = `Morning: ${morningQty}L ${morningType === 'buffalo' ? 'Buffalo' : 'Cow'} + Evening: ${eveningQty}L ${eveningType === 'buffalo' ? 'Buffalo' : 'Cow'}`;
+                    const morningFreqText = morningFreq === 'daily' ? 'Daily' : getDayNames(morningDays);
+                    const eveningFreqText = eveningFreq === 'daily' ? 'Daily' : getDayNames(eveningDays);
+                    
+                    planText = `Morning: ${morningQty}L ${morningType === 'buffalo' ? 'Buffalo' : 'Cow'} (${morningFreqText}, ${morningTimeSlot}) + Evening: ${eveningQty}L ${eveningType === 'buffalo' ? 'Buffalo' : 'Cow'} (${eveningFreqText}, ${eveningTimeSlot})`;
                 } else if (morningEnabled) {
                     const qty = localStorage.getItem('morningQuantity') || '0.5';
                     const type = localStorage.getItem('morningMilkType') || 'buffalo';
                     const freq = localStorage.getItem('morningFrequency') || 'daily';
-                    planText = `${qty}L ${type === 'buffalo' ? 'Buffalo' : 'Cow'} Milk - ${freq === 'daily' ? 'Daily' : 'Alternate Days'} (Morning)`;
+                    const days = JSON.parse(localStorage.getItem('morningDays') || '[]');
+                    const timeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
+                    
+                    const freqText = freq === 'daily' ? 'Daily' : getDayNames(days);
+                    planText = `${qty}L ${type === 'buffalo' ? 'Buffalo' : 'Cow'} Milk - ${freqText} (Morning ${timeSlot})`;
                 } else if (eveningEnabled) {
                     const qty = localStorage.getItem('eveningQuantity') || '0.5';
                     const type = localStorage.getItem('eveningMilkType') || 'cow';
                     const freq = localStorage.getItem('eveningFrequency') || 'alternate';
-                    planText = `${qty}L ${type === 'buffalo' ? 'Buffalo' : 'Cow'} Milk - ${freq === 'daily' ? 'Daily' : 'Alternate Days'} (Evening)`;
+                    const days = JSON.parse(localStorage.getItem('eveningDays') || '[]');
+                    const timeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
+                    
+                    const freqText = freq === 'daily' ? 'Daily' : getDayNames(days);
+                    planText = `${qty}L ${type === 'buffalo' ? 'Buffalo' : 'Cow'} Milk - ${freqText} (Evening ${timeSlot})`;
                 } else {
                     planText = 'No active subscription';
                 }

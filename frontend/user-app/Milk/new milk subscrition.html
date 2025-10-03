@@ -58,8 +58,14 @@
         }
 
         .time-slot-card.disabled {
-            opacity: 0.6;
+            opacity: 0.5;
+            background-color: #f9fafb;
             border-color: #e5e7eb;
+        }
+
+        .dark .time-slot-card.disabled {
+            background-color: #1f2937;
+            opacity: 0.6;
         }
 
         .time-slot-header {
@@ -507,15 +513,15 @@
 
         .toast {
             position: fixed;
-            bottom: 20px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #0C2D57;
+            background-color: #dc2626;
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
+            z-index: 1100;
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -550,6 +556,38 @@
         .focus-visible:focus {
             outline: 2px solid #FFD700;
             outline-offset: 2px;
+        }
+        
+        /* Better focus for mobile */
+        @media (max-width: 640px) {
+            button:focus,
+            select:focus,
+            input:focus {
+                outline: 3px solid #FFD700;
+                outline-offset: 2px;
+            }
+        }
+        
+        /* Prevent zoom on iOS */
+        input[type="text"],
+        input[type="tel"],
+        input[type="email"],
+        select,
+        textarea {
+            font-size: 16px;
+        }
+        
+        /* Safe area for notched devices */
+        @supports (padding: max(0px)) {
+            .sticky-summary,
+            footer {
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+            }
+            
+            footer {
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
+            }
         }
 
         /* Milk type selection improvements */
@@ -863,6 +901,7 @@
             
             .milk-type-option {
                 padding: 12px;
+                min-height: 80px;
             }
             
             .section-header {
@@ -875,19 +914,19 @@
             
             /* Better touch targets */
             .toggle-switch {
-                width: 40px;
-                height: 22px;
+                width: 48px;
+                height: 28px;
             }
             
             .toggle-slider:before {
-                height: 16px;
-                width: 16px;
-                left: 3px;
-                bottom: 3px;
+                height: 20px;
+                width: 20px;
+                left: 4px;
+                bottom: 4px;
             }
             
             input:checked+.toggle-slider:before {
-                transform: translateX(18px);
+                transform: translateX(20px);
             }
             
             /* Improved spacing */
@@ -898,20 +937,134 @@
             .time-slot-card {
                 margin-bottom: 12px;
             }
+            
+            /* Better modal sizing */
+            .modal-content {
+                width: 98%;
+                max-height: 90vh;
+                margin: 1%;
+            }
+            
+            /* Improved day selector */
+            .day-content {
+                padding: 12px 8px;
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Better button sizing */
+            button {
+                min-height: 44px;
+            }
+            
+            /* Improved select dropdowns */
+            select {
+                min-height: 48px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            /* Better quantity options */
+            .quantity-option {
+                min-height: 48px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+            
+            /* Improved frequency options */
+            .frequency-option {
+                min-height: 48px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
         }
         
         /* Extra small screens */
         @media (max-width: 480px) {
             .time-slot-header {
-                padding: 10px;
+                padding: 12px;
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            
+            .time-slot-title {
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .time-slot-toggle {
+                justify-content: center;
             }
             
             .time-slot-content.expanded {
-                padding: 10px;
+                padding: 12px;
             }
             
             .milk-type-option {
-                padding: 10px;
+                padding: 12px;
+                min-height: 90px;
+            }
+            
+            /* Stack quantity options vertically */
+            .quantity-options {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+            
+            /* Larger touch targets */
+            .toggle-switch {
+                width: 52px;
+                height: 32px;
+            }
+            
+            .toggle-slider:before {
+                height: 24px;
+                width: 24px;
+                left: 4px;
+                bottom: 4px;
+            }
+            
+            input:checked+.toggle-slider:before {
+                transform: translateX(20px);
+            }
+        }
+        
+        /* Landscape mode improvements */
+        @media (max-width: 896px) and (orientation: landscape) {
+            .modal-content {
+                max-height: 85vh;
+                overflow-y: auto;
+            }
+            
+            .sticky-summary {
+                position: relative;
+                top: auto;
+            }
+            
+            footer {
+                position: relative;
+            }
+        }
+        
+        /* High DPI screens */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .toggle-slider:before {
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+        }
+        
+        /* Dark mode improvements for mobile */
+        @media (max-width: 640px) {
+            .dark .time-slot-header {
+                background-color: #1f2937;
+            }
+            
+            .dark .modal-content {
+                background-color: #111827;
             }
         }
     </style>
@@ -943,45 +1096,30 @@
 
                 <!-- Morning Time Slot Card -->
                 <div class="time-slot-card active" id="morning-card">
-                    <div class="time-slot-header" onclick="toggleTimeSlot('morning')">
-                        <div class="time-slot-title">
+                    <div class="time-slot-header">
+                        <div class="time-slot-title" onclick="toggleTimeSlot('morning')" style="cursor: pointer;">
                             <span class="time-slot-icon">☀️</span>
                             <div>
                                 <div class="time-slot-name">Morning Delivery</div>
-                                <div class="time-slot-time">7:00 AM - 9:00 AM</div>
+                                <div class="time-slot-time">6:00 AM - 9:00 AM</div>
                             </div>
                         </div>
                         <div class="time-slot-toggle flex items-center gap-2 flex-shrink-0">
-                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">OFF</span>
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 cursor-pointer" onclick="setToggleState('morning', false)">OFF</span>
                             <label class="toggle-switch">
                                 <input type="checkbox" checked id="morning-toggle"
                                     onchange="toggleTimeSlotEnabled('morning')">
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span class="text-xs sm:text-sm text-zepto-yellow">ON</span>
+                            <span class="text-xs sm:text-sm text-zepto-yellow cursor-pointer" onclick="setToggleState('morning', true)">ON</span>
                         </div>
                     </div>
                     <div class="time-slot-content expanded" id="morning-content">
                         <!-- Milk Type Selection for Morning Slot -->
                         <div class="slot-milk-type">
                             <div class="slot-milk-type-title">Select Milk Type for Morning Delivery</div>
-                            <div class="milk-type-options">
-                                <!-- Buffalo Milk Option -->
-                                <label class="milk-type-option selected">
-                                    <input class="sr-only" name="morning_milk_type" type="radio" value="buffalo"
-                                        checked />
-                                    <div class="milk-type-icon">🐃</div>
-                                    <div class="milk-type-name">Buffalo Milk</div>
-                                    <div class="milk-type-price">₹50/L - Rich & Creamy</div>
-                                </label>
-
-                                <!-- Cow Milk Option -->
-                                <label class="milk-type-option">
-                                    <input class="sr-only" name="morning_milk_type" type="radio" value="cow" />
-                                    <div class="milk-type-icon">🐄</div>
-                                    <div class="milk-type-name">Cow Milk</div>
-                                    <div class="milk-type-price">₹40/L - Light & Healthy</div>
-                                </label>
+                            <div class="milk-type-options" id="morning-milk-options">
+                                <!-- Options will be dynamically generated -->
                             </div>
                         </div>
 
@@ -1025,43 +1163,29 @@
 
                 <!-- Evening Time Slot Card -->
                 <div class="time-slot-card" id="evening-card">
-                    <div class="time-slot-header" onclick="toggleTimeSlot('evening')">
-                        <div class="time-slot-title">
+                    <div class="time-slot-header">
+                        <div class="time-slot-title" onclick="toggleTimeSlot('evening')" style="cursor: pointer;">
                             <span class="time-slot-icon">🌙</span>
                             <div>
                                 <div class="time-slot-name">Evening Delivery</div>
-                                <div class="time-slot-time">6:00 PM - 8:00 PM</div>
+                                <div class="time-slot-time">5:30 PM - 7:30 PM</div>
                             </div>
                         </div>
                         <div class="time-slot-toggle flex items-center gap-2 flex-shrink-0">
-                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">OFF</span>
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 cursor-pointer" onclick="setToggleState('evening', false)">OFF</span>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="evening-toggle" onchange="toggleTimeSlotEnabled('evening')">
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span class="text-xs sm:text-sm text-zepto-yellow">ON</span>
+                            <span class="text-xs sm:text-sm text-zepto-yellow cursor-pointer" onclick="setToggleState('evening', true)">ON</span>
                         </div>
                     </div>
                     <div class="time-slot-content" id="evening-content">
                         <!-- Milk Type Selection for Evening Slot -->
                         <div class="slot-milk-type">
                             <div class="slot-milk-type-title">Select Milk Type for Evening Delivery</div>
-                            <div class="milk-type-options">
-                                <!-- Buffalo Milk Option -->
-                                <label class="milk-type-option">
-                                    <input class="sr-only" name="evening_milk_type" type="radio" value="buffalo" />
-                                    <div class="milk-type-icon">🐃</div>
-                                    <div class="milk-type-name">Buffalo Milk</div>
-                                    <div class="milk-type-price">₹50/L - Rich & Creamy</div>
-                                </label>
-
-                                <!-- Cow Milk Option -->
-                                <label class="milk-type-option selected">
-                                    <input class="sr-only" name="evening_milk_type" type="radio" value="cow" checked />
-                                    <div class="milk-type-icon">🐄</div>
-                                    <div class="milk-type-name">Cow Milk</div>
-                                    <div class="milk-type-price">₹40/L - Light & Healthy</div>
-                                </label>
+                            <div class="milk-type-options" id="evening-milk-options">
+                                <!-- Options will be dynamically generated -->
                             </div>
                         </div>
 
@@ -1117,11 +1241,10 @@
                 <div class="border-t border-gray-200 dark:border-zinc-600 my-3"></div>
                 <div class="flex justify-between items-center font-bold">
                     <p class="text-base text-gray-800 dark:text-gray-200">Estimated Monthly Price</p>
-                    <p class="text-xl price-highlight" id="monthly-price">₹1500/month</p>
+                    <p class="text-xl price-highlight" id="monthly-price">₹0/month</p>
                 </div>
                 <div class="mt-2 text-xs text-gray-500 dark:text-gray-400" id="price-breakdown">
-                    Morning: ₹50/day × 30 days = ₹1500<br>
-                    Total: ₹1500/month
+                    No deliveries selected
                 </div>
             </div>
         </main>
@@ -1133,7 +1256,7 @@
             <button id="confirm-btn" onclick="confirmSubscription(event)"
                 class="w-full bg-primary text-background-dark font-bold py-3 px-4 rounded-lg text-center hover:bg-yellow-500 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus"
                 style="pointer-events:auto;z-index:1002;">
-                Confirm Subscription
+                Continue with Subscription
             </button>
             <div id="progress-bar" class="progress-bar hidden">
                 <div class="progress" id="progress"></div>
@@ -1299,6 +1422,74 @@
         </div>
     </div>
 
+    <!-- Notify Me Modal -->
+    <div id="notify-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Stock Notification Request</h3>
+                <button onclick="closeNotifyModal()"
+                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">We'll notify you when this milk type is back in stock. Please provide your preferences:</p>
+
+            <!-- User Details -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label>
+                <input type="text" id="notify-name" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200" placeholder="Enter your name">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
+                <input type="tel" id="notify-phone" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200" placeholder="Enter your phone number">
+            </div>
+
+            <!-- Milk Preferences -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Milk Type</label>
+                <select id="notify-milk-type" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200">
+                    <option value="buffalo">Buffalo Milk</option>
+                    <option value="cow">Cow Milk</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantity Needed</label>
+                <select id="notify-quantity" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200">
+                    <option value="0.5">0.5L</option>
+                    <option value="0.75">0.75L</option>
+                    <option value="1.0">1.0L</option>
+                    <option value="1.25">1.25L</option>
+                    <option value="1.5">1.5L</option>
+                    <option value="1.75">1.75L</option>
+                    <option value="2.0">2.0L</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Delivery Time Preference</label>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="notify-morning" class="mr-2">
+                        <span>Morning Delivery (6:00 AM - 9:00 AM)</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="notify-evening" class="mr-2">
+                        <span>Evening Delivery (5:30 PM - 7:30 PM)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeNotifyModal()"
+                    class="px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">Cancel</button>
+                <button type="button" onclick="submitNotificationRequest()"
+                    class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">Notify Me</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="toast">
         <div class="flex items-center">
@@ -1308,23 +1499,161 @@
     </div>
 
     <script>
-        // Milk pricing configuration
-        const milkPrices = {
-            buffalo: 50, // ₹50 per liter
-            cow: 40      // ₹40 per liter
-        };
+        // Step 2: Load milk prices from admin inventory
+        function getMilkPrices() {
+            const adminStock = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            return {
+                buffalo: adminStock.buffalo?.price || 50,
+                cow: adminStock.cow?.price || 40
+            };
+        }
+        
+        // Dynamic pricing - updates from admin
+        let milkPrices = getMilkPrices();
 
         // Quantity options with their liter values
         const quantityOptions = [
             { label: "0.5L", value: 0.5 },
+            { label: "0.75L", value: 0.75 },
             { label: "1.0L", value: 1.0 },
+            { label: "1.25L", value: 1.25 },
             { label: "1.5L", value: 1.5 },
-            { label: "2.0L", value: 2.0 },
-            { label: "2.5L", value: 2.5 }
+            { label: "1.75L", value: 1.75 },
+            { label: "2.0L", value: 2.0 }
         ];
+
+        // Initialize stock data if not present
+        function initializeStockData() {
+            const existingStock = localStorage.getItem('adminStockData');
+            if (!existingStock) {
+                // Initialize with sample data from your inventory
+                const sampleStock = {
+                    buffalo: {
+                        morning: { stock: 3, booked: 0 },
+                        evening: { stock: 1, booked: 0 },
+                        price: 75
+                    },
+                    cow: {
+                        morning: { stock: 2, booked: 0 },
+                        evening: { stock: 5, booked: 0 },
+                        price: 50
+                    }
+                };
+                localStorage.setItem('adminStockData', JSON.stringify(sampleStock));
+                console.log('Initialized stock data:', sampleStock);
+            } else {
+                console.log('Existing stock data:', JSON.parse(existingStock));
+            }
+        }
+        
+        // Debug function to check current inventory state
+        function checkInventoryState() {
+            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            const subscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            console.log('=== INVENTORY DEBUG ===');
+            console.log('Current Stock Data:', stockData);
+            console.log('Current Subscriptions:', subscriptions);
+            console.log('======================');
+        }
+        
+        // Make debug function globally available
+        window.checkInventoryState = checkInventoryState;
+        
+        // Debug function to check notification queue
+        function checkNotificationQueue() {
+            const queue = localStorage.getItem('stockWaitingQueue');
+            console.log('=== NOTIFICATION QUEUE DEBUG ===');
+            console.log('Raw data:', queue);
+            console.log('Parsed data:', queue ? JSON.parse(queue) : 'No data');
+            console.log('Total requests:', queue ? JSON.parse(queue).length : 0);
+            console.log('===============================');
+            return queue ? JSON.parse(queue) : [];
+        }
+        
+        window.checkNotificationQueue = checkNotificationQueue;
+        
+        // Clean up orphaned bookings
+        function cleanupOrphanedBookings() {
+            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            const subscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            
+            console.log('=== CLEANING ORPHANED BOOKINGS ===');
+            console.log('Before cleanup:', JSON.parse(JSON.stringify(stockData)));
+            
+            // Reset all booked quantities to 0
+            if (stockData.buffalo) {
+                stockData.buffalo.morning.booked = 0;
+                stockData.buffalo.evening.booked = 0;
+            }
+            if (stockData.cow) {
+                stockData.cow.morning.booked = 0;
+                stockData.cow.evening.booked = 0;
+            }
+            
+            // Re-calculate bookings from active subscriptions only
+            const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active');
+            activeSubscriptions.forEach(sub => {
+                if (sub.morningDelivery && sub.morningDelivery.enabled) {
+                    const milkType = sub.morningDelivery.milkType;
+                    const quantity = sub.morningDelivery.quantity;
+                    if (stockData[milkType] && stockData[milkType].morning) {
+                        stockData[milkType].morning.booked += quantity;
+                    }
+                }
+                if (sub.eveningDelivery && sub.eveningDelivery.enabled) {
+                    const milkType = sub.eveningDelivery.milkType;
+                    const quantity = sub.eveningDelivery.quantity;
+                    if (stockData[milkType] && stockData[milkType].evening) {
+                        stockData[milkType].evening.booked += quantity;
+                    }
+                }
+            });
+            
+            localStorage.setItem('adminStockData', JSON.stringify(stockData));
+            console.log('After cleanup:', stockData);
+            console.log('Active subscriptions processed:', activeSubscriptions.length);
+            console.log('=== CLEANUP COMPLETE ===');
+            
+            return stockData;
+        }
+        
+        // Make cleanup function globally available
+        window.cleanupOrphanedBookings = cleanupOrphanedBookings;
+        
+        // Test function to create a simple notification
+        function createTestNotifyRequest() {
+            const queue = JSON.parse(localStorage.getItem('stockWaitingQueue') || '[]');
+            const testRequest = {
+                id: Date.now(),
+                customerName: 'Test User',
+                phoneNumber: '9876543210',
+                milkType: 'buffalo',
+                timeSlot: 'morning',
+                quantity: 1.0,
+                status: 'pending',
+                requestDate: new Date().toLocaleDateString('en-IN'),
+                requestTime: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                timestamp: new Date().toISOString(),
+                priority: 'normal'
+            };
+            
+            queue.push(testRequest);
+            localStorage.setItem('stockWaitingQueue', JSON.stringify(queue));
+            console.log('Test notification request created:', testRequest);
+            console.log('Total requests now:', queue.length);
+            return testRequest;
+        }
+        
+        window.createTestNotifyRequest = createTestNotifyRequest;
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function () {
+            // Initialize stock data first
+            initializeStockData();
+            
+            // Update prices from admin first
+            updatePriceDisplays();
+            
             // Check if we're editing an existing subscription
             const isEditing = localStorage.getItem('editingSubscription') === 'true';
             
@@ -1354,47 +1683,313 @@
             // Update the summary
             updateSummary();
         });
+        
+        // Update price displays with current admin prices
+        function updatePriceDisplays() {
+            const prices = getMilkPrices();
+            
+            // Update morning slot prices
+            const morningBuffaloPrice = document.getElementById('morning-buffalo-price');
+            const morningCowPrice = document.getElementById('morning-cow-price');
+            if (morningBuffaloPrice) morningBuffaloPrice.textContent = `₹${prices.buffalo}/L - Rich & Creamy`;
+            if (morningCowPrice) morningCowPrice.textContent = `₹${prices.cow}/L - Light & Healthy`;
+            
+            // Update evening slot prices
+            const eveningBuffaloPrice = document.getElementById('evening-buffalo-price');
+            const eveningCowPrice = document.getElementById('evening-cow-price');
+            if (eveningBuffaloPrice) eveningBuffaloPrice.textContent = `₹${prices.buffalo}/L - Rich & Creamy`;
+            if (eveningCowPrice) eveningCowPrice.textContent = `₹${prices.cow}/L - Light & Healthy`;
+        }
 
+        // Check stock availability
+        function checkStockAvailability(milkType, timeSlot, quantity) {
+            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            
+            // Debug: Log the stock data
+            console.log('Stock Data:', stockData);
+            console.log('Checking:', milkType, timeSlot, quantity);
+            
+            if (!stockData[milkType] || !stockData[milkType][timeSlot]) {
+                console.log('No stock data found for:', milkType, timeSlot);
+                return false;
+            }
+            
+            const available = stockData[milkType][timeSlot].stock - stockData[milkType][timeSlot].booked;
+            console.log('Available stock:', available);
+            return available >= quantity;
+        }
+        
+        // Open notification modal
+        function addToWaitingQueue(milkType, timeSlot, quantity) {
+            // Pre-fill the modal with current selection
+            document.getElementById('notify-milk-type').value = milkType;
+            document.getElementById('notify-quantity').value = quantity;
+            
+            // Set time slot checkboxes
+            document.getElementById('notify-morning').checked = timeSlot === 'morning';
+            document.getElementById('notify-evening').checked = timeSlot === 'evening';
+            
+            // Store current context for submission
+            window.notifyContext = { milkType, timeSlot, quantity };
+            
+            // Show modal
+            document.getElementById('notify-modal').style.display = 'flex';
+        }
+        
+        // Close notification modal
+        function closeNotifyModal() {
+            document.getElementById('notify-modal').style.display = 'none';
+            // Clear form
+            document.getElementById('notify-name').value = '';
+            document.getElementById('notify-phone').value = '';
+        }
+        
+        // Submit notification request
+        function submitNotificationRequest() {
+            const name = document.getElementById('notify-name').value.trim();
+            const phone = document.getElementById('notify-phone').value.trim();
+            const milkType = document.getElementById('notify-milk-type').value;
+            const quantity = parseFloat(document.getElementById('notify-quantity').value);
+            const morningSelected = document.getElementById('notify-morning').checked;
+            const eveningSelected = document.getElementById('notify-evening').checked;
+            
+            // Validation
+            if (!name) {
+                showToast('Please enter your name');
+                return;
+            }
+            if (!phone || phone.length < 10) {
+                showToast('Please enter a valid phone number (minimum 10 digits)');
+                return;
+            }
+            if (!morningSelected && !eveningSelected) {
+                showToast('Please select at least one delivery time');
+                return;
+            }
+            
+            // Create notification request
+            const existingQueue = localStorage.getItem('stockWaitingQueue');
+            console.log('🗄️ User: Existing queue data:', existingQueue);
+            const queue = JSON.parse(existingQueue || '[]');
+            console.log('📋 User: Parsed existing queue:', queue);
+            
+            const timeSlots = [];
+            if (morningSelected) timeSlots.push('morning');
+            if (eveningSelected) timeSlots.push('evening');
+            
+            console.log('🕰️ User: Selected time slots:', timeSlots);
+            
+            timeSlots.forEach(slot => {
+                const requestId = Date.now() + Math.random();
+                const currentDate = new Date();
+                
+                const newRequest = {
+                    id: requestId,
+                    customerName: name,
+                    phoneNumber: phone,
+                    milkType: milkType,
+                    timeSlot: slot,
+                    quantity: quantity,
+                    status: 'pending',
+                    requestDate: currentDate.toLocaleDateString('en-IN'),
+                    requestTime: currentDate.toLocaleTimeString('en-IN', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true
+                    }),
+                    timestamp: currentDate.toISOString(),
+                    priority: 'normal'
+                };
+                
+                console.log('🆕 User: Creating new request:', newRequest);
+                queue.push(newRequest);
+            });
+            
+            localStorage.setItem('stockWaitingQueue', JSON.stringify(queue));
+            
+            // Verify data was saved
+            const savedData = localStorage.getItem('stockWaitingQueue');
+            console.log('💾 User: Data saved to localStorage');
+            console.log('🗄️ Raw saved data:', savedData);
+            console.log('📋 Parsed saved data:', JSON.parse(savedData));
+            
+            closeNotifyModal();
+            showToast(`Thank you ${name}! We'll notify you when ${milkType} milk is available for ${timeSlots.join(' and ')} delivery.`);
+            
+            console.log('✅ Notification request submitted successfully:', {
+                customerName: name,
+                phoneNumber: phone,
+                milkType: milkType,
+                timeSlots: timeSlots,
+                quantity: quantity,
+                totalRequests: queue.length,
+                finalQueue: queue
+            });
+        }
+        
+        // Generate milk type options with stock availability
+        function generateMilkTypeOptions(slot) {
+            const container = document.getElementById(`${slot}-milk-options`);
+            const prices = getMilkPrices();
+            const milkTypes = [
+                { type: 'buffalo', icon: '🐃', name: 'Buffalo Milk', desc: 'Rich & Creamy' },
+                { type: 'cow', icon: '🐄', name: 'Cow Milk', desc: 'Light & Healthy' }
+            ];
+            
+            let optionsHTML = '';
+            let firstAvailable = null;
+            
+            milkTypes.forEach((milk, index) => {
+                const isAvailable = checkStockAvailability(milk.type, slot, 0.5);
+                const isSelected = (slot === 'morning' && index === 0) || (slot === 'evening' && index === 1);
+                
+                if (isAvailable && !firstAvailable) {
+                    firstAvailable = milk.type;
+                }
+                
+                optionsHTML += `
+                    <label class="milk-type-option ${isSelected && isAvailable ? 'selected' : ''}">
+                        <input class="sr-only" name="${slot}_milk_type" type="radio" value="${milk.type}" 
+                               ${isSelected && isAvailable ? 'checked' : ''} ${!isAvailable ? 'disabled' : ''} />
+                        <div class="milk-type-icon">${milk.icon}</div>
+                        <div class="milk-type-name">${milk.name}</div>
+                        <div class="milk-type-price">
+                            ${isAvailable ? 
+                                `₹${prices[milk.type]}/L - ${milk.desc}` : 
+                                `<span class="text-red-500">Out of Stock</span>`
+                            }
+                        </div>
+                        ${!isAvailable ? `
+                            <button type="button" onclick="addToWaitingQueue('${milk.type}', '${slot}', 0.5)" 
+                                    class="mt-2 bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
+                                Notify Me
+                            </button>
+                        ` : ''}
+                    </label>
+                `;
+            });
+            
+            container.innerHTML = optionsHTML;
+            
+            // If no option is selected but there's an available one, select it
+            if (firstAvailable && !container.querySelector('input:checked')) {
+                const firstAvailableInput = container.querySelector(`input[value="${firstAvailable}"]`);
+                if (firstAvailableInput) {
+                    firstAvailableInput.checked = true;
+                    firstAvailableInput.closest('.milk-type-option').classList.add('selected');
+                }
+            }
+        }
+        
         // Initialize milk type selection
         function initializeMilkTypeSelection(slot) {
-            const milkTypeOptions = document.querySelectorAll(`input[name="${slot}_milk_type"]`);
-            milkTypeOptions.forEach(option => {
-                option.addEventListener('change', function () {
-                    // Update the visual selection
-                    const parent = this.closest('.milk-type-option');
-                    document.querySelectorAll(`.milk-type-options .milk-type-option`).forEach(opt => {
+            generateMilkTypeOptions(slot);
+            
+            // Add event listeners
+            const container = document.getElementById(`${slot}-milk-options`);
+            container.addEventListener('change', function(e) {
+                if (e.target.name === `${slot}_milk_type`) {
+                    // Update visual selection
+                    container.querySelectorAll('.milk-type-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
-                    parent.classList.add('selected');
-
-                    // Update quantity options based on selected milk type
+                    e.target.closest('.milk-type-option').classList.add('selected');
+                    
+                    // Update quantity options
                     updateQuantityOptions(slot);
-
-                    // Update the summary
+                    
+                    // Update summary
                     updateSummary();
-                });
+                }
             });
         }
 
-        // Update quantity options based on selected milk type
+        // Update quantity options based on selected milk type and stock availability
         function updateQuantityOptions(slot) {
             const quantitySelect = document.getElementById(`${slot}-quantity-select`);
-
+            const selectedMilkType = document.querySelector(`input[name="${slot}_milk_type"]:checked`)?.value;
+            
+            if (!selectedMilkType) return;
+            
             // Clear existing options
             quantitySelect.innerHTML = '';
-
-            // Create new options without prices
+            
+            // Get available stock
+            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            const availableStock = stockData[selectedMilkType]?.[slot] ? 
+                stockData[selectedMilkType][slot].stock - stockData[selectedMilkType][slot].booked : 0;
+            
+            let hasAvailableOptions = false;
+            let maxAvailableQuantity = 0;
+            
+            // Create options based on availability
             quantityOptions.forEach(option => {
                 const optionElement = document.createElement('option');
                 optionElement.value = option.value;
-                optionElement.textContent = option.label;
-                if (option.value === 0.5) {
-                    optionElement.selected = true;
+                
+                if (option.value <= availableStock) {
+                    optionElement.textContent = option.label;
+                    hasAvailableOptions = true;
+                    maxAvailableQuantity = Math.max(maxAvailableQuantity, option.value);
+                    if (option.value === 0.5 && !quantitySelect.value) {
+                        optionElement.selected = true;
+                    }
+                } else {
+                    optionElement.textContent = `${option.label} (Out of Stock)`;
+                    optionElement.disabled = true;
                 }
+                
                 quantitySelect.appendChild(optionElement);
             });
-
+            
+            // For existing users editing subscription, show upgrade options
+            const isEditing = localStorage.getItem('editingSubscription') === 'true';
+            if (isEditing && availableStock > 0) {
+                const currentSubscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+                const currentSub = currentSubscriptions[0];
+                
+                if (currentSub) {
+                    const currentSlotData = slot === 'morning' ? currentSub.morningDelivery : currentSub.eveningDelivery;
+                    const currentQuantity = currentSlotData?.quantity || 0;
+                    
+                    // Show upgrade options (current + available)
+                    const maxPossible = currentQuantity + availableStock;
+                    
+                    quantityOptions.forEach(option => {
+                        if (option.value > currentQuantity && option.value <= maxPossible) {
+                            const upgradeOption = document.createElement('option');
+                            upgradeOption.value = option.value;
+                            upgradeOption.textContent = `${option.label} (Upgrade +${(option.value - currentQuantity).toFixed(2)}L)`;
+                            upgradeOption.style.color = '#10b981';
+                            quantitySelect.appendChild(upgradeOption);
+                            hasAvailableOptions = true;
+                        }
+                    });
+                }
+            }
+            
+            // Show stock info message
+            const container = quantitySelect.parentElement;
+            let stockInfo = container.querySelector('.stock-info');
+            if (stockInfo) stockInfo.remove();
+            
+            if (!hasAvailableOptions) {
+                stockInfo = document.createElement('div');
+                stockInfo.className = 'stock-info text-xs text-red-600 mt-1';
+                stockInfo.innerHTML = `Out of stock. <button onclick="addToWaitingQueue('${selectedMilkType}', '${slot}', 0.5)" class="text-orange-500 underline">Get notified</button> when available.`;
+                container.appendChild(stockInfo);
+            }
+            
+            // If no valid option is selected, select the first available one
+            if (!quantitySelect.value || quantitySelect.selectedOptions[0]?.disabled) {
+                const firstAvailable = Array.from(quantitySelect.options).find(opt => !opt.disabled);
+                if (firstAvailable) {
+                    firstAvailable.selected = true;
+                }
+            }
+            
             // Add event listener for changes
+            quantitySelect.removeEventListener('change', updateSummary);
             quantitySelect.addEventListener('change', updateSummary);
         }
 
@@ -1445,17 +2040,30 @@
             });
         }
 
-        // Toggle time slot expansion
+        // Toggle time slot expansion - only expand/collapse, don't toggle the switch
         function toggleTimeSlot(slot) {
             const content = document.getElementById(`${slot}-content`);
             const card = document.getElementById(`${slot}-card`);
+            const toggle = document.getElementById(`${slot}-toggle`);
+            
+            // Only allow expansion if toggle is ON
+            if (toggle.checked) {
+                if (content.classList.contains('expanded')) {
+                    content.classList.remove('expanded');
+                    card.classList.remove('active');
+                } else {
+                    content.classList.add('expanded');
+                    card.classList.add('active');
+                }
+            }
+        }
 
-            if (content.classList.contains('expanded')) {
-                content.classList.remove('expanded');
-                card.classList.remove('active');
-            } else {
-                content.classList.add('expanded');
-                card.classList.add('active');
+        // Set toggle state when clicking ON/OFF text
+        function setToggleState(slot, state) {
+            const toggle = document.getElementById(`${slot}-toggle`);
+            if (toggle.checked !== state) {
+                toggle.checked = state;
+                toggleTimeSlotEnabled(slot);
             }
         }
 
@@ -1586,6 +2194,9 @@
 
         // Update the subscription summary
         function updateSummary() {
+            // Refresh prices from admin inventory
+            milkPrices = getMilkPrices();
+            
             const summaryContainer = document.getElementById('summary-container');
             summaryContainer.innerHTML = '';
 
@@ -1622,16 +2233,21 @@
                 summaryContainer.appendChild(emptyMessage);
             }
 
-            // Update monthly price
+            // Update monthly price - show ₹0 if no selections made
             document.getElementById('monthly-price').textContent = `₹${totalMonthlyPrice}/month`;
             document.getElementById('price-breakdown').innerHTML = priceBreakdown || 'No deliveries selected';
         }
 
         // Get summary for a specific time slot
         function getSlotSummary(slot) {
-            const milkType = document.querySelector(`input[name="${slot}_milk_type"]:checked`).value;
+            const milkTypeElement = document.querySelector(`input[name="${slot}_milk_type"]:checked`);
+            if (!milkTypeElement) return null; // No milk type selected
+            
+            const milkType = milkTypeElement.value;
             const milkPrice = milkPrices[milkType];
             const quantitySelect = document.getElementById(`${slot}-quantity-select`);
+            if (!quantitySelect.value) return null; // No quantity selected
+            
             const quantityValue = parseFloat(quantitySelect.value);
             const quantityLabel = `${quantityValue}L`;
             const dailyPrice = quantityValue * milkPrice;
@@ -1719,6 +2335,52 @@
 
         // Confirm subscription
         function confirmSubscription(event) {
+            // Check if at least one delivery slot is enabled
+            const morningEnabled = document.getElementById('morning-toggle').checked;
+            const eveningEnabled = document.getElementById('evening-toggle').checked;
+            
+            if (!morningEnabled && !eveningEnabled) {
+                showToast('Please select at least one delivery time slot');
+                return;
+            }
+            
+            // Check if enabled slots have valid selections and available stock
+            let hasValidPlan = false;
+            let errorMessage = '';
+            
+            if (morningEnabled) {
+                const morningMilkType = document.querySelector('input[name="morning_milk_type"]:checked');
+                const morningQuantity = document.getElementById('morning-quantity-select').value;
+                if (!morningMilkType) {
+                    errorMessage = 'Please select milk type for morning delivery';
+                } else if (morningMilkType.disabled) {
+                    errorMessage = 'Selected morning milk type is out of stock';
+                } else if (!morningQuantity) {
+                    errorMessage = 'Please select quantity for morning delivery';
+                } else {
+                    hasValidPlan = true;
+                }
+            }
+            
+            if (eveningEnabled && !hasValidPlan) {
+                const eveningMilkType = document.querySelector('input[name="evening_milk_type"]:checked');
+                const eveningQuantity = document.getElementById('evening-quantity-select').value;
+                if (!eveningMilkType) {
+                    errorMessage = 'Please select milk type for evening delivery';
+                } else if (eveningMilkType.disabled) {
+                    errorMessage = 'Selected evening milk type is out of stock';
+                } else if (!eveningQuantity) {
+                    errorMessage = 'Please select quantity for evening delivery';
+                } else {
+                    hasValidPlan = true;
+                }
+            }
+            
+            if (!hasValidPlan) {
+                showToast(errorMessage || 'Please complete your delivery plan selection');
+                return;
+            }
+            
             // If any modal is open, close it before proceeding
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.style.display = 'none';
@@ -1791,20 +2453,23 @@
                     // Check if this was an update
                     const isEditing = localStorage.getItem('editingSubscription') === 'true';
                     
-                    // Set update flag if editing
                     if (isEditing) {
+                        // For updates, directly update subscription in localStorage
+                        updateExistingSubscription();
                         localStorage.setItem('subscriptionUpdate', 'true');
+                        localStorage.removeItem('editingSubscription');
+                        
+                        showToast('Plan Updated ✓');
+                        setTimeout(() => {
+                            window.location.href = 'Subscription Confirmed page.html';
+                        }, 1000);
+                    } else {
+                        // For new subscriptions, continue to address setup
+                        showToast('Subscribed ✓');
+                        setTimeout(() => {
+                            window.location.href = 'Address Setup.html';
+                        }, 1000);
                     }
-                    
-                    // Clear editing flag
-                    localStorage.removeItem('editingSubscription');
-                    
-                    const message = isEditing ? 'Updated ✓' : 'Subscribed ✓';
-                    showToast(message);
-                    
-                    setTimeout(() => {
-                        window.location.href = 'Subscription Confirmed page.html';
-                    }, 1000);
             }, 1000);
         }
 
@@ -1937,6 +2602,124 @@
                 }
             }
         }
+
+        // Update existing subscription directly
+        function updateExistingSubscription() {
+            const existingSubscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            
+            if (existingSubscriptions.length > 0) {
+                // Update the first subscription (or find by ID in real app)
+                const subscription = existingSubscriptions[0];
+                
+                // Get current form data
+                const morningEnabled = document.getElementById('morning-toggle').checked;
+                const eveningEnabled = document.getElementById('evening-toggle').checked;
+                
+                subscription.morningDelivery = {
+                    enabled: morningEnabled,
+                    milkType: morningEnabled ? document.querySelector('input[name="morning_milk_type"]:checked').value : 'buffalo',
+                    quantity: morningEnabled ? parseFloat(document.getElementById('morning-quantity-select').value) : 0.5,
+                    frequency: morningEnabled ? document.querySelector('#morning-content .frequency-option.selected').getAttribute('data-value') : 'daily',
+                    days: morningEnabled ? getDaysForSlot('morning') : [],
+                    timeSlot: morningEnabled ? document.getElementById('morning-time-select').value : '7:00-7:30',
+                    monthlyPrice: morningEnabled ? calculateSlotPrice('morning') : 0
+                };
+                
+                subscription.eveningDelivery = {
+                    enabled: eveningEnabled,
+                    milkType: eveningEnabled ? document.querySelector('input[name="evening_milk_type"]:checked').value : 'cow',
+                    quantity: eveningEnabled ? parseFloat(document.getElementById('evening-quantity-select').value) : 0.5,
+                    frequency: eveningEnabled ? document.querySelector('#evening-content .frequency-option.selected').getAttribute('data-value') : 'alternate',
+                    days: eveningEnabled ? getDaysForSlot('evening') : [],
+                    timeSlot: eveningEnabled ? document.getElementById('evening-time-select').value : '6:00-6:30',
+                    monthlyPrice: eveningEnabled ? calculateSlotPrice('evening') : 0
+                };
+                
+                subscription.status = 'active';
+                subscription.nextDelivery = getNextDeliveryDate();
+                subscription.lastUpdated = new Date().toISOString();
+                
+                localStorage.setItem('userSubscriptions', JSON.stringify(existingSubscriptions));
+            }
+        }
+        
+        // Helper function to get days for a slot
+        function getDaysForSlot(slot) {
+            const frequencyOption = document.querySelector(`#${slot}-content .frequency-option.selected`);
+            const frequency = frequencyOption.getAttribute('data-value');
+            
+            if (frequency === 'daily') {
+                return ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+            } else {
+                const selectedDays = Array.from(document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]:checked`))
+                    .map(cb => cb.value);
+                return selectedDays;
+            }
+        }
+        
+        // Helper function to calculate slot price
+        function calculateSlotPrice(slot) {
+            const milkType = document.querySelector(`input[name="${slot}_milk_type"]:checked`).value;
+            const quantity = parseFloat(document.getElementById(`${slot}-quantity-select`).value);
+            const frequency = document.querySelector(`#${slot}-content .frequency-option.selected`).getAttribute('data-value');
+            
+            const prices = getMilkPrices();
+            const milkPrice = prices[milkType];
+            const dailyPrice = quantity * milkPrice;
+            
+            let daysPerMonth;
+            if (frequency === 'daily') {
+                daysPerMonth = 30;
+            } else {
+                const selectedDays = Array.from(document.querySelectorAll(`#${slot}-days-modal input[type="checkbox"]:checked`));
+                daysPerMonth = selectedDays.length * 4;
+            }
+            
+            return dailyPrice * daysPerMonth;
+        }
+        
+
+        
+        function getNextDeliveryDate() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            return tomorrow.toISOString().split('T')[0];
+        }
+
+        // Release inventory when subscription is cancelled
+        function releaseInventoryOnCancel(subscription) {
+            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            
+            if (!stockData.buffalo || !stockData.cow) return;
+            
+            // Remove morning delivery booking
+            if (subscription.morningDelivery && subscription.morningDelivery.enabled) {
+                const milkType = subscription.morningDelivery.milkType;
+                const quantity = subscription.morningDelivery.quantity;
+                stockData[milkType].morning.booked = Math.max(0, stockData[milkType].morning.booked - quantity);
+            }
+            
+            // Remove evening delivery booking
+            if (subscription.eveningDelivery && subscription.eveningDelivery.enabled) {
+                const milkType = subscription.eveningDelivery.milkType;
+                const quantity = subscription.eveningDelivery.quantity;
+                stockData[milkType].evening.booked = Math.max(0, stockData[milkType].evening.booked - quantity);
+            }
+            
+            localStorage.setItem('adminStockData', JSON.stringify(stockData));
+            console.log('Inventory released for cancelled subscription:', subscription.id);
+        }
+        
+        // Make function globally available
+        window.releaseInventoryOnCancel = releaseInventoryOnCancel;
+        
+        // Clear notification queue for testing
+        function clearNotificationQueue() {
+            localStorage.removeItem('stockWaitingQueue');
+            console.log('Notification queue cleared');
+        }
+        
+        window.clearNotificationQueue = clearNotificationQueue;
 
         // Go back function
         function goBack() {

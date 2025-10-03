@@ -18,6 +18,7 @@
             display: block;
         }
         .milk-tab.active {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
             color: white;
             border-bottom-color: #3B82F6;
         }
@@ -26,6 +27,31 @@
         }
         .milk-tab-content.active {
             display: block;
+        }
+        .delivery-time-tab.active {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+            border-bottom-color: #3B82F6;
+        }
+        .delivery-time-content {
+            display: none;
+        }
+        .delivery-time-content.active {
+            display: block;
+        }
+        .fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+            background: #111827;
+            overflow-y: auto;
+        }
+        .fullscreen-mode .milk-tab {
+            font-size: 1.1rem;
+            padding: 1rem 1.5rem;
         }
     </style>
 </head>
@@ -60,6 +86,7 @@
                     <span class="material-symbols-outlined mr-3">local_drink</span>
                     Milk Management
                 </a>
+
             </nav>
         </div>
 
@@ -198,292 +225,283 @@
                 <div id="milk-section" class="content-section">
                     <!-- Tab Navigation -->
                     <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700 mb-6">
-                        <div class="flex border-b border-gray-700">
-                            <button onclick="showMilkTab('inventory')" class="milk-tab active flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors">
-                                📦 Inventory
-                            </button>
-                            <button onclick="showMilkTab('pricing')" class="milk-tab flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors">
-                                💰 Pricing
-                            </button>
-                            <button onclick="showMilkTab('subscriptions')" class="milk-tab flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors">
-                                👥 Subscriptions
-                            </button>
-                            <button onclick="showMilkTab('delivery')" class="milk-tab flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors">
-                                🚚 Delivery
-                            </button>
-                            <button onclick="showMilkTab('finance')" class="milk-tab flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors">
-                                📊 Finance
+                        <div class="flex justify-between items-center border-b border-gray-700">
+                            <div class="flex">
+                                <button onclick="showMilkTab('inventory')" class="milk-tab flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors rounded-t-lg">
+                                    📦 Inventory
+                                </button>
+                                <button onclick="showMilkTab('subscriptions')" class="milk-tab flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors rounded-t-lg">
+                                    👥 Subscriptions
+                                </button>
+                                <button onclick="showMilkTab('delivery')" class="milk-tab flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors rounded-t-lg">
+                                    🚚 Delivery
+                                </button>
+                                <button onclick="showMilkTab('summary')" class="milk-tab flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors rounded-t-lg">
+                                    📊 UC7D
+                                </button>
+                                <button onclick="showMilkTab('notify')" class="milk-tab flex items-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors rounded-t-lg">
+                                    🔔 Notify Me
+                                </button>
+                            </div>
+                            <button onclick="toggleFullscreen()" class="flex items-center px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors" title="Toggle Fullscreen">
+                                <span class="material-symbols-outlined" id="fullscreen-icon">fullscreen</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- Inventory Tab -->
-                    <div id="inventory-tab" class="milk-tab-content active">
-                        <!-- Add New Product Button -->
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-xl font-semibold text-gray-100">Product Inventory Management</h2>
-                            <button onclick="openAddProductModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
-                                <span class="material-symbols-outlined">add</span>
-                                Add Product
-                            </button>
-                        </div>
+                    <div id="inventory-tab" class="milk-tab-content">
+                        <h2 class="text-xl font-semibold text-gray-100 mb-6">Product Inventory Management</h2>
 
                         <!-- Product Cards -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="products-container">
+                        <div class="grid grid-cols-1 gap-6 mb-8">
                             <!-- Buffalo Milk Card -->
                             <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white font-bold text-lg">🐃</span>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-gray-100">Buffalo Milk</h3>
-                                            <p class="text-sm text-gray-400">Premium Quality</p>
-                                        </div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white font-bold text-2xl">🐃</span>
                                     </div>
-                                    <button onclick="editProduct('buffalo')" class="text-blue-400 hover:text-blue-300">
-                                        <span class="material-symbols-outlined">edit</span>
-                                    </button>
-                                </div>
-                                
-                                <div class="space-y-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-300">Available Stock:</span>
-                                        <span class="text-xl font-bold text-green-400" id="buffalo-stock">10L</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-300">Booked by Users:</span>
-                                        <span class="text-lg font-semibold text-orange-400" id="buffalo-booked">3L</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-300">Remaining:</span>
-                                        <span class="text-lg font-semibold text-blue-400" id="buffalo-remaining">7L</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-300">Price per Liter:</span>
-                                        <span class="text-lg font-semibold text-gray-100">₹80</span>
+                                    <div>
+                                        <h3 class="text-xl font-semibold text-gray-100">Buffalo Milk</h3>
+                                        <p class="text-sm text-gray-400">Premium Quality • Rich & Creamy</p>
                                     </div>
                                 </div>
                                 
-                                <div class="mt-4 pt-4 border-t border-gray-700">
+                                <!-- Price Management -->
+                                <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-gray-300 font-medium">Price per Liter (Same for Morning & Evening)</span>
+                                        <span class="text-xl font-bold text-yellow-400" id="buffalo-price">₹0</span>
+                                    </div>
                                     <div class="flex gap-2">
-                                        <button onclick="updateStock('buffalo', 'add')" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700">
-                                            + Add Stock
+                                        <input type="number" id="buffalo-price-custom" placeholder="Set new price" class="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-blue-400">
+                                        <button onclick="setPriceCustom('buffalo')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                            Update
                                         </button>
-                                        <button onclick="updateStock('buffalo', 'remove')" class="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700">
-                                            - Remove Stock
-                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Morning & Evening Stock Management -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    <!-- Morning Stock -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="text-2xl">🌅</span>
+                                            <span class="text-gray-300 font-medium">Morning Stock</span>
+                                        </div>
+                                        <div class="flex justify-between items-center mb-3">
+                                            <span class="text-gray-400">Available</span>
+                                            <span class="text-xl font-bold text-green-400" id="buffalo-morning-stock">0L</span>
+                                        </div>
+                                        <div class="flex gap-2 mb-3">
+                                            <input type="number" id="buffalo-morning-custom" placeholder="Enter amount (+/-)" class="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-blue-400">
+                                            <button onclick="adjustStockCustom('buffalo', 'morning')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                                Update
+                                            </button>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2 text-sm">
+                                            <div class="bg-gray-600 p-2 rounded text-center">
+                                                <p class="text-gray-400">Booked</p>
+                                                <p class="text-orange-400 font-bold" id="buffalo-morning-booked">0L</p>
+                                            </div>
+                                            <div class="bg-gray-600 p-2 rounded text-center">
+                                                <p class="text-gray-400">Available</p>
+                                                <p class="text-blue-400 font-bold" id="buffalo-morning-remaining">0L</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Evening Stock -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="text-2xl">🌆</span>
+                                            <span class="text-gray-300 font-medium">Evening Stock</span>
+                                        </div>
+                                        <div class="flex justify-between items-center mb-3">
+                                            <span class="text-gray-400">Available</span>
+                                            <span class="text-xl font-bold text-green-400" id="buffalo-evening-stock">0L</span>
+                                        </div>
+                                        <div class="flex gap-2 mb-3">
+                                            <input type="number" id="buffalo-evening-custom" placeholder="Enter amount (+/-)" class="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-blue-400">
+                                            <button onclick="adjustStockCustom('buffalo', 'evening')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                                Update
+                                            </button>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2 text-sm">
+                                            <div class="bg-gray-600 p-2 rounded text-center">
+                                                <p class="text-gray-400">Booked</p>
+                                                <p class="text-orange-400 font-bold" id="buffalo-evening-booked">0L</p>
+                                            </div>
+                                            <div class="bg-gray-600 p-2 rounded text-center">
+                                                <p class="text-gray-400">Available</p>
+                                                <p class="text-blue-400 font-bold" id="buffalo-evening-remaining">0L</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Cow Milk Card -->
                             <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white font-bold text-lg">🐄</span>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-gray-100">Cow Milk</h3>
-                                            <p class="text-sm text-gray-400">Fresh & Pure</p>
-                                        </div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white font-bold text-2xl">🐄</span>
                                     </div>
-                                    <button onclick="editProduct('cow')" class="text-blue-400 hover:text-blue-300">
-                                        <span class="material-symbols-outlined">edit</span>
-                                    </button>
-                                </div>
-                                
-                                <div class="space-y-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-300">Available Stock:</span>
-                                        <span class="text-xl font-bold text-green-400" id="cow-stock">5L</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-300">Booked by Users:</span>
-                                        <span class="text-lg font-semibold text-orange-400" id="cow-booked">2L</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-300">Remaining:</span>
-                                        <span class="text-lg font-semibold text-blue-400" id="cow-remaining">3L</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-300">Price per Liter:</span>
-                                        <span class="text-lg font-semibold text-gray-100">₹65</span>
+                                    <div>
+                                        <h3 class="text-xl font-semibold text-gray-100">Cow Milk</h3>
+                                        <p class="text-sm text-gray-400">Fresh & Pure • Light & Healthy</p>
                                     </div>
                                 </div>
                                 
-                                <div class="mt-4 pt-4 border-t border-gray-700">
+                                <!-- Price Management -->
+                                <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-gray-300 font-medium">Price per Liter (Same for Morning & Evening)</span>
+                                        <span class="text-xl font-bold text-yellow-400" id="cow-price">₹0</span>
+                                    </div>
                                     <div class="flex gap-2">
-                                        <button onclick="updateStock('cow', 'add')" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700">
-                                            + Add Stock
-                                        </button>
-                                        <button onclick="updateStock('cow', 'remove')" class="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700">
-                                            - Remove Stock
+                                        <input type="number" id="cow-price-custom" placeholder="Set new price" class="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-blue-400">
+                                        <button onclick="setPriceCustom('cow')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                            Update
                                         </button>
                                     </div>
                                 </div>
+                                
+                                <!-- Morning & Evening Stock Management -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    <!-- Morning Stock -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="text-2xl">🌅</span>
+                                            <span class="text-gray-300 font-medium">Morning Stock</span>
+                                        </div>
+                                        <div class="flex justify-between items-center mb-3">
+                                            <span class="text-gray-400">Available</span>
+                                            <span class="text-xl font-bold text-green-400" id="cow-morning-stock">0L</span>
+                                        </div>
+                                        <div class="flex gap-2 mb-3">
+                                            <input type="number" id="cow-morning-custom" placeholder="Enter amount (+/-)" class="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-blue-400">
+                                            <button onclick="adjustStockCustom('cow', 'morning')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                                Update
+                                            </button>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2 text-sm">
+                                            <div class="bg-gray-600 p-2 rounded text-center">
+                                                <p class="text-gray-400">Booked</p>
+                                                <p class="text-orange-400 font-bold" id="cow-morning-booked">0L</p>
+                                            </div>
+                                            <div class="bg-gray-600 p-2 rounded text-center">
+                                                <p class="text-gray-400">Available</p>
+                                                <p class="text-blue-400 font-bold" id="cow-morning-remaining">0L</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Evening Stock -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="text-2xl">🌆</span>
+                                            <span class="text-gray-300 font-medium">Evening Stock</span>
+                                        </div>
+                                        <div class="flex justify-between items-center mb-3">
+                                            <span class="text-gray-400">Available</span>
+                                            <span class="text-xl font-bold text-green-400" id="cow-evening-stock">0L</span>
+                                        </div>
+                                        <div class="flex gap-2 mb-3">
+                                            <input type="number" id="cow-evening-custom" placeholder="Enter amount (+/-)" class="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-blue-400">
+                                            <button onclick="adjustStockCustom('cow', 'evening')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                                Update
+                                            </button>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2 text-sm">
+                                            <div class="bg-gray-600 p-2 rounded text-center">
+                                                <p class="text-gray-400">Booked</p>
+                                                <p class="text-orange-400 font-bold" id="cow-evening-booked">0L</p>
+                                            </div>
+                                            <div class="bg-gray-600 p-2 rounded text-center">
+                                                <p class="text-gray-400">Available</p>
+                                                <p class="text-blue-400 font-bold" id="cow-evening-remaining">0L</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-
-
                         </div>
 
-                        <!-- Stock Summary -->
-                        <div class="mt-8 bg-gray-800 rounded-lg border border-gray-700 p-6">
-                            <h3 class="text-lg font-semibold text-gray-100 mb-4">Stock Summary</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-green-400" id="total-stock">15L</p>
-                                    <p class="text-gray-400">Total Available Stock</p>
-                                </div>
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-orange-400" id="total-booked">5L</p>
-                                    <p class="text-gray-400">Total Booked by Users</p>
-                                </div>
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-blue-400" id="total-remaining">10L</p>
-                                    <p class="text-gray-400">Total Remaining Stock</p>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
 
-                    <!-- Pricing Tab -->
-                    <div id="pricing-tab" class="milk-tab-content">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                                <h3 class="text-lg font-semibold text-gray-100 mb-4">Current Pricing</h3>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
-                                        <span class="text-gray-300">Whole Milk (1L)</span>
-                                        <span class="text-gray-100 font-semibold">₹65</span>
-                                    </div>
-                                    <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
-                                        <span class="text-gray-300">Skim Milk (1L)</span>
-                                        <span class="text-gray-100 font-semibold">₹60</span>
-                                    </div>
-                                    <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
-                                        <span class="text-gray-300">Organic Milk (1L)</span>
-                                        <span class="text-gray-100 font-semibold">₹85</span>
-                                    </div>
+                    <!-- UC7D Tab -->
+                    <div id="summary-tab" class="milk-tab-content">
+                        <div class="mb-6">
+                            <h2 class="text-xl font-semibold text-gray-100 mb-2">UC7D - Daily Stock & Business Analytics</h2>
+                            <p class="text-gray-400 text-sm">14-day business forecast with comprehensive stock and revenue analysis</p>
+                        </div>
+                        
+                        <!-- Business Overview Cards -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            <div class="bg-gradient-to-br from-green-600 to-green-700 p-6 rounded-xl border border-green-500 shadow-lg">
+                                <div class="text-center text-white">
+                                    <p class="text-3xl font-bold" id="uc7d-total-stock">0L</p>
+                                    <p class="text-green-100 text-sm mt-1">Total Stock</p>
                                 </div>
                             </div>
-                            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                                <h3 class="text-lg font-semibold text-gray-100 mb-4">Seasonal Adjustments</h3>
-                                <div class="space-y-3">
-                                    <div class="p-3 bg-gray-700 rounded">
-                                        <div class="flex justify-between items-center mb-2">
-                                            <span class="text-gray-300">Summer Premium</span>
-                                            <span class="text-green-400">+₹5</span>
-                                        </div>
-                                        <p class="text-xs text-gray-400">Active: Jun - Aug</p>
-                                    </div>
-                                    <div class="p-3 bg-gray-700 rounded">
-                                        <div class="flex justify-between items-center mb-2">
-                                            <span class="text-gray-300">Festival Discount</span>
-                                            <span class="text-red-400">-₹3</span>
-                                        </div>
-                                        <p class="text-xs text-gray-400">Next: Diwali 2024</p>
-                                    </div>
+                            <div class="bg-gradient-to-br from-orange-600 to-orange-700 p-6 rounded-xl border border-orange-500 shadow-lg">
+                                <div class="text-center text-white">
+                                    <p class="text-3xl font-bold" id="uc7d-total-booked">0L</p>
+                                    <p class="text-orange-100 text-sm mt-1">Total Booked</p>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-xl border border-blue-500 shadow-lg">
+                                <div class="text-center text-white">
+                                    <p class="text-3xl font-bold" id="uc7d-total-remaining">0L</p>
+                                    <p class="text-blue-100 text-sm mt-1">Available</p>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-br from-yellow-600 to-yellow-700 p-6 rounded-xl border border-yellow-500 shadow-lg">
+                                <div class="text-center text-white">
+                                    <p class="text-3xl font-bold" id="uc7d-daily-revenue">₹0</p>
+                                    <p class="text-yellow-100 text-sm mt-1">Daily Revenue</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-gray-800 rounded-lg border border-gray-700">
-                            <div class="p-6 border-b border-gray-700">
-                                <h3 class="text-lg font-semibold text-gray-100">Price History</h3>
-                            </div>
-                            <div class="p-6">
-                                <div class="text-center py-8 text-gray-400">
-                                    <span class="material-symbols-outlined text-4xl mb-2">show_chart</span>
-                                    <p>Price trend chart will be displayed here</p>
-                                </div>
-                            </div>
+                        
+                        <div id="uc7d-container" class="space-y-4">
+                            <!-- Daily analytics will be generated here -->
                         </div>
                     </div>
 
                     <!-- Subscriptions Tab -->
                     <div id="subscriptions-tab" class="milk-tab-content">
+                        <!-- Filters -->
+                        <div class="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-6">
+                            <div class="flex flex-wrap gap-4 items-center">
+                                <input type="text" id="sub-search" placeholder="Search by name, phone, or email..." 
+                                       class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 w-80">
+                                <select id="sub-status-filter" class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="paused">Paused</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                                <select id="sub-plan-filter" class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                                    <option value="">All Plans</option>
+                                    <option value="buffalo">Buffalo Milk</option>
+                                    <option value="cow">Cow Milk</option>
+                                </select>
+                                <button onclick="loadSubscriptionsData()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                    Apply Filters
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stats Cards -->
                         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
                             <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-gray-400 text-sm">Active Subscriptions</p>
-                                        <p class="text-2xl font-bold text-gray-100">1,247</p>
-                                    </div>
-                                    <span class="material-symbols-outlined text-green-500 text-3xl">subscriptions</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-400 text-sm">New This Month</p>
-                                        <p class="text-2xl font-bold text-blue-400">89</p>
-                                    </div>
-                                    <span class="material-symbols-outlined text-blue-500 text-3xl">trending_up</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-400 text-sm">Cancelled</p>
-                                        <p class="text-2xl font-bold text-red-400">23</p>
-                                    </div>
-                                    <span class="material-symbols-outlined text-red-500 text-3xl">cancel</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-400 text-sm">Paused</p>
-                                        <p class="text-2xl font-bold text-yellow-400">45</p>
-                                    </div>
-                                    <span class="material-symbols-outlined text-yellow-500 text-3xl">pause</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-800 rounded-lg border border-gray-700">
-                            <div class="p-6 border-b border-gray-700">
-                                <h3 class="text-lg font-semibold text-gray-100">Recent Subscriptions</h3>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-700">
-                                    <thead class="bg-gray-700">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Customer</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Plan</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Status</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Next Delivery</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-gray-800 divide-y divide-gray-700">
-                                        <tr><td class="px-6 py-4 text-gray-300">John Doe</td><td class="px-6 py-4 text-gray-100">Daily 1L Whole</td><td class="px-6 py-4"><span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Active</span></td><td class="px-6 py-4 text-gray-400">Tomorrow 7:00 AM</td><td class="px-6 py-4"><button class="text-blue-400 hover:text-blue-300">Manage</button></td></tr>
-                                        <tr><td class="px-6 py-4 text-gray-300">Jane Smith</td><td class="px-6 py-4 text-gray-100">Weekly 7L Organic</td><td class="px-6 py-4"><span class="bg-yellow-600 text-white px-2 py-1 rounded text-xs">Paused</span></td><td class="px-6 py-4 text-gray-400">-</td><td class="px-6 py-4"><button class="text-blue-400 hover:text-blue-300">Resume</button></td></tr>
-                                        <tr><td class="px-6 py-4 text-gray-300">Mike Johnson</td><td class="px-6 py-4 text-gray-100">Daily 2L Skim</td><td class="px-6 py-4"><span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Active</span></td><td class="px-6 py-4 text-gray-400">Today 6:30 AM</td><td class="px-6 py-4"><button class="text-blue-400 hover:text-blue-300">Manage</button></td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Delivery Tab -->
-                    <div id="delivery-tab" class="milk-tab-content">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-400 text-sm">Today's Deliveries</p>
-                                        <p class="text-2xl font-bold text-gray-100">342</p>
-                                    </div>
-                                    <span class="material-symbols-outlined text-blue-500 text-3xl">local_shipping</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-400 text-sm">Completed</p>
-                                        <p class="text-2xl font-bold text-green-400">298</p>
+                                        <p class="text-gray-400 text-sm">Active</p>
+                                        <p class="text-2xl font-bold text-green-400" id="sub-active-count">0</p>
                                     </div>
                                     <span class="material-symbols-outlined text-green-500 text-3xl">check_circle</span>
                                 </div>
@@ -491,146 +509,194 @@
                             <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-gray-400 text-sm">Pending</p>
-                                        <p class="text-2xl font-bold text-orange-400">44</p>
+                                        <p class="text-gray-400 text-sm">Paused</p>
+                                        <p class="text-2xl font-bold text-yellow-400" id="sub-paused-count">0</p>
                                     </div>
-                                    <span class="material-symbols-outlined text-orange-500 text-3xl">schedule</span>
+                                    <span class="material-symbols-outlined text-yellow-500 text-3xl">pause</span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div class="bg-gray-800 rounded-lg border border-gray-700">
-                                <div class="p-6 border-b border-gray-700">
-                                    <h3 class="text-lg font-semibold text-gray-100">Route Planning</h3>
-                                </div>
-                                <div class="p-6">
-                                    <div class="space-y-3">
-                                        <div class="p-3 bg-gray-700 rounded">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-gray-300">Route A - North Zone</span>
-                                                <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Active</span>
-                                            </div>
-                                            <p class="text-xs text-gray-400 mt-1">45 deliveries • 12.5 km</p>
-                                        </div>
-                                        <div class="p-3 bg-gray-700 rounded">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-gray-300">Route B - South Zone</span>
-                                                <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">In Progress</span>
-                                            </div>
-                                            <p class="text-xs text-gray-400 mt-1">38 deliveries • 9.8 km</p>
-                                        </div>
-                                        <div class="p-3 bg-gray-700 rounded">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-gray-300">Route C - East Zone</span>
-                                                <span class="bg-gray-600 text-white px-2 py-1 rounded text-xs">Pending</span>
-                                            </div>
-                                            <p class="text-xs text-gray-400 mt-1">52 deliveries • 15.2 km</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-800 rounded-lg border border-gray-700">
-                                <div class="p-6 border-b border-gray-700">
-                                    <h3 class="text-lg font-semibold text-gray-100">Delivery Schedule</h3>
-                                </div>
-                                <div class="p-6">
-                                    <div class="space-y-3">
-                                        <div class="p-3 bg-gray-700 rounded">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-gray-300">Morning Batch</span>
-                                                <span class="text-gray-400">6:00 - 9:00 AM</span>
-                                            </div>
-                                            <p class="text-xs text-gray-400 mt-1">156 deliveries scheduled</p>
-                                        </div>
-                                        <div class="p-3 bg-gray-700 rounded">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-gray-300">Evening Batch</span>
-                                                <span class="text-gray-400">5:00 - 8:00 PM</span>
-                                            </div>
-                                            <p class="text-xs text-gray-400 mt-1">89 deliveries scheduled</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Finance Tab -->
-                    <div id="finance-tab" class="milk-tab-content">
-                        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
                             <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-gray-400 text-sm">Monthly Revenue</p>
-                                        <p class="text-2xl font-bold text-gray-100">₹2,45,680</p>
+                                        <p class="text-gray-400 text-sm">Cancelled</p>
+                                        <p class="text-2xl font-bold text-red-400" id="sub-cancelled-count">0</p>
                                     </div>
-                                    <span class="material-symbols-outlined text-green-500 text-3xl">trending_up</span>
+                                    <span class="material-symbols-outlined text-red-500 text-3xl">cancel</span>
                                 </div>
                             </div>
                             <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-gray-400 text-sm">Pending Payments</p>
-                                        <p class="text-2xl font-bold text-orange-400">₹18,450</p>
-                                    </div>
-                                    <span class="material-symbols-outlined text-orange-500 text-3xl">schedule</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-400 text-sm">Avg Order Value</p>
-                                        <p class="text-2xl font-bold text-blue-400">₹127</p>
+                                        <p class="text-gray-400 text-sm">Monthly Revenue</p>
+                                        <p class="text-2xl font-bold text-blue-400" id="sub-revenue-count">₹0</p>
                                     </div>
                                     <span class="material-symbols-outlined text-blue-500 text-3xl">payments</span>
                                 </div>
                             </div>
-                            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-400 text-sm">Growth Rate</p>
-                                        <p class="text-2xl font-bold text-green-400">+12.5%</p>
+                        </div>
+
+                        <!-- Subscriptions Grid -->
+                        <div id="sub-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <!-- Loading -->
+                            <div class="col-span-full text-center py-12">
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                                <p class="mt-4 text-gray-400">Loading subscriptions...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Tab -->
+                    <div id="delivery-tab" class="milk-tab-content">
+                        
+                        <!-- Date Navigation -->
+                        <div class="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl border border-gray-600 p-6 mb-6 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <button onclick="changeDeliveryDate(-1)" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                                    <span>←</span> Previous Day
+                                </button>
+                                <div class="text-center">
+                                    <h3 class="text-xl font-bold text-white" id="delivery-date-display">Today</h3>
+                                    <p class="text-gray-300 text-sm mt-1" id="delivery-date-subtitle">Select date to view deliveries</p>
+                                </div>
+                                <button onclick="changeDeliveryDate(1)" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                                    Next Day <span>→</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Morning/Evening Tabs -->
+                        <div class="bg-gray-800 rounded-xl mb-6 shadow-lg overflow-hidden">
+                            <div class="flex">
+                                <button onclick="showDeliveryTimeTab('morning')" id="morning-tab-btn" class="delivery-time-tab flex-1 flex items-center justify-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-all duration-200 bg-gray-800 hover:bg-gray-700">
+                                    <span class="text-2xl mr-3">🌅</span>
+                                    <div class="text-left">
+                                        <div class="font-semibold">Morning Delivery</div>
+                                        <div class="text-xs text-gray-400">6:00 AM - 9:00 AM</div>
                                     </div>
-                                    <span class="material-symbols-outlined text-green-500 text-3xl">analytics</span>
+                                </button>
+                                <button onclick="showDeliveryTimeTab('evening')" id="evening-tab-btn" class="delivery-time-tab flex-1 flex items-center justify-center px-6 py-4 text-gray-300 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-all duration-200 bg-gray-800 hover:bg-gray-700">
+                                    <span class="text-2xl mr-3">🌆</span>
+                                    <div class="text-left">
+                                        <div class="font-semibold">Evening Delivery</div>
+                                        <div class="text-xs text-gray-400">5:30 PM - 7:30 PM</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Morning Tab Content -->
+                        <div id="morning-delivery-content" class="delivery-time-content">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-4">
+                                    <h3 class="text-lg font-semibold text-gray-100">Morning Deliveries</h3>
+                                    <span class="text-sm bg-blue-600 text-white px-2 py-1 rounded" id="morning-count">0</span>
+                                </div>
+                                <button onclick="downloadDeliveries('morning')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">
+                                    📥 Download
+                                </button>
+                            </div>
+                            <div id="morning-deliveries-table"></div>
+                        </div>
+                        
+                        <!-- Evening Tab Content -->
+                        <div id="evening-delivery-content" class="delivery-time-content">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-4">
+                                    <h3 class="text-lg font-semibold text-gray-100">Evening Deliveries</h3>
+                                    <span class="text-sm bg-blue-600 text-white px-2 py-1 rounded" id="evening-count">0</span>
+                                </div>
+                                <button onclick="downloadDeliveries('evening')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">
+                                    📥 Download
+                                </button>
+                            </div>
+                            <div id="evening-deliveries-table"></div>
+                        </div>
+                    </div>
+
+                    <!-- Notify Me Tab -->
+                    <div id="notify-tab" class="milk-tab-content">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-100 mb-2">Stock Notification Requests</h2>
+                                <p class="text-gray-400 text-sm">Manage customer requests for out-of-stock items</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="exportNotifications()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">
+                                    📥 Export
+                                </button>
+                                <button onclick="loadNotificationRequests()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                    🔄 Refresh
+                                </button>
+                                <button onclick="clearAllNotifications()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm">
+                                    🗑️ Clear All
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Stats -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-blue-400" id="notify-total-count">0</p>
+                                    <p class="text-gray-400 text-sm">Total Requests</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-orange-400" id="notify-pending-count">0</p>
+                                    <p class="text-gray-400 text-sm">Pending</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-green-400" id="notify-completed-count">0</p>
+                                    <p class="text-gray-400 text-sm">Notified</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-yellow-400" id="notify-buffalo-count">0</p>
+                                    <p class="text-gray-400 text-sm">Buffalo Requests</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div class="bg-gray-800 rounded-lg border border-gray-700">
-                                <div class="p-6 border-b border-gray-700">
-                                    <h3 class="text-lg font-semibold text-gray-100">Revenue Forecast</h3>
-                                </div>
-                                <div class="p-6">
-                                    <div class="text-center py-8 text-gray-400">
-                                        <span class="material-symbols-outlined text-4xl mb-2">trending_up</span>
-                                        <p>Revenue forecast chart will be displayed here</p>
-                                    </div>
-                                </div>
+                        
+                        <!-- Filters -->
+                        <div class="bg-gray-800 rounded-lg border border-gray-700 p-4 mb-6">
+                            <div class="flex flex-wrap gap-3 items-center">
+                                <select id="notify-status-filter" class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-3 py-2 text-sm">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="notified">Notified</option>
+                                </select>
+                                <select id="notify-milk-filter" class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-3 py-2 text-sm">
+                                    <option value="">All Milk Types</option>
+                                    <option value="buffalo">Buffalo Milk</option>
+                                    <option value="cow">Cow Milk</option>
+                                </select>
+                                <select id="notify-time-filter" class="border border-gray-600 bg-gray-700 text-gray-100 rounded-lg px-3 py-2 text-sm">
+                                    <option value="">All Time Slots</option>
+                                    <option value="morning">Morning</option>
+                                    <option value="evening">Evening</option>
+                                </select>
+                                <button onclick="loadNotificationRequests()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                    Apply Filters
+                                </button>
                             </div>
-                            <div class="bg-gray-800 rounded-lg border border-gray-700">
-                                <div class="p-6 border-b border-gray-700">
-                                    <h3 class="text-lg font-semibold text-gray-100">Payment Tracking</h3>
-                                </div>
-                                <div class="p-6">
-                                    <div class="space-y-3">
-                                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
-                                            <span class="text-gray-300">UPI Payments</span>
-                                            <span class="text-green-400">78%</span>
-                                        </div>
-                                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
-                                            <span class="text-gray-300">Cash on Delivery</span>
-                                            <span class="text-blue-400">15%</span>
-                                        </div>
-                                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
-                                            <span class="text-gray-300">Credit/Debit Cards</span>
-                                            <span class="text-purple-400">7%</span>
-                                        </div>
-                                    </div>
-                                </div>
+                        </div>
+                        
+                        <!-- Notification Requests List -->
+                        <div id="notify-grid" class="space-y-4">
+                            <!-- Loading -->
+                            <div class="text-center py-12">
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                                <p class="mt-4 text-gray-400">Loading notification requests...</p>
                             </div>
                         </div>
                     </div>
                 </div>
+
+
 
 
             </main>
@@ -652,6 +718,21 @@
         </div>
     </div>
 
+    <!-- Subscription Details Modal -->
+    <div id="subscription-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[1001]">
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-screen overflow-y-auto m-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-100">Subscription Details</h3>
+                <button onclick="closeSubscriptionModal()" class="text-gray-400 hover:text-gray-200">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="subscription-details-content">
+                <!-- Subscription details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-4 right-4 p-4 rounded-lg text-white z-50 hidden"></div>
 
@@ -667,14 +748,25 @@
             
             // Show selected section
             document.getElementById(section + '-section').classList.add('active');
-            event.target.classList.add('active');
+            
+            // Find and activate the correct sidebar item
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.onclick && item.onclick.toString().includes(section)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Save current section
+            localStorage.setItem('adminActiveSection', section);
             
             // Update page title
             const titles = {
                 'dashboard': 'Dashboard',
                 'users': 'User Management',
                 'activity': 'Activity Log',
-                'milk': 'Milk Management'
+                'milk': 'Milk Management',
+
             };
             document.getElementById('page-title').textContent = titles[section];
             
@@ -692,6 +784,7 @@
                 case 'milk':
                     loadMilkManagement();
                     break;
+
             }
         }
 
@@ -854,6 +947,8 @@
 
 
         // Milk Management Functions
+        let isFullscreen = false;
+        
         function showMilkTab(tab) {
             // Hide all milk tab contents
             document.querySelectorAll('.milk-tab-content').forEach(t => t.classList.remove('active'));
@@ -862,91 +957,696 @@
             // Show selected tab
             document.getElementById(tab + '-tab').classList.add('active');
             
-            // Find and activate the clicked tab button
-            const tabButtons = document.querySelectorAll('.milk-tab');
-            tabButtons.forEach(btn => {
-                if (btn.onclick && btn.onclick.toString().includes(tab)) {
-                    btn.classList.add('active');
-                }
-            });
+            // Activate the correct tab button - use data attribute mapping
+            const tabButtonMap = {
+                'inventory': 0,
+                'subscriptions': 1,
+                'delivery': 2,
+                'summary': 3,
+                'notify': 4
+            };
+            
+            const buttons = document.querySelectorAll('.milk-tab');
+            const buttonIndex = tabButtonMap[tab];
+            if (buttonIndex !== undefined && buttons[buttonIndex]) {
+                buttons[buttonIndex].classList.add('active');
+            }
+            
+            // Load tab-specific content
+            if (tab === 'summary') {
+                generateUC7DReport();
+            } else if (tab === 'notify') {
+                console.log('🔔 Admin: Switching to Notify Me tab');
+                loadNotificationRequests();
+            } else if (tab === 'delivery') {
+                console.log('🚚 Admin: Switching to Delivery tab');
+                setTimeout(() => {
+                    loadDeliveryManagement();
+                    // Ensure both tabs are properly loaded
+                    generateNext15DaysDeliveries();
+                    showDeliveryTimeTab('morning');
+                }, 100);
+            }
+            
+            // Save current milk tab
+            localStorage.setItem('adminActiveMilkTab', tab);
+            console.log('💾 Saved milk tab:', tab);
         }
+        
+        function toggleFullscreen() {
+            const milkSection = document.getElementById('milk-section');
+            const icon = document.getElementById('fullscreen-icon');
+            
+            if (!isFullscreen) {
+                milkSection.classList.add('fullscreen-mode');
+                icon.textContent = 'fullscreen_exit';
+                isFullscreen = true;
+                localStorage.setItem('adminFullscreenMode', 'true');
+                showToast('Fullscreen mode enabled. Press ESC to exit.', 'info');
+            } else {
+                milkSection.classList.remove('fullscreen-mode');
+                icon.textContent = 'fullscreen';
+                isFullscreen = false;
+                localStorage.setItem('adminFullscreenMode', 'false');
+                showToast('Fullscreen mode disabled', 'info');
+            }
+        }
+        
+        // ESC key to exit fullscreen
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isFullscreen) {
+                toggleFullscreen();
+            }
+        });
 
         function loadMilkManagement() {
-            // Initialize with inventory tab
-            showMilkTab('inventory');
+            // Check if there's a saved milk tab, otherwise default to inventory
+            const savedMilkTab = localStorage.getItem('adminActiveMilkTab') || 'inventory';
+            console.log('🥛 Loading milk management with tab:', savedMilkTab);
+            
+            // Initialize with saved or default tab
+            showMilkTab(savedMilkTab);
             // Initialize stock display
             setTimeout(updateStockDisplay, 100);
+            // Load subscriptions data for when user switches to that tab
+            setTimeout(loadSubscriptionsData, 200);
         }
 
-        // Stock Management Functions
-        const stockData = {
-            buffalo: { stock: 10, booked: 3, price: 80 },
-            cow: { stock: 5, booked: 2, price: 65 }
-        };
-
-        function updateStock(product, action) {
-            const amount = prompt(`Enter amount to ${action === 'add' ? 'add to' : 'remove from'} ${product} milk stock (in Liters):`);
-            if (amount && !isNaN(amount) && amount > 0) {
-                if (action === 'add') {
-                    stockData[product].stock += parseFloat(amount);
-                } else {
-                    if (stockData[product].stock >= parseFloat(amount)) {
-                        stockData[product].stock -= parseFloat(amount);
-                    } else {
-                        showToast('Cannot remove more stock than available', 'error');
-                        return;
-                    }
-                }
-                updateStockDisplay();
-                showToast(`${product} milk stock updated successfully`, 'success');
+        // Load Subscriptions Data - Now synced with user app
+        function loadSubscriptionsData() {
+            // Get subscriptions from localStorage (shared with user app)
+            const subscriptions = getStoredSubscriptions();
+            displaySubscriptionsGrid(subscriptions);
+            updateSubscriptionStats(subscriptions);
+        }
+        
+        function getStoredSubscriptions() {
+            // Get real subscriptions from localStorage (created by user app)
+            const userSubscriptions = localStorage.getItem('userSubscriptions');
+            if (userSubscriptions) {
+                return JSON.parse(userSubscriptions);
             }
+            
+            // Return empty array if no subscriptions exist
+            return [];
+        }
+
+        function displaySubscriptionsGrid(data) {
+            const grid = document.getElementById('sub-grid');
+            
+            if (!data.length) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12"><span class="material-symbols-outlined text-6xl text-gray-500 mb-4">inbox</span><p class="text-gray-400 text-lg">No subscriptions found</p></div>';
+                return;
+            }
+            
+            grid.innerHTML = data.map(sub => {
+                const planInfo = getSubscriptionPlanInfo(sub);
+                return `
+                    <div class="bg-gray-700 rounded-lg border border-gray-600 p-6 hover:border-blue-500 transition-colors cursor-pointer" onclick="viewSubscriptionDetails(${sub.id})">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-bold text-lg">${sub.customer.name.charAt(0)}</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-lg text-gray-100">${sub.customer.name}</h3>
+                                    <p class="text-gray-400 text-sm">${sub.customer.phone}</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-sm font-medium ${
+                                sub.status === 'active' ? 'bg-green-600 text-white' :
+                                sub.status === 'paused' ? 'bg-yellow-600 text-white' : 'bg-red-600 text-white'
+                            }">
+                                ${sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+                            </span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Plan:</span>
+                                <span class="text-gray-100 font-medium">${planInfo.description}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Schedule:</span>
+                                <span class="text-gray-100 font-medium">${planInfo.schedule}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Monthly:</span>
+                                <span class="text-green-400 font-bold">₹${planInfo.totalPrice}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-600 flex justify-between items-center">
+                            <div class="text-sm text-gray-400">
+                                ${sub.status === 'active' ? `Next: ${new Date(sub.nextDelivery).toLocaleDateString()}` : 'No upcoming delivery'}
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="event.stopPropagation(); toggleSubStatus(${sub.id}, '${sub.status}')" 
+                                        class="text-sm px-3 py-1 rounded ${sub.status === 'active' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'} text-white">
+                                    ${sub.status === 'active' ? 'Pause' : 'Resume'}
+                                </button>
+                                <button onclick="event.stopPropagation(); deleteSubscription(${sub.id})" 
+                                        class="text-sm px-2 py-1 rounded bg-gray-600 hover:bg-gray-700 text-white" title="Delete">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getSubscriptionPlanInfo(sub) {
+            let description = '';
+            let schedule = '';
+            let totalPrice = 0;
+            
+            const parts = [];
+            const schedules = [];
+            const currentPrices = {
+                buffalo: stockData.buffalo?.price || 50,
+                cow: stockData.cow?.price || 40
+            };
+            
+            if (sub.morningDelivery && sub.morningDelivery.enabled) {
+                const morning = sub.morningDelivery;
+                parts.push(`${morning.quantity}L ${morning.milkType.charAt(0).toUpperCase() + morning.milkType.slice(1)}`);
+                schedules.push(`Morning ${morning.timeSlot}`);
+                
+                // Recalculate with current prices
+                const currentPrice = currentPrices[morning.milkType];
+                const dailyPrice = morning.quantity * currentPrice;
+                const daysPerMonth = morning.frequency === 'daily' ? 30 : (morning.days ? morning.days.length * 4 : 30);
+                totalPrice += dailyPrice * daysPerMonth;
+            }
+            
+            if (sub.eveningDelivery && sub.eveningDelivery.enabled) {
+                const evening = sub.eveningDelivery;
+                parts.push(`${evening.quantity}L ${evening.milkType.charAt(0).toUpperCase() + evening.milkType.slice(1)}`);
+                schedules.push(`Evening ${evening.timeSlot}`);
+                
+                // Recalculate with current prices
+                const currentPrice = currentPrices[evening.milkType];
+                const dailyPrice = evening.quantity * currentPrice;
+                const daysPerMonth = evening.frequency === 'daily' ? 30 : (evening.days ? evening.days.length * 4 : 30);
+                totalPrice += dailyPrice * daysPerMonth;
+            }
+            
+            description = parts.join(' + ') || 'No active plan';
+            schedule = schedules.join(' + ') || 'No schedule';
+            
+            return { description, schedule, totalPrice };
+        }
+
+        function updateSubscriptionStats(subscriptions) {
+            const stats = subscriptions.reduce((acc, sub) => {
+                acc[sub.status] = (acc[sub.status] || 0) + 1;
+                if (sub.status === 'active') {
+                    const planInfo = getSubscriptionPlanInfo(sub);
+                    acc.revenue += planInfo.totalPrice;
+                }
+                return acc;
+            }, { active: 0, paused: 0, cancelled: 0, revenue: 0 });
+
+            document.getElementById('sub-active-count').textContent = stats.active;
+            document.getElementById('sub-paused-count').textContent = stats.paused;
+            document.getElementById('sub-cancelled-count').textContent = stats.cancelled;
+            document.getElementById('sub-revenue-count').textContent = `₹${stats.revenue.toLocaleString()}`;
+        }
+
+        function viewSubscriptionDetails(id) {
+            const subscriptions = getStoredSubscriptions();
+            const sub = subscriptions.find(s => s.id === id);
+            if (!sub) return;
+            
+            const planInfo = getSubscriptionPlanInfo(sub);
+            
+            let planDetailsHTML = '';
+            
+            const currentPrices = {
+                buffalo: stockData.buffalo?.price || 50,
+                cow: stockData.cow?.price || 40
+            };
+            
+            if (sub.morningDelivery && sub.morningDelivery.enabled) {
+                const morning = sub.morningDelivery;
+                const dayNames = morning.days ? morning.days.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ') : 'Daily';
+                
+                // Recalculate with current prices
+                const currentPrice = currentPrices[morning.milkType];
+                const dailyPrice = morning.quantity * currentPrice;
+                const daysPerMonth = morning.frequency === 'daily' ? 30 : (morning.days ? morning.days.length * 4 : 30);
+                const monthlyPrice = dailyPrice * daysPerMonth;
+                
+                planDetailsHTML += `
+                    <div class="bg-gray-600 rounded-lg p-3 mb-3">
+                        <h5 class="font-semibold text-gray-100 mb-2">Morning Delivery</h5>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div><span class="text-gray-400">Type:</span> <span class="text-gray-100">${morning.milkType.charAt(0).toUpperCase() + morning.milkType.slice(1)} Milk</span></div>
+                            <div><span class="text-gray-400">Quantity:</span> <span class="text-gray-100">${morning.quantity}L</span></div>
+                            <div><span class="text-gray-400">Time:</span> <span class="text-gray-100">${morning.timeSlot}</span></div>
+                            <div><span class="text-gray-400">Frequency:</span> <span class="text-gray-100">${morning.frequency === 'daily' ? 'Daily' : dayNames}</span></div>
+                            <div class="col-span-2"><span class="text-gray-400">Monthly Price:</span> <span class="text-green-400 font-bold">₹${monthlyPrice}</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (sub.eveningDelivery && sub.eveningDelivery.enabled) {
+                const evening = sub.eveningDelivery;
+                const dayNames = evening.days ? evening.days.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ') : 'Daily';
+                
+                // Recalculate with current prices
+                const currentPrice = currentPrices[evening.milkType];
+                const dailyPrice = evening.quantity * currentPrice;
+                const daysPerMonth = evening.frequency === 'daily' ? 30 : (evening.days ? evening.days.length * 4 : 30);
+                const monthlyPrice = dailyPrice * daysPerMonth;
+                
+                planDetailsHTML += `
+                    <div class="bg-gray-600 rounded-lg p-3">
+                        <h5 class="font-semibold text-gray-100 mb-2">Evening Delivery</h5>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div><span class="text-gray-400">Type:</span> <span class="text-gray-100">${evening.milkType.charAt(0).toUpperCase() + evening.milkType.slice(1)} Milk</span></div>
+                            <div><span class="text-gray-400">Quantity:</span> <span class="text-gray-100">${evening.quantity}L</span></div>
+                            <div><span class="text-gray-400">Time:</span> <span class="text-gray-100">${evening.timeSlot}</span></div>
+                            <div><span class="text-gray-400">Frequency:</span> <span class="text-gray-100">${evening.frequency === 'daily' ? 'Daily' : dayNames}</span></div>
+                            <div class="col-span-2"><span class="text-gray-400">Monthly Price:</span> <span class="text-green-400 font-bold">₹${monthlyPrice}</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (!planDetailsHTML) {
+                planDetailsHTML = '<p class="text-gray-400 text-center py-4">No active delivery plans</p>';
+            }
+            
+            document.getElementById('subscription-details-content').innerHTML = `
+                <div class="space-y-6">
+                    <!-- Customer Info -->
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-gray-100 mb-3">Customer Information</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-gray-400 text-sm">Name</p>
+                                <p class="text-gray-100 font-medium">${sub.customer.name}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-sm">Phone</p>
+                                <p class="text-gray-100 font-medium">${sub.customer.phone}</p>
+                            </div>
+                            <div class="md:col-span-2">
+                                <p class="text-gray-400 text-sm">Email</p>
+                                <p class="text-gray-100 font-medium">${sub.customer.email}</p>
+                            </div>
+                            <div class="md:col-span-2">
+                                <p class="text-gray-400 text-sm">Address</p>
+                                <p class="text-gray-100 font-medium">${sub.customer.address}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Plan Details -->
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-gray-100 mb-3">Subscription Plans</h4>
+                        ${planDetailsHTML}
+                        <div class="mt-4 pt-3 border-t border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Total Monthly Price:</span>
+                                <span class="text-green-400 font-bold text-xl">₹${planInfo.totalPrice}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Status & Payment -->
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-gray-100 mb-3">Status & Payment</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-gray-400 text-sm">Current Status</p>
+                                <span class="inline-flex px-3 py-1 rounded-full text-sm font-medium ${
+                                    sub.status === 'active' ? 'bg-green-600 text-white' :
+                                    sub.status === 'paused' ? 'bg-yellow-600 text-white' : 'bg-red-600 text-white'
+                                }">
+                                    ${sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+                                </span>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-sm">Payment Method</p>
+                                <p class="text-gray-100 font-medium">${sub.payment.method}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-sm">Auto Payment</p>
+                                <p class="text-gray-100 font-medium">${sub.payment.autoPayment ? 'Enabled' : 'Disabled'}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-sm">Next Delivery</p>
+                                <p class="text-gray-100 font-medium">${sub.nextDelivery ? new Date(sub.nextDelivery).toLocaleDateString() : 'None scheduled'}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-sm">Joined Date</p>
+                                <p class="text-gray-100 font-medium">${new Date(sub.joinedDate).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 pt-4 border-t border-gray-600">
+                        <button onclick="updateSubscriptionStatus(${id}, 'active')" 
+                                class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors ${
+                                    sub.status === 'active' ? 'opacity-50 cursor-not-allowed' : ''
+                                }" ${sub.status === 'active' ? 'disabled' : ''}>
+                            Activate
+                        </button>
+                        <button onclick="updateSubscriptionStatus(${id}, 'paused')" 
+                                class="flex-1 bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-yellow-700 transition-colors ${
+                                    sub.status === 'paused' ? 'opacity-50 cursor-not-allowed' : ''
+                                }" ${sub.status === 'paused' ? 'disabled' : ''}>
+                            Pause
+                        </button>
+                        <button onclick="updateSubscriptionStatus(${id}, 'cancelled')" 
+                                class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors ${
+                                    sub.status === 'cancelled' ? 'opacity-50 cursor-not-allowed' : ''
+                                }" ${sub.status === 'cancelled' ? 'disabled' : ''}>
+                            Cancel
+                        </button>
+                        <button onclick="deleteSubscription(${id})" 
+                                class="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('subscription-modal').classList.remove('hidden');
+            document.getElementById('subscription-modal').classList.add('flex');
+        }
+        
+        function closeSubscriptionModal() {
+            document.getElementById('subscription-modal').classList.add('hidden');
+            document.getElementById('subscription-modal').classList.remove('flex');
+        }
+        
+        // Refresh deliveries when subscriptions change
+        function refreshDeliveriesAfterSubscriptionChange() {
+            console.log('🔄 Refreshing deliveries after subscription change');
+            
+            // Clear existing deliveries for next 15 days
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            for (let i = 0; i < 15; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                delete deliverySchedule[dateStr];
+            }
+            localStorage.setItem('deliverySchedule', JSON.stringify(deliverySchedule));
+            
+            // Regenerate deliveries with updated subscriptions (only active ones)
+            generateNext15DaysDeliveries();
+            
+            // Refresh current delivery view if on delivery tab
+            const activeTab = document.querySelector('.milk-tab.active');
+            if (activeTab && activeTab.textContent.includes('Delivery')) {
+                loadDeliveryTimeSlot(activeDeliveryTimeTab);
+            }
+            
+            console.log('✅ Deliveries refreshed - cancelled subscriptions removed');
+        }
+        
+        function updateSubscriptionStatus(id, newStatus) {
+            const subscriptions = getStoredSubscriptions();
+            const subIndex = subscriptions.findIndex(s => s.id === id);
+            
+            if (subIndex !== -1) {
+                const oldStatus = subscriptions[subIndex].status;
+                subscriptions[subIndex].status = newStatus;
+                
+                // Handle inventory booking changes
+                if (oldStatus === 'active' && (newStatus === 'paused' || newStatus === 'cancelled')) {
+                    // Remove booking when deactivating
+                    removeBookedQuantityFromInventory(subscriptions[subIndex]);
+                } else if ((oldStatus === 'paused' || oldStatus === 'cancelled') && newStatus === 'active') {
+                    // Add booking when activating
+                    addBookedQuantityToInventory(subscriptions[subIndex]);
+                }
+                
+                if (newStatus === 'cancelled') {
+                    subscriptions[subIndex].nextDelivery = null;
+                } else if (newStatus === 'active' && !subscriptions[subIndex].nextDelivery) {
+                    // Set next delivery to tomorrow if activating
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    subscriptions[subIndex].nextDelivery = tomorrow.toISOString().split('T')[0];
+                }
+                
+                localStorage.setItem('userSubscriptions', JSON.stringify(subscriptions));
+                
+                // Refresh deliveries after subscription change
+                refreshDeliveriesAfterSubscriptionChange();
+            }
+            
+            showToast(`Subscription ${newStatus === 'active' ? 'activated' : newStatus === 'paused' ? 'paused' : 'cancelled'}`, 'success');
+            closeSubscriptionModal();
+            setTimeout(loadSubscriptionsData, 500);
+        }
+        
+        function deleteSubscription(id) {
+            if (confirm('Are you sure you want to permanently delete this subscription? This action cannot be undone.')) {
+                const subscriptions = getStoredSubscriptions();
+                const subscriptionToDelete = subscriptions.find(s => s.id === id);
+                
+                // Remove booking from inventory if subscription was active
+                if (subscriptionToDelete && subscriptionToDelete.status === 'active') {
+                    removeBookedQuantityFromInventory(subscriptionToDelete);
+                }
+                
+                const filteredSubscriptions = subscriptions.filter(s => s.id !== id);
+                localStorage.setItem('userSubscriptions', JSON.stringify(filteredSubscriptions));
+                
+                // Refresh deliveries after subscription deletion
+                refreshDeliveriesAfterSubscriptionChange();
+                
+                showToast('Subscription deleted permanently', 'success');
+                closeSubscriptionModal();
+                setTimeout(loadSubscriptionsData, 500);
+            }
+        }
+
+        function toggleSubStatus(id, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'paused' : 'active';
+            updateSubscriptionStatus(id, newStatus);
+        }
+
+        // Stock Management Functions with fallbacks
+        const stockData = {
+            buffalo: { 
+                morning: { stock: 0, booked: 0 },
+                evening: { stock: 0, booked: 0 },
+                price: 75 
+            },
+            cow: { 
+                morning: { stock: 0, booked: 0 },
+                evening: { stock: 0, booked: 0 },
+                price: 50 
+            }
+        };
+        
+        // Validate and sanitize stock data
+        function validateStockData(data) {
+            try {
+                if (!data || typeof data !== 'object') return false;
+                
+                ['buffalo', 'cow'].forEach(type => {
+                    if (!data[type]) data[type] = { morning: { stock: 0, booked: 0 }, evening: { stock: 0, booked: 0 }, price: type === 'buffalo' ? 75 : 50 };
+                    
+                    ['morning', 'evening'].forEach(time => {
+                        if (!data[type][time]) data[type][time] = { stock: 0, booked: 0 };
+                        
+                        data[type][time].stock = Math.max(0, parseInt(data[type][time].stock) || 0);
+                        data[type][time].booked = Math.max(0, parseInt(data[type][time].booked) || 0);
+                        data[type][time].booked = Math.min(data[type][time].booked, data[type][time].stock);
+                    });
+                    
+                    data[type].price = Math.max(10, Math.min(200, parseInt(data[type].price) || (type === 'buffalo' ? 75 : 50)));
+                });
+                
+                return true;
+            } catch (error) {
+                console.error('Stock data validation failed:', error);
+                return false;
+            }
+        }
+
+        function adjustStock(product, timeSlot, amount) {
+            const newStock = stockData[product][timeSlot].stock + amount;
+            if (newStock < stockData[product][timeSlot].booked) {
+                showToast(`Cannot reduce ${timeSlot} stock below booked amount (${stockData[product][timeSlot].booked}L)`, 'error');
+                return;
+            }
+            if (newStock < 0) {
+                showToast('Stock cannot be negative', 'error');
+                return;
+            }
+            
+            stockData[product][timeSlot].stock = newStock;
+            updateStockDisplay();
+            showToast(`${product.charAt(0).toUpperCase() + product.slice(1)} ${timeSlot} stock ${amount > 0 ? 'increased' : 'decreased'} by ${Math.abs(amount)}L`, 'success');
+        }
+
+        function adjustStockCustom(product, timeSlot) {
+            const input = document.getElementById(`${product}-${timeSlot}-custom`);
+            const amount = parseFloat(input.value);
+            
+            if (isNaN(amount) || amount === 0) {
+                showToast('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            adjustStock(product, timeSlot, amount);
+            input.value = '';
+        }
+
+        function adjustPrice(product, amount) {
+            const newPrice = stockData[product].price + amount;
+            if (newPrice <= 0) {
+                showToast('Price must be greater than 0', 'error');
+                return;
+            }
+            
+            stockData[product].price = newPrice;
+            
+            // Update existing subscriptions with new price
+            updateSubscriptionPrices(product, newPrice);
+            
+            updateStockDisplay();
+            showToast(`${product.charAt(0).toUpperCase() + product.slice(1)} price ${amount > 0 ? 'increased' : 'decreased'} by ₹${Math.abs(amount)}. Subscriptions updated.`, 'success');
+        }
+
+        function setPriceCustom(product) {
+            const input = document.getElementById(`${product}-price-custom`);
+            const price = parseFloat(input.value);
+            
+            if (isNaN(price) || price <= 0) {
+                showToast('Please enter a valid price', 'error');
+                return;
+            }
+            
+            const oldPrice = stockData[product].price;
+            stockData[product].price = price;
+            
+            // Update existing subscriptions with new price
+            updateSubscriptionPrices(product, price);
+            
+            updateStockDisplay();
+            showToast(`${product.charAt(0).toUpperCase() + product.slice(1)} price updated to ₹${price}. ${getAffectedSubscriptionsCount(product)} subscriptions recalculated.`, 'success');
+            input.value = '';
         }
 
         function updateStockDisplay() {
+            // Sync subscriptions first to ensure accurate booked quantities
+            syncSubscriptionsWithInventory();
+            
             Object.keys(stockData).forEach(product => {
                 const data = stockData[product];
-                const remaining = data.stock - data.booked;
                 
-                document.getElementById(`${product}-stock`).textContent = `${data.stock}L`;
-                document.getElementById(`${product}-booked`).textContent = `${data.booked}L`;
-                document.getElementById(`${product}-remaining`).textContent = `${remaining}L`;
+                // Update price display
+                const priceElement = document.getElementById(`${product}-price`);
+                if (priceElement) priceElement.textContent = `₹${data.price}`;
+                
+                // Update morning stock
+                const morningRemaining = Math.max(0, data.morning.stock - data.morning.booked);
+                const morningStockEl = document.getElementById(`${product}-morning-stock`);
+                const morningBookedEl = document.getElementById(`${product}-morning-booked`);
+                const morningRemainingEl = document.getElementById(`${product}-morning-remaining`);
+                
+                if (morningStockEl) morningStockEl.textContent = `${data.morning.stock}L`;
+                if (morningBookedEl) morningBookedEl.textContent = `${data.morning.booked}L`;
+                if (morningRemainingEl) morningRemainingEl.textContent = `${morningRemaining}L`;
+                
+                // Update evening stock
+                const eveningRemaining = Math.max(0, data.evening.stock - data.evening.booked);
+                const eveningStockEl = document.getElementById(`${product}-evening-stock`);
+                const eveningBookedEl = document.getElementById(`${product}-evening-booked`);
+                const eveningRemainingEl = document.getElementById(`${product}-evening-remaining`);
+                
+                if (eveningStockEl) eveningStockEl.textContent = `${data.evening.stock}L`;
+                if (eveningBookedEl) eveningBookedEl.textContent = `${data.evening.booked}L`;
+                if (eveningRemainingEl) eveningRemainingEl.textContent = `${eveningRemaining}L`;
+                
+                console.log(`📊 ${product.toUpperCase()} Stock Update:`);
+                console.log(`  Morning: ${data.morning.stock}L stock, ${data.morning.booked}L booked, ${morningRemaining}L available`);
+                console.log(`  Evening: ${data.evening.stock}L stock, ${data.evening.booked}L booked, ${eveningRemaining}L available`);
             });
             
-            // Update totals
-            const totalStock = Object.values(stockData).reduce((sum, item) => sum + item.stock, 0);
-            const totalBooked = Object.values(stockData).reduce((sum, item) => sum + item.booked, 0);
-            const totalRemaining = totalStock - totalBooked;
+            // Update individual milk type summaries for morning and evening
+            Object.keys(stockData).forEach(product => {
+                const data = stockData[product];
+                
+                // Morning summary for this product
+                const morningRemaining = data.morning.stock - data.morning.booked;
+                if (document.getElementById(`${product}-morning-summary-stock`)) {
+                    document.getElementById(`${product}-morning-summary-stock`).textContent = `${data.morning.stock}L`;
+                    document.getElementById(`${product}-morning-summary-booked`).textContent = `${data.morning.booked}L`;
+                    document.getElementById(`${product}-morning-summary-remaining`).textContent = `${morningRemaining}L`;
+                }
+                
+                // Evening summary for this product
+                const eveningRemaining = data.evening.stock - data.evening.booked;
+                if (document.getElementById(`${product}-evening-summary-stock`)) {
+                    document.getElementById(`${product}-evening-summary-stock`).textContent = `${data.evening.stock}L`;
+                    document.getElementById(`${product}-evening-summary-booked`).textContent = `${data.evening.booked}L`;
+                    document.getElementById(`${product}-evening-summary-remaining`).textContent = `${eveningRemaining}L`;
+                }
+            });
             
-            document.getElementById('total-stock').textContent = `${totalStock}L`;
-            document.getElementById('total-booked').textContent = `${totalBooked}L`;
-            document.getElementById('total-remaining').textContent = `${totalRemaining}L`;
-        }
 
-        function editProduct(product) {
-            const data = stockData[product];
-            const newPrice = prompt(`Enter new price per liter for ${product} milk (current: ₹${data.price}):`, data.price);
-            if (newPrice && !isNaN(newPrice) && newPrice > 0) {
-                stockData[product].price = parseFloat(newPrice);
-                // Update price display in the card
-                const card = document.querySelector(`#${product}-stock`).closest('.bg-gray-800');
-                const priceElement = card.querySelector('.text-lg.font-semibold.text-gray-100');
-                if (priceElement && priceElement.textContent.includes('₹')) {
-                    priceElement.textContent = `₹${newPrice}`;
+            
+            // Share inventory data with user app
+            localStorage.setItem('adminStockData', JSON.stringify(stockData));
+        }
+        
+        // Price synchronization functions
+        function updateSubscriptionPrices(product, newPrice) {
+            const subscriptions = getStoredSubscriptions();
+            let updated = false;
+            
+            subscriptions.forEach(sub => {
+                // Update morning delivery if it matches the product
+                if (sub.morningDelivery && sub.morningDelivery.enabled && sub.morningDelivery.milkType === product) {
+                    const quantity = sub.morningDelivery.quantity;
+                    const frequency = sub.morningDelivery.frequency;
+                    const days = frequency === 'daily' ? 30 : (sub.morningDelivery.days ? sub.morningDelivery.days.length * 4 : 30);
+                    sub.morningDelivery.monthlyPrice = quantity * newPrice * days;
+                    updated = true;
                 }
-                showToast(`${product} milk price updated to ₹${newPrice}`, 'success');
+                
+                // Update evening delivery if it matches the product
+                if (sub.eveningDelivery && sub.eveningDelivery.enabled && sub.eveningDelivery.milkType === product) {
+                    const quantity = sub.eveningDelivery.quantity;
+                    const frequency = sub.eveningDelivery.frequency;
+                    const days = frequency === 'daily' ? 30 : (sub.eveningDelivery.days ? sub.eveningDelivery.days.length * 4 : 30);
+                    sub.eveningDelivery.monthlyPrice = quantity * newPrice * days;
+                    updated = true;
+                }
+            });
+            
+            if (updated) {
+                localStorage.setItem('userSubscriptions', JSON.stringify(subscriptions));
+                setTimeout(loadSubscriptionsData, 100);
             }
         }
-
-        function openAddProductModal() {
-            const productName = prompt('Enter product name:');
-            if (productName) {
-                const stock = prompt('Enter initial stock (in Liters):');
-                const price = prompt('Enter price per liter:');
-                if (stock && price && !isNaN(stock) && !isNaN(price)) {
-                    showToast(`New product "${productName}" would be added with ${stock}L stock at ₹${price}/L`, 'info');
-                    // Here you would typically make an API call to add the product
+        
+        function getAffectedSubscriptionsCount(product) {
+            const subscriptions = getStoredSubscriptions();
+            let count = 0;
+            
+            subscriptions.forEach(sub => {
+                if ((sub.morningDelivery && sub.morningDelivery.enabled && sub.morningDelivery.milkType === product) ||
+                    (sub.eveningDelivery && sub.eveningDelivery.enabled && sub.eveningDelivery.milkType === product)) {
+                    count++;
                 }
-            }
+            });
+            
+            return count;
         }
 
         // View User Details
@@ -1075,9 +1775,1455 @@
 
 
 
+        // Inventory booking functions for admin panel
+        function addBookedQuantityToInventory(subscription) {
+            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            
+            // Initialize if empty
+            if (!stockData.buffalo) {
+                stockData.buffalo = { morning: { stock: 0, booked: 0 }, evening: { stock: 0, booked: 0 }, price: 75 };
+            }
+            if (!stockData.cow) {
+                stockData.cow = { morning: { stock: 0, booked: 0 }, evening: { stock: 0, booked: 0 }, price: 50 };
+            }
+            
+            // Add morning delivery booking
+            if (subscription.morningDelivery && subscription.morningDelivery.enabled) {
+                const milkType = subscription.morningDelivery.milkType;
+                const quantity = subscription.morningDelivery.quantity;
+                stockData[milkType].morning.booked += quantity;
+            }
+            
+            // Add evening delivery booking
+            if (subscription.eveningDelivery && subscription.eveningDelivery.enabled) {
+                const milkType = subscription.eveningDelivery.milkType;
+                const quantity = subscription.eveningDelivery.quantity;
+                stockData[milkType].evening.booked += quantity;
+            }
+            
+            localStorage.setItem('adminStockData', JSON.stringify(stockData));
+            updateStockDisplay();
+        }
+        
+        function removeBookedQuantityFromInventory(subscription) {
+            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            
+            if (!stockData.buffalo || !stockData.cow) return;
+            
+            // Remove morning delivery booking
+            if (subscription.morningDelivery && subscription.morningDelivery.enabled) {
+                const milkType = subscription.morningDelivery.milkType;
+                const quantity = subscription.morningDelivery.quantity;
+                stockData[milkType].morning.booked = Math.max(0, stockData[milkType].morning.booked - quantity);
+            }
+            
+            // Remove evening delivery booking
+            if (subscription.eveningDelivery && subscription.eveningDelivery.enabled) {
+                const milkType = subscription.eveningDelivery.milkType;
+                const quantity = subscription.eveningDelivery.quantity;
+                stockData[milkType].evening.booked = Math.max(0, stockData[milkType].evening.booked - quantity);
+            }
+            
+            localStorage.setItem('adminStockData', JSON.stringify(stockData));
+            updateStockDisplay();
+        }
+        
+        // Generate UC7D Report - Comprehensive Business Analytics
+        function generateUC7DReport() {
+            const container = document.getElementById('uc7d-container');
+            const today = new Date();
+            const subscriptions = getStoredSubscriptions();
+            
+            // Update overview cards
+            updateUC7DOverview();
+            
+            let reportHTML = '';
+            
+            // Generate 14-day business forecast
+            for (let i = 0; i < 14; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const isToday = i === 0;
+                const isTomorrow = i === 1;
+                
+                // Calculate comprehensive daily metrics
+                const dailyMetrics = calculateComprehensiveDailyMetrics(subscriptions, date);
+                const stockHistory = getStockHistoryForDate(date);
+                
+                const dayLabel = isToday ? 'Today' : isTomorrow ? 'Tomorrow' : `+${i} days`;
+                const cardBorder = isToday ? 'border-blue-500' : isTomorrow ? 'border-green-500' : 'border-gray-700';
+                
+                reportHTML += `
+                    <div class="bg-gray-800 rounded-lg border ${cardBorder} p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-100">${dayName}, ${dateStr}</h3>
+                                <span class="text-sm px-2 py-1 rounded-full ${isToday ? 'bg-blue-600 text-white' : isTomorrow ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-300'}">${dayLabel}</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-400">Expected Revenue</p>
+                                <p class="text-xl font-bold text-yellow-400">₹${dailyMetrics.totalRevenue}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Stock Status Grid -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                            <!-- Morning Session -->
+                            <div class="bg-gray-700 rounded-lg p-4">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="text-2xl">🌅</span>
+                                    <h4 class="font-semibold text-gray-100">Morning Session (6:00-9:00 AM)</h4>
+                                </div>
+                                
+                                <!-- Buffalo Morning -->
+                                <div class="bg-gray-600 rounded-lg p-4 mb-3">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xl">🐃</span>
+                                            <span class="font-medium text-gray-100">Buffalo Milk</span>
+                                        </div>
+                                        <span class="text-sm text-yellow-400 font-medium">₹${stockData.buffalo.price}/L</span>
+                                    </div>
+                                    <div class="grid grid-cols-4 gap-2 text-center">
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-green-400 font-bold text-sm">${stockData.buffalo.morning.stock}L</p>
+                                            <p class="text-gray-400 text-xs">Stock</p>
+                                        </div>
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-blue-400 font-bold text-sm">${dailyMetrics.morning.buffalo.booked}L</p>
+                                            <p class="text-gray-400 text-xs">Booked</p>
+                                        </div>
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-red-400 font-bold text-sm">${dailyMetrics.morning.buffalo.skipped || 0}L</p>
+                                            <p class="text-gray-400 text-xs">Skipped</p>
+                                        </div>
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-orange-400 font-bold text-sm">${Math.max(0, stockData.buffalo.morning.stock - dailyMetrics.morning.buffalo.booked)}L</p>
+                                            <p class="text-gray-400 text-xs">Available</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-center">
+                                        <p class="text-xs text-gray-400">Revenue: <span class="text-green-400 font-medium">₹${dailyMetrics.morning.buffalo.revenue}</span></p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Cow Morning -->
+                                <div class="bg-gray-600 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xl">🐄</span>
+                                            <span class="font-medium text-gray-100">Cow Milk</span>
+                                        </div>
+                                        <span class="text-sm text-yellow-400 font-medium">₹${stockData.cow.price}/L</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-3 text-center">
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-green-400 font-bold text-lg">${stockData.cow.morning.stock}L</p>
+                                            <p class="text-gray-400 text-xs">Total Stock</p>
+                                        </div>
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-orange-400 font-bold text-lg">${dailyMetrics.morning.cow.booked}L</p>
+                                            <p class="text-gray-400 text-xs">Booked</p>
+                                        </div>
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-blue-400 font-bold text-lg">${Math.max(0, stockData.cow.morning.stock - dailyMetrics.morning.cow.booked)}L</p>
+                                            <p class="text-gray-400 text-xs">Available</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-center">
+                                        <p class="text-xs text-gray-400">Revenue: <span class="text-green-400 font-medium">₹${dailyMetrics.morning.cow.revenue}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Evening Session -->
+                            <div class="bg-gray-700 rounded-lg p-4">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="text-2xl">🌆</span>
+                                    <h4 class="font-semibold text-gray-100">Evening Session (5:30-7:30 PM)</h4>
+                                </div>
+                                
+                                <!-- Buffalo Evening -->
+                                <div class="bg-gray-600 rounded-lg p-4 mb-3">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xl">🐃</span>
+                                            <span class="font-medium text-gray-100">Buffalo Milk</span>
+                                        </div>
+                                        <span class="text-sm text-yellow-400 font-medium">₹${stockData.buffalo.price}/L</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-3 text-center">
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-green-400 font-bold text-lg">${stockData.buffalo.evening.stock}L</p>
+                                            <p class="text-gray-400 text-xs">Total Stock</p>
+                                        </div>
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-orange-400 font-bold text-lg">${dailyMetrics.evening.buffalo.booked}L</p>
+                                            <p class="text-gray-400 text-xs">Booked</p>
+                                        </div>
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-blue-400 font-bold text-lg">${Math.max(0, stockData.buffalo.evening.stock - dailyMetrics.evening.buffalo.booked)}L</p>
+                                            <p class="text-gray-400 text-xs">Available</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-center">
+                                        <p class="text-xs text-gray-400">Revenue: <span class="text-green-400 font-medium">₹${dailyMetrics.evening.buffalo.revenue}</span></p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Cow Evening -->
+                                <div class="bg-gray-600 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xl">🐄</span>
+                                            <span class="font-medium text-gray-100">Cow Milk</span>
+                                        </div>
+                                        <span class="text-sm text-yellow-400 font-medium">₹${stockData.cow.price}/L</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-3 text-center">
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-green-400 font-bold text-lg">${stockData.cow.evening.stock}L</p>
+                                            <p class="text-gray-400 text-xs">Total Stock</p>
+                                        </div>
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-orange-400 font-bold text-lg">${dailyMetrics.evening.cow.booked}L</p>
+                                            <p class="text-gray-400 text-xs">Booked</p>
+                                        </div>
+                                        <div class="bg-gray-700 rounded p-2">
+                                            <p class="text-blue-400 font-bold text-lg">${Math.max(0, stockData.cow.evening.stock - dailyMetrics.evening.cow.booked)}L</p>
+                                            <p class="text-gray-400 text-xs">Available</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-center">
+                                        <p class="text-xs text-gray-400">Revenue: <span class="text-green-400 font-medium">₹${dailyMetrics.evening.cow.revenue}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Daily Summary -->
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <h5 class="font-semibold text-gray-100 mb-3">Daily Business Summary</h5>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-green-400">${dailyMetrics.totalStock}L</p>
+                                    <p class="text-gray-400 text-sm">Total Stock</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-orange-400">${dailyMetrics.totalBooked}L</p>
+                                    <p class="text-gray-400 text-sm">Total Booked</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-blue-400">${dailyMetrics.totalAvailable}L</p>
+                                    <p class="text-gray-400 text-sm">Available</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-yellow-400">₹${dailyMetrics.totalRevenue}</p>
+                                    <p class="text-gray-400 text-sm">Revenue</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Business Insights -->
+                            <div class="mt-4 pt-4 border-t border-gray-600">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-gray-400">Active Subscriptions: <span class="text-white font-medium">${dailyMetrics.activeSubscriptions}</span></p>
+                                        <p class="text-gray-400">Delivery Efficiency: <span class="text-green-400 font-medium">${dailyMetrics.deliveryEfficiency}%</span></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-400">Stock Utilization: <span class="text-blue-400 font-medium">${dailyMetrics.stockUtilization}%</span></p>
+                                        <p class="text-gray-400">Profit Margin: <span class="text-yellow-400 font-medium">${dailyMetrics.profitMargin}%</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = reportHTML;
+        }
+        
+        // Calculate comprehensive daily metrics for UC7D with skip adjustments
+        function calculateComprehensiveDailyMetrics(subscriptions, date) {
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+            const dateStr = date.toISOString().split('T')[0];
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            
+            // Filter to only active subscriptions
+            const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active');
+            
+            const metrics = {
+                morning: {
+                    buffalo: { booked: 0, revenue: 0, skipped: 0 },
+                    cow: { booked: 0, revenue: 0, skipped: 0 }
+                },
+                evening: {
+                    buffalo: { booked: 0, revenue: 0, skipped: 0 },
+                    cow: { booked: 0, revenue: 0, skipped: 0 }
+                },
+                totalStock: 0,
+                totalBooked: 0,
+                totalAvailable: 0,
+                totalRevenue: 0,
+                activeSubscriptions: 0,
+                deliveryEfficiency: 0,
+                stockUtilization: 0,
+                profitMargin: 85
+            };
+            
+            let activeSubsCount = 0;
+            
+            activeSubscriptions.forEach(sub => {
+                activeSubsCount++;
+                
+                // Check actual delivery status from schedule
+                const dayDeliveries = deliverySchedule[dateStr] || { morning: [], evening: [] };
+                
+                // Morning delivery calculations
+                if (sub.morningDelivery && sub.morningDelivery.enabled) {
+                    const shouldDeliver = sub.morningDelivery.frequency === 'daily' || 
+                                        (sub.morningDelivery.days && sub.morningDelivery.days.includes(dayName));
+                    
+                    if (shouldDeliver) {
+                        const milkType = sub.morningDelivery.milkType;
+                        const quantity = sub.morningDelivery.quantity;
+                        const price = stockData[milkType].price;
+                        
+                        // Check if delivery is skipped
+                        const delivery = dayDeliveries.morning.find(d => d.subscriptionId === sub.id);
+                        const isSkipped = delivery && (delivery.status === 'skipped_by_user' || delivery.status === 'skipped_by_admin');
+                        
+                        if (isSkipped) {
+                            metrics.morning[milkType].skipped += quantity;
+                        } else {
+                            metrics.morning[milkType].booked += quantity;
+                            metrics.morning[milkType].revenue += quantity * price;
+                        }
+                    }
+                }
+                
+                // Evening delivery calculations
+                if (sub.eveningDelivery && sub.eveningDelivery.enabled) {
+                    const shouldDeliver = sub.eveningDelivery.frequency === 'daily' || 
+                                        (sub.eveningDelivery.days && sub.eveningDelivery.days.includes(dayName));
+                    
+                    if (shouldDeliver) {
+                        const milkType = sub.eveningDelivery.milkType;
+                        const quantity = sub.eveningDelivery.quantity;
+                        const price = stockData[milkType].price;
+                        
+                        // Check if delivery is skipped
+                        const delivery = dayDeliveries.evening.find(d => d.subscriptionId === sub.id);
+                        const isSkipped = delivery && (delivery.status === 'skipped_by_user' || delivery.status === 'skipped_by_admin');
+                        
+                        if (isSkipped) {
+                            metrics.evening[milkType].skipped += quantity;
+                        } else {
+                            metrics.evening[milkType].booked += quantity;
+                            metrics.evening[milkType].revenue += quantity * price;
+                        }
+                    }
+                }
+            });
+            
+            // Calculate totals
+            metrics.totalStock = stockData.buffalo.morning.stock + stockData.buffalo.evening.stock + 
+                               stockData.cow.morning.stock + stockData.cow.evening.stock;
+            
+            metrics.totalBooked = metrics.morning.buffalo.booked + metrics.morning.cow.booked + 
+                                metrics.evening.buffalo.booked + metrics.evening.cow.booked;
+            
+            metrics.totalAvailable = metrics.totalStock - metrics.totalBooked;
+            
+            metrics.totalRevenue = metrics.morning.buffalo.revenue + metrics.morning.cow.revenue + 
+                                 metrics.evening.buffalo.revenue + metrics.evening.cow.revenue;
+            
+            metrics.activeSubscriptions = activeSubsCount;
+            metrics.deliveryEfficiency = metrics.totalBooked > 0 ? Math.round((metrics.totalBooked / metrics.totalStock) * 100) : 0;
+            metrics.stockUtilization = metrics.totalStock > 0 ? Math.round((metrics.totalBooked / metrics.totalStock) * 100) : 0;
+            
+            return metrics;
+        }
+        
+        // Update UC7D overview cards
+        function updateUC7DOverview() {
+            const subscriptions = getStoredSubscriptions();
+            const todayMetrics = calculateComprehensiveDailyMetrics(subscriptions, new Date());
+            
+            document.getElementById('uc7d-total-stock').textContent = `${todayMetrics.totalStock}L`;
+            document.getElementById('uc7d-total-booked').textContent = `${todayMetrics.totalBooked}L`;
+            document.getElementById('uc7d-total-remaining').textContent = `${todayMetrics.totalAvailable}L`;
+            document.getElementById('uc7d-daily-revenue').textContent = `₹${todayMetrics.totalRevenue}`;
+        }
+        
+
+        
+
+        
+        // Get stock history for a specific date (placeholder for future enhancement)
+        function getStockHistoryForDate(date) {
+            // This would connect to a historical data store in a real implementation
+            return {
+                stockAdded: 0,
+                stockConsumed: 0,
+                subscriptionChanges: 0
+            };
+        }
+
+        // Sync existing subscriptions with inventory
+        function syncSubscriptionsWithInventory() {
+            const subscriptions = getStoredSubscriptions();
+            
+            // Initialize if empty
+            if (!stockData.buffalo) {
+                stockData.buffalo = { morning: { stock: 0, booked: 0 }, evening: { stock: 0, booked: 0 }, price: 75 };
+            }
+            if (!stockData.cow) {
+                stockData.cow = { morning: { stock: 0, booked: 0 }, evening: { stock: 0, booked: 0 }, price: 50 };
+            }
+            
+            // Reset booked quantities
+            stockData.buffalo.morning.booked = 0;
+            stockData.buffalo.evening.booked = 0;
+            stockData.cow.morning.booked = 0;
+            stockData.cow.evening.booked = 0;
+            
+            console.log('🔄 Syncing subscriptions with inventory...');
+            console.log('📋 Active subscriptions:', subscriptions.filter(s => s.status === 'active').length);
+            
+            // Add bookings for active subscriptions
+            subscriptions.forEach(subscription => {
+                if (subscription.status === 'active') {
+                    if (subscription.morningDelivery && subscription.morningDelivery.enabled) {
+                        const milkType = subscription.morningDelivery.milkType;
+                        const quantity = subscription.morningDelivery.quantity;
+                        stockData[milkType].morning.booked += quantity;
+                        console.log(`  ➕ Morning ${milkType}: +${quantity}L booked`);
+                    }
+                    
+                    if (subscription.eveningDelivery && subscription.eveningDelivery.enabled) {
+                        const milkType = subscription.eveningDelivery.milkType;
+                        const quantity = subscription.eveningDelivery.quantity;
+                        stockData[milkType].evening.booked += quantity;
+                        console.log(`  ➕ Evening ${milkType}: +${quantity}L booked`);
+                    }
+                }
+            });
+            
+            console.log('📊 Final booked quantities:');
+            console.log(`  Buffalo Morning: ${stockData.buffalo.morning.booked}L`);
+            console.log(`  Buffalo Evening: ${stockData.buffalo.evening.booked}L`);
+            console.log(`  Cow Morning: ${stockData.cow.morning.booked}L`);
+            console.log(`  Cow Evening: ${stockData.cow.evening.booked}L`);
+            
+            localStorage.setItem('adminStockData', JSON.stringify(stockData));
+        }
+
+        // Notification Management Functions
+        function loadNotificationRequests() {
+            const notifications = getStoredNotifications();
+            console.log('🔍 Admin: Loading notifications from localStorage');
+            console.log('📊 Found notifications:', notifications);
+            console.log('📈 Total count:', notifications.length);
+            displayNotificationGrid(notifications);
+            updateNotificationStats(notifications);
+        }
+        
+        function getStoredNotifications() {
+            const notifications = localStorage.getItem('stockWaitingQueue');
+            console.log('🗄️ Raw localStorage data:', notifications);
+            const parsed = notifications ? JSON.parse(notifications) : [];
+            console.log('📋 Parsed notifications:', parsed);
+            return parsed;
+        }
+        
+        function displayNotificationGrid(notifications) {
+            const grid = document.getElementById('notify-grid');
+            
+            // Apply filters
+            const statusFilter = document.getElementById('notify-status-filter')?.value || '';
+            const milkFilter = document.getElementById('notify-milk-filter')?.value || '';
+            const timeFilter = document.getElementById('notify-time-filter')?.value || '';
+            
+            let filteredNotifications = notifications;
+            
+            if (statusFilter) {
+                filteredNotifications = filteredNotifications.filter(n => n.status === statusFilter);
+            }
+            if (milkFilter) {
+                filteredNotifications = filteredNotifications.filter(n => n.milkType === milkFilter);
+            }
+            if (timeFilter) {
+                filteredNotifications = filteredNotifications.filter(n => n.timeSlot === timeFilter);
+            }
+            
+            if (!filteredNotifications.length) {
+                grid.innerHTML = `
+                    <div class="text-center py-16">
+                        <div class="bg-gray-700 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                            <span class="text-3xl">🔔</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-300 mb-2">No Notification Requests</h3>
+                        <p class="text-gray-400">Customer requests will appear here when milk is out of stock</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort by timestamp (newest first)
+            filteredNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            // Create table format
+            grid.innerHTML = `
+                <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-600">
+                            <thead class="bg-gray-600">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">#</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Customer</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Phone</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Milk Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Quantity</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Time Slot</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Requested</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-gray-700 divide-y divide-gray-600">
+                                ${filteredNotifications.map((notification, index) => {
+                                    const statusBadge = notification.status === 'pending' ? 
+                                        '<span class="px-2 py-1 bg-orange-600 text-white text-xs rounded-full">Pending</span>' :
+                                        '<span class="px-2 py-1 bg-green-600 text-white text-xs rounded-full">Notified</span>';
+                                    
+                                    const milkIcon = notification.milkType === 'buffalo' ? '🐃' : '🐄';
+                                    const timeIcon = notification.timeSlot === 'morning' ? '🌅' : '🌆';
+                                    const requestDate = notification.requestDate || new Date(notification.timestamp).toLocaleDateString('en-IN');
+                                    const requestTime = notification.requestTime || new Date(notification.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+                                    
+                                    return `
+                                        <tr class="hover:bg-gray-600">
+                                            <td class="px-4 py-3 text-sm text-gray-300">${index + 1}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                                        <span class="text-white font-bold text-xs">${notification.customerName.charAt(0)}</span>
+                                                    </div>
+                                                    <span class="text-sm font-medium text-gray-100">${notification.customerName}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-300">
+                                                <a href="tel:${notification.phoneNumber}" class="text-blue-400 hover:text-blue-300">${notification.phoneNumber}</a>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-lg">${milkIcon}</span>
+                                                    <span class="text-sm text-gray-300">${notification.milkType.charAt(0).toUpperCase() + notification.milkType.slice(1)}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-sm font-bold text-yellow-400">${notification.quantity}L</span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-lg">${timeIcon}</span>
+                                                    <span class="text-sm text-blue-400">${notification.timeSlot}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-xs text-gray-400">
+                                                <div>${requestDate}</div>
+                                                <div>${requestTime}</div>
+                                            </td>
+                                            <td class="px-4 py-3">${statusBadge}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex gap-1">
+                                                    ${notification.status === 'pending' ? `
+                                                        <button onclick="markAsNotified('${notification.id}')" 
+                                                                class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs" title="Mark as Notified">
+                                                            ✓
+                                                        </button>
+                                                        <button onclick="callCustomer('${notification.phoneNumber}', '${notification.customerName}')" 
+                                                                class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs" title="Call Customer">
+                                                            📞
+                                                        </button>
+                                                    ` : `
+                                                        <span class="text-green-400 text-xs">✓ Done</span>
+                                                    `}
+                                                    <button onclick="deleteNotification('${notification.id}')" 
+                                                            class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs" title="Delete">
+                                                        🗑️
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateNotificationStats(notifications) {
+            const stats = notifications.reduce((acc, notification) => {
+                acc.total++;
+                acc[notification.status] = (acc[notification.status] || 0) + 1;
+                if (notification.milkType === 'buffalo') acc.buffalo++;
+                return acc;
+            }, { total: 0, pending: 0, notified: 0, buffalo: 0 });
+            
+            document.getElementById('notify-total-count').textContent = stats.total;
+            document.getElementById('notify-pending-count').textContent = stats.pending || 0;
+            document.getElementById('notify-completed-count').textContent = stats.notified || 0;
+            document.getElementById('notify-buffalo-count').textContent = stats.buffalo;
+        }
+        
+        function markAsNotified(notificationId) {
+            const notifications = getStoredNotifications();
+            const notification = notifications.find(n => n.id == notificationId);
+            
+            if (notification) {
+                notification.status = 'notified';
+                notification.notifiedAt = new Date().toISOString();
+                localStorage.setItem('stockWaitingQueue', JSON.stringify(notifications));
+                
+                showToast(`${notification.customerName} marked as notified`, 'success');
+                loadNotificationRequests();
+            }
+        }
+        
+        function callCustomer(phoneNumber, customerName) {
+            if (confirm(`Call ${customerName} at ${phoneNumber}?\n\nThis will open your phone app to make the call.`)) {
+                window.open(`tel:${phoneNumber}`);
+                showToast(`Calling ${customerName}...`, 'info');
+            }
+        }
+        
+        function deleteNotification(notificationId) {
+            if (confirm('Are you sure you want to delete this notification request?')) {
+                const notifications = getStoredNotifications();
+                const filteredNotifications = notifications.filter(n => n.id != notificationId);
+                localStorage.setItem('stockWaitingQueue', JSON.stringify(filteredNotifications));
+                
+                showToast('Notification request deleted', 'success');
+                loadNotificationRequests();
+            }
+        }
+        
+        function clearAllNotifications() {
+            if (confirm('Are you sure you want to clear all notification requests? This action cannot be undone.')) {
+                localStorage.setItem('stockWaitingQueue', JSON.stringify([]));
+                showToast('All notification requests cleared', 'success');
+                loadNotificationRequests();
+            }
+        }
+        
+        // Export notifications to CSV
+        function exportNotifications() {
+            const notifications = getStoredNotifications();
+            
+            if (!notifications.length) {
+                showToast('No notifications to export', 'warning');
+                return;
+            }
+            
+            let csvContent = 'S.No,Customer Name,Phone,Milk Type,Quantity,Time Slot,Status,Requested Date,Requested Time\n';
+            
+            notifications.forEach((notification, index) => {
+                const requestDate = notification.requestDate || new Date(notification.timestamp).toLocaleDateString('en-IN');
+                const requestTime = notification.requestTime || new Date(notification.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+                
+                csvContent += `${index + 1},"${notification.customerName}",${notification.phoneNumber},${notification.milkType.charAt(0).toUpperCase() + notification.milkType.slice(1)},${notification.quantity}L,${notification.timeSlot.charAt(0).toUpperCase() + notification.timeSlot.slice(1)},${notification.status.charAt(0).toUpperCase() + notification.status.slice(1)},${requestDate},${requestTime}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Stock_Notifications_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showToast('Notifications exported successfully!', 'success');
+        }
+        
+
+        
+        // Debug function to check notification flow
+        function debugNotificationFlow() {
+            console.log('=== ADMIN NOTIFICATION DEBUG ===');
+            const rawData = localStorage.getItem('stockWaitingQueue');
+            console.log('1. Raw localStorage data:', rawData);
+            
+            if (rawData) {
+                try {
+                    const parsed = JSON.parse(rawData);
+                    console.log('2. Parsed data:', parsed);
+                    console.log('3. Data type:', typeof parsed);
+                    console.log('4. Is array:', Array.isArray(parsed));
+                    console.log('5. Length:', parsed.length);
+                    
+                    if (parsed.length > 0) {
+                        console.log('6. First item:', parsed[0]);
+                        console.log('7. First item keys:', Object.keys(parsed[0]));
+                    }
+                } catch (e) {
+                    console.error('Error parsing data:', e);
+                }
+            } else {
+                console.log('2. No data found in localStorage');
+            }
+            
+            console.log('8. Reloading notification requests...');
+            loadNotificationRequests();
+            console.log('=== DEBUG COMPLETE ===');
+        }
+        
+        window.debugNotificationFlow = debugNotificationFlow;
+
+        // Delivery Management Functions
+        let currentDeliveryDate = new Date();
+        
+        function loadDeliveryManagement() {
+            updateDeliveryDateDisplay();
+            generateNext15DaysDeliveries(); // Generate deliveries for next 15 days
+            showDeliveryTimeTab('morning');
+        }
+        
+        function generateNext15DaysDeliveries() {
+            try {
+                const subscriptions = getStoredSubscriptions();
+                let deliverySchedule = {};
+                
+                try {
+                    deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+                    if (typeof deliverySchedule !== 'object') deliverySchedule = {};
+                } catch (error) {
+                    console.warn('Invalid delivery schedule, creating new:', error);
+                    deliverySchedule = {};
+                }
+                
+                console.log('📅 Generating deliveries for next 15 days');
+                console.log('📋 Active subscriptions:', subscriptions.filter(s => s.status === 'active').length);
+            
+            let totalGenerated = 0;
+            
+            // Generate for next 15 days
+            for (let i = 0; i < 15; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+                
+                // Initialize day's schedule
+                if (!deliverySchedule[dateStr]) {
+                    deliverySchedule[dateStr] = { morning: [], evening: [] };
+                }
+                
+                let dayMorningCount = 0;
+                let dayEveningCount = 0;
+                
+                subscriptions.forEach(sub => {
+                    // Only process active subscriptions
+                    if (sub.status !== 'active') {
+                        console.log(`⏭️ Skipping ${sub.customer.name} - Status: ${sub.status}`);
+                        return;
+                    }
+                    
+                    // Check if delivery already exists for this subscription on this date
+                    const morningExists = deliverySchedule[dateStr].morning.some(d => d.subscriptionId === sub.id);
+                    const eveningExists = deliverySchedule[dateStr].evening.some(d => d.subscriptionId === sub.id);
+                    
+                    // Morning deliveries
+                    if (sub.morningDelivery && sub.morningDelivery.enabled && !morningExists) {
+                        const shouldDeliver = sub.morningDelivery.frequency === 'daily' || 
+                                            (sub.morningDelivery.days && sub.morningDelivery.days.includes(dayName));
+                        
+                        if (shouldDeliver) {
+                            deliverySchedule[dateStr].morning.push({
+                                subscriptionId: sub.id,
+                                customerName: sub.customer.name,
+                                customerPhone: sub.customer.phone,
+                                customerAddress: sub.customer.address,
+                                milkType: sub.morningDelivery.milkType,
+                                quantity: sub.morningDelivery.quantity,
+                                timeSlot: sub.morningDelivery.timeSlot,
+                                status: 'scheduled'
+                            });
+                            dayMorningCount++;
+                            totalGenerated++;
+                        }
+                    }
+                    
+                    // Evening deliveries
+                    if (sub.eveningDelivery && sub.eveningDelivery.enabled && !eveningExists) {
+                        const shouldDeliver = sub.eveningDelivery.frequency === 'daily' || 
+                                            (sub.eveningDelivery.days && sub.eveningDelivery.days.includes(dayName));
+                        
+                        if (shouldDeliver) {
+                            deliverySchedule[dateStr].evening.push({
+                                subscriptionId: sub.id,
+                                customerName: sub.customer.name,
+                                customerPhone: sub.customer.phone,
+                                customerAddress: sub.customer.address,
+                                milkType: sub.eveningDelivery.milkType,
+                                quantity: sub.eveningDelivery.quantity,
+                                timeSlot: sub.eveningDelivery.timeSlot,
+                                status: 'scheduled'
+                            });
+                            dayEveningCount++;
+                            totalGenerated++;
+                        }
+                    }
+                });
+                
+                console.log(`📅 ${dateStr} (${dayName}): ${dayMorningCount} morning, ${dayEveningCount} evening`);
+            }
+            
+            localStorage.setItem('deliverySchedule', JSON.stringify(deliverySchedule));
+            
+            console.log(`📦 Total deliveries generated: ${totalGenerated}`);
+            showToast(`Generated deliveries for next 15 days (${totalGenerated} total)`, 'success');
+            
+            // Update current day counts (only active subscriptions)
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todaySchedule = deliverySchedule[todayStr] || { morning: [], evening: [] };
+            const activeSubscriptionIds = subscriptions.filter(sub => sub.status === 'active').map(sub => sub.id);
+            const activeMorningDeliveries = todaySchedule.morning.filter(d => activeSubscriptionIds.includes(d.subscriptionId));
+            const activeEveningDeliveries = todaySchedule.evening.filter(d => activeSubscriptionIds.includes(d.subscriptionId));
+            document.getElementById('morning-count').textContent = activeMorningDeliveries.length;
+            document.getElementById('evening-count').textContent = activeEveningDeliveries.length;
+            
+                return totalGenerated;
+            } catch (error) {
+                console.error('Failed to generate deliveries:', error);
+                showToast('Error generating deliveries', 'error');
+                return 0;
+            }
+        }
+        
+        function generateDeliverySchedule() {
+            const subscriptions = getStoredSubscriptions();
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            
+            showToast('Generating delivery schedule for 30 days...', 'info');
+            
+            // Generate schedule for next 30 days
+            for (let i = 0; i < 30; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+                
+                // Initialize day schedule if not exists
+                if (!deliverySchedule[dateStr]) {
+                    deliverySchedule[dateStr] = { morning: [], evening: [] };
+                }
+                
+                subscriptions.forEach(sub => {
+                    if (sub.status !== 'active') return;
+                    
+                    // Morning deliveries
+                    if (sub.morningDelivery && sub.morningDelivery.enabled) {
+                        const shouldDeliver = sub.morningDelivery.frequency === 'daily' || 
+                                            (sub.morningDelivery.days && sub.morningDelivery.days.includes(dayName));
+                        
+                        if (shouldDeliver) {
+                            // Check if delivery already exists for this subscription
+                            const exists = deliverySchedule[dateStr].morning.some(d => d.subscriptionId === sub.id);
+                            if (!exists) {
+                                deliverySchedule[dateStr].morning.push({
+                                    subscriptionId: sub.id,
+                                    customerName: sub.customer.name,
+                                    customerPhone: sub.customer.phone,
+                                    customerAddress: sub.customer.address,
+                                    milkType: sub.morningDelivery.milkType,
+                                    quantity: sub.morningDelivery.quantity,
+                                    timeSlot: sub.morningDelivery.timeSlot,
+                                    status: 'scheduled'
+                                });
+                            }
+                        }
+                    }
+                    
+                    // Evening deliveries
+                    if (sub.eveningDelivery && sub.eveningDelivery.enabled) {
+                        const shouldDeliver = sub.eveningDelivery.frequency === 'daily' || 
+                                            (sub.eveningDelivery.days && sub.eveningDelivery.days.includes(dayName));
+                        
+                        if (shouldDeliver) {
+                            // Check if delivery already exists for this subscription
+                            const exists = deliverySchedule[dateStr].evening.some(d => d.subscriptionId === sub.id);
+                            if (!exists) {
+                                deliverySchedule[dateStr].evening.push({
+                                    subscriptionId: sub.id,
+                                    customerName: sub.customer.name,
+                                    customerPhone: sub.customer.phone,
+                                    customerAddress: sub.customer.address,
+                                    milkType: sub.eveningDelivery.milkType,
+                                    quantity: sub.eveningDelivery.quantity,
+                                    timeSlot: sub.eveningDelivery.timeSlot,
+                                    status: 'scheduled'
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+            
+            localStorage.setItem('deliverySchedule', JSON.stringify(deliverySchedule));
+            showToast('Delivery schedule generated for 30 days', 'success');
+            loadDailyDeliveries();
+        }
+        
+        function loadDailyDeliveries() {
+            loadDeliveryTimeSlot(activeDeliveryTimeTab);
+        }
+        
+        let activeDeliveryTimeTab = 'morning';
+        
+        function showDeliveryTimeTab(timeSlot) {
+            // Hide all time tab contents
+            document.querySelectorAll('.delivery-time-content').forEach(t => {
+                t.classList.remove('active');
+                t.style.display = 'none';
+            });
+            document.querySelectorAll('.delivery-time-tab').forEach(t => t.classList.remove('active'));
+            
+            // Show selected tab
+            const contentElement = document.getElementById(`${timeSlot}-delivery-content`);
+            const tabElement = document.getElementById(`${timeSlot}-tab-btn`);
+            
+            if (contentElement && tabElement) {
+                contentElement.classList.add('active');
+                contentElement.style.display = 'block';
+                tabElement.classList.add('active');
+                
+                activeDeliveryTimeTab = timeSlot;
+                loadDeliveryTimeSlot(timeSlot);
+                
+                console.log(`🔄 Switched to ${timeSlot} delivery tab`);
+            } else {
+                console.error(`❌ Could not find elements for ${timeSlot} tab`);
+            }
+        }
+        
+        function loadDeliveryTimeSlot(timeSlot) {
+            const dateStr = currentDeliveryDate.toISOString().split('T')[0];
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            const allDeliveries = deliverySchedule[dateStr] ? deliverySchedule[dateStr][timeSlot] || [] : [];
+            
+            // Filter out deliveries for cancelled subscriptions
+            const subscriptions = getStoredSubscriptions();
+            const activeSubscriptionIds = subscriptions.filter(sub => sub.status === 'active').map(sub => sub.id);
+            const deliveries = allDeliveries.filter(delivery => activeSubscriptionIds.includes(delivery.subscriptionId));
+            
+            console.log(`📋 Loading ${timeSlot} deliveries for ${dateStr}:`, deliveries.length);
+            console.log(`📦 ${timeSlot} deliveries data:`, deliveries);
+            
+            displayDeliveriesTable(timeSlot, deliveries);
+        }
+        
+        function displayDeliveriesTable(timeSlot, deliveries) {
+            const container = document.getElementById(`${timeSlot}-deliveries-table`);
+            const countElement = document.getElementById(`${timeSlot}-count`);
+            
+            // Remove duplicates
+            const uniqueDeliveries = deliveries.filter((delivery, index, self) => 
+                index === self.findIndex(d => d.subscriptionId === delivery.subscriptionId)
+            );
+            
+            countElement.textContent = uniqueDeliveries.length;
+            
+            if (!uniqueDeliveries.length) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-gray-800 rounded-lg border border-gray-700">
+                        <span class="text-4xl">${timeSlot === 'morning' ? '🌅' : '🌆'}</span>
+                        <p class="text-gray-400 mt-2">No ${timeSlot} deliveries scheduled</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-600">
+                            <thead class="bg-gray-600">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">#</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Customer</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Phone</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Milk Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Quantity</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Time Slot</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Address</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-gray-700 divide-y divide-gray-600">
+                                ${uniqueDeliveries.map((delivery, index) => {
+                                    const statusColor = {
+                                        'scheduled': 'bg-blue-600',
+                                        'delivered': 'bg-green-600',
+                                        'skipped_by_user': 'bg-orange-600',
+                                        'skipped_by_admin': 'bg-yellow-600',
+                                        'cancelled': 'bg-red-600'
+                                    }[delivery.status] || 'bg-gray-600';
+                                    
+                                    const statusText = {
+                                        'scheduled': 'Scheduled',
+                                        'delivered': 'Delivered',
+                                        'skipped_by_user': 'Skipped by User',
+                                        'skipped_by_admin': 'Skipped by Admin',
+                                        'cancelled': 'Cancelled'
+                                    }[delivery.status] || delivery.status;
+                                    
+                                    const milkIcon = delivery.milkType === 'buffalo' ? '🐃' : '🐄';
+                                    
+                                    return `
+                                        <tr class="hover:bg-gray-600">
+                                            <td class="px-4 py-3 text-sm text-gray-300">${index + 1}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                                        <span class="text-white font-bold text-xs">${delivery.customerName.charAt(0)}</span>
+                                                    </div>
+                                                    <span class="text-sm font-medium text-gray-100">${delivery.customerName}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-300">${delivery.customerPhone}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-lg">${milkIcon}</span>
+                                                    <span class="text-sm text-gray-300">${delivery.milkType.charAt(0).toUpperCase() + delivery.milkType.slice(1)}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-sm font-bold text-yellow-400">${delivery.quantity}L</span>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-blue-400">${delivery.timeSlot}</td>
+                                            <td class="px-4 py-3 text-xs text-gray-400 max-w-xs truncate" title="${delivery.customerAddress}">${delivery.customerAddress}</td>
+                                            <td class="px-4 py-3">
+                                                <span class="px-2 py-1 rounded-full text-xs text-white ${statusColor}">
+                                                    ${statusText}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex gap-1">
+                                                    ${delivery.status === 'scheduled' ? `
+                                                        <button onclick="updateDeliveryStatusNew('${timeSlot}', ${index}, 'skipped_by_admin')" 
+                                                                class="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-xs" title="Skip Delivery">
+                                                            ⏭ Skip
+                                                        </button>
+                                                    ` : delivery.status === 'skipped_by_user' ? `
+                                                        <button onclick="updateDeliveryStatusNew('${timeSlot}', ${index}, 'scheduled')" 
+                                                                class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs" title="Reschedule">
+                                                            🔄 Reschedule
+                                                        </button>
+                                                    ` : delivery.status === 'skipped_by_admin' ? `
+                                                        <button onclick="updateDeliveryStatusNew('${timeSlot}', ${index}, 'scheduled')" 
+                                                                class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs" title="Reschedule">
+                                                            🔄 Reschedule
+                                                        </button>
+                                                    ` : `
+                                                        <span class="text-gray-400 text-xs">${statusText}</span>
+                                                    `}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateDeliveryStatusNew(timeSlot, deliveryIndex, newStatus) {
+            const dateStr = currentDeliveryDate.toISOString().split('T')[0];
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            
+            if (deliverySchedule[dateStr] && deliverySchedule[dateStr][timeSlot]) {
+                const uniqueDeliveries = deliverySchedule[dateStr][timeSlot].filter((delivery, index, self) => 
+                    index === self.findIndex(d => d.subscriptionId === delivery.subscriptionId)
+                );
+                
+                if (uniqueDeliveries[deliveryIndex]) {
+                    const targetDelivery = uniqueDeliveries[deliveryIndex];
+                    
+                    deliverySchedule[dateStr][timeSlot].forEach(delivery => {
+                        if (delivery.subscriptionId === targetDelivery.subscriptionId) {
+                            delivery.status = newStatus;
+                            delivery.skippedBy = newStatus.includes('admin') ? 'admin' : newStatus.includes('user') ? 'user' : null;
+                            delivery.skippedAt = newStatus.includes('skipped') ? new Date().toISOString() : null;
+                            delivery.updatedAt = new Date().toISOString();
+                        }
+                    });
+                    
+                    localStorage.setItem('deliverySchedule', JSON.stringify(deliverySchedule));
+                    
+                    const statusMessages = {
+                        'delivered': `${targetDelivery.customerName}'s delivery marked as delivered`,
+                        'skipped_by_admin': `${targetDelivery.customerName}'s delivery skipped by admin`,
+                        'skipped_by_user': `${targetDelivery.customerName}'s delivery skipped by user`,
+                        'scheduled': `${targetDelivery.customerName}'s delivery rescheduled`
+                    };
+                    
+                    showToast(statusMessages[newStatus], 'success');
+                    loadDeliveryTimeSlot(timeSlot);
+                }
+            }
+        }
+        
+        function downloadDeliveries(timeSlot) {
+            const dateStr = currentDeliveryDate.toISOString().split('T')[0];
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            const deliveries = deliverySchedule[dateStr] ? deliverySchedule[dateStr][timeSlot] || [] : [];
+            
+            const uniqueDeliveries = deliveries.filter((delivery, index, self) => 
+                index === self.findIndex(d => d.subscriptionId === delivery.subscriptionId)
+            );
+            
+            if (!uniqueDeliveries.length) {
+                showToast(`No ${timeSlot} deliveries to download`, 'warning');
+                return;
+            }
+            
+            let csvContent = 'S.No,Customer Name,Phone,Milk Type,Quantity,Time Slot,Address,Status\n';
+            
+            uniqueDeliveries.forEach((delivery, index) => {
+                csvContent += `${index + 1},"${delivery.customerName}",${delivery.customerPhone},${delivery.milkType.charAt(0).toUpperCase() + delivery.milkType.slice(1)},${delivery.quantity}L,${delivery.timeSlot},"${delivery.customerAddress}",${delivery.status.charAt(0).toUpperCase() + delivery.status.slice(1)}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${timeSlot.charAt(0).toUpperCase() + timeSlot.slice(1)}_Deliveries_${dateStr}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showToast(`${timeSlot.charAt(0).toUpperCase() + timeSlot.slice(1)} deliveries downloaded successfully!`, 'success');
+        }
+        
+        function updateDeliveryStatus(timeSlot, deliveryIndex, newStatus) {
+            const dateStr = currentDeliveryDate.toISOString().split('T')[0];
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            
+            if (deliverySchedule[dateStr] && deliverySchedule[dateStr][timeSlot]) {
+                // Get unique deliveries to match the display
+                const uniqueDeliveries = deliverySchedule[dateStr][timeSlot].filter((delivery, index, self) => 
+                    index === self.findIndex(d => d.subscriptionId === delivery.subscriptionId)
+                );
+                
+                if (uniqueDeliveries[deliveryIndex]) {
+                    const targetDelivery = uniqueDeliveries[deliveryIndex];
+                    
+                    // Find and update all matching deliveries in the original array
+                    deliverySchedule[dateStr][timeSlot].forEach(delivery => {
+                        if (delivery.subscriptionId === targetDelivery.subscriptionId) {
+                            delivery.status = newStatus;
+                            delivery.updatedAt = new Date().toISOString();
+                        }
+                    });
+                    
+                    localStorage.setItem('deliverySchedule', JSON.stringify(deliverySchedule));
+                    
+                    const statusMessages = {
+                        'delivered': `${targetDelivery.customerName}'s delivery marked as delivered`,
+                        'skipped': `${targetDelivery.customerName}'s delivery skipped`,
+                        'scheduled': `${targetDelivery.customerName}'s delivery rescheduled`
+                    };
+                    
+                    showToast(statusMessages[newStatus], 'success');
+                    loadDailyDeliveries();
+                    updateDeliveryStats();
+                }
+            }
+        }
+        
+        function updateDeliveryStats() {
+            const dateStr = currentDeliveryDate.toISOString().split('T')[0];
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            const dayDeliveries = deliverySchedule[dateStr] || { morning: [], evening: [] };
+            
+            const allDeliveries = [...dayDeliveries.morning, ...dayDeliveries.evening];
+            const stats = allDeliveries.reduce((acc, delivery) => {
+                acc[delivery.status] = (acc[delivery.status] || 0) + 1;
+                if (delivery.status === 'delivered') {
+                    const price = stockData[delivery.milkType]?.price || 0;
+                    acc.revenue += delivery.quantity * price;
+                }
+                return acc;
+            }, { scheduled: 0, delivered: 0, skipped: 0, cancelled: 0, revenue: 0 });
+            
+            document.getElementById('delivery-scheduled').textContent = stats.scheduled;
+            document.getElementById('delivery-completed').textContent = stats.delivered;
+            document.getElementById('delivery-skipped').textContent = stats.skipped;
+            document.getElementById('delivery-revenue').textContent = `₹${stats.revenue}`;
+        }
+        
+        function changeDeliveryDate(days) {
+            currentDeliveryDate.setDate(currentDeliveryDate.getDate() + days);
+            updateDeliveryDateDisplay();
+            loadDailyDeliveries();
+            updateDeliveryStats();
+        }
+        
+        function updateDeliveryDateDisplay() {
+            const today = new Date();
+            const isToday = currentDeliveryDate.toDateString() === today.toDateString();
+            const isTomorrow = currentDeliveryDate.toDateString() === new Date(today.getTime() + 24*60*60*1000).toDateString();
+            
+            let displayText = currentDeliveryDate.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            let subtitle = '';
+            if (isToday) {
+                subtitle = 'Today\'s Deliveries';
+            } else if (isTomorrow) {
+                subtitle = 'Tomorrow\'s Deliveries';
+            } else {
+                subtitle = 'Scheduled Deliveries';
+            }
+            
+            document.getElementById('delivery-date-display').textContent = displayText;
+            document.getElementById('delivery-date-subtitle').textContent = subtitle;
+        }
+        
+        function exportDeliveryReport() {
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            let csvContent = 'Date,Time Slot,Customer Name,Phone,Milk Type,Quantity,Status,Address\n';
+            
+            Object.keys(deliverySchedule).forEach(date => {
+                const dayDeliveries = deliverySchedule[date];
+                
+                [...dayDeliveries.morning, ...dayDeliveries.evening].forEach(delivery => {
+                    const timeSlot = dayDeliveries.morning.includes(delivery) ? 'Morning' : 'Evening';
+                    csvContent += `${date},${timeSlot},${delivery.customerName},${delivery.customerPhone},${delivery.milkType},${delivery.quantity},${delivery.status},"${delivery.customerAddress}"\n`;
+                });
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Delivery_Report_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showToast('Delivery report exported successfully!', 'success');
+        }
+
+        // Clear all delivery details
+        function clearAllDeliveries() {
+            localStorage.removeItem('deliverySchedule');
+            console.log('🗑️ All delivery details cleared');
+        }
+        
+        // Sample data generation for testing
+        function generateSampleData() {
+            // Sample stock data
+            stockData.buffalo = {
+                morning: { stock: 50, booked: 0 },
+                evening: { stock: 45, booked: 0 },
+                price: 75
+            };
+            stockData.cow = {
+                morning: { stock: 60, booked: 0 },
+                evening: { stock: 55, booked: 0 },
+                price: 50
+            };
+            
+            // Sample subscriptions
+            const sampleSubscriptions = [
+                {
+                    id: 1,
+                    customer: {
+                        name: "Rajesh Kumar",
+                        phone: "+91 98765 43210",
+                        email: "rajesh@example.com",
+                        address: "123 MG Road, Bangalore, Karnataka 560001"
+                    },
+                    morningDelivery: {
+                        enabled: true,
+                        milkType: "buffalo",
+                        quantity: 2,
+                        timeSlot: "7:00-8:00 AM",
+                        frequency: "daily"
+                    },
+                    eveningDelivery: {
+                        enabled: false
+                    },
+                    status: "active",
+                    payment: { method: "UPI", autoPayment: true },
+                    joinedDate: "2024-01-15",
+                    nextDelivery: new Date().toISOString().split('T')[0]
+                },
+                {
+                    id: 2,
+                    customer: {
+                        name: "Priya Sharma",
+                        phone: "+91 87654 32109",
+                        email: "priya@example.com",
+                        address: "456 Brigade Road, Bangalore, Karnataka 560025"
+                    },
+                    morningDelivery: {
+                        enabled: false
+                    },
+                    eveningDelivery: {
+                        enabled: true,
+                        milkType: "cow",
+                        quantity: 1.5,
+                        timeSlot: "6:00-7:00 PM",
+                        frequency: "daily"
+                    },
+                    status: "active",
+                    payment: { method: "Cash", autoPayment: false },
+                    joinedDate: "2024-02-01",
+                    nextDelivery: new Date().toISOString().split('T')[0]
+                },
+                {
+                    id: 3,
+                    customer: {
+                        name: "Amit Patel",
+                        phone: "+91 76543 21098",
+                        email: "amit@example.com",
+                        address: "789 Koramangala, Bangalore, Karnataka 560034"
+                    },
+                    morningDelivery: {
+                        enabled: true,
+                        milkType: "cow",
+                        quantity: 1,
+                        timeSlot: "6:30-7:30 AM",
+                        frequency: "daily"
+                    },
+                    eveningDelivery: {
+                        enabled: true,
+                        milkType: "buffalo",
+                        quantity: 1,
+                        timeSlot: "6:30-7:30 PM",
+                        frequency: "daily"
+                    },
+                    status: "active",
+                    payment: { method: "Card", autoPayment: true },
+                    joinedDate: "2024-01-20",
+                    nextDelivery: new Date().toISOString().split('T')[0]
+                }
+            ];
+            
+            // Sample notifications
+            const sampleNotifications = [
+                {
+                    id: "notify_1",
+                    customerName: "Sunita Reddy",
+                    phoneNumber: "+91 65432 10987",
+                    milkType: "buffalo",
+                    quantity: 2,
+                    timeSlot: "morning",
+                    status: "pending",
+                    timestamp: new Date().toISOString(),
+                    requestDate: new Date().toLocaleDateString('en-IN'),
+                    requestTime: "09:30 AM"
+                }
+            ];
+            
+            // Clear existing deliveries and save sample data
+            clearAllDeliveries();
+            localStorage.setItem('userSubscriptions', JSON.stringify(sampleSubscriptions));
+            localStorage.setItem('adminStockData', JSON.stringify(stockData));
+            localStorage.setItem('stockWaitingQueue', JSON.stringify(sampleNotifications));
+            
+            console.log('🎆 Sample data generated successfully!');
+            showToast('Sample data loaded for testing', 'success');
+        }
+        
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            loadDashboard();
+            // Check if we need sample data
+            const hasData = localStorage.getItem('userSubscriptions') || localStorage.getItem('adminStockData');
+            if (!hasData) {
+                generateSampleData();
+            }
+            
+            // Load existing inventory data with fallbacks
+            try {
+                const savedStockData = localStorage.getItem('adminStockData');
+                if (savedStockData) {
+                    const parsed = JSON.parse(savedStockData);
+                    if (validateStockData(parsed)) {
+                        Object.keys(parsed).forEach(product => {
+                            if (parsed[product].morning && parsed[product].evening) {
+                                stockData[product] = parsed[product];
+                            } else {
+                                stockData[product] = {
+                                    morning: { stock: parsed[product].stock || 0, booked: parsed[product].booked || 0 },
+                                    evening: { stock: 0, booked: 0 },
+                                    price: parsed[product].price || (product === 'buffalo' ? 75 : 50)
+                                };
+                            }
+                        });
+                    } else {
+                        console.warn('Invalid stock data, using defaults');
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load stock data:', error);
+                showToast('Warning: Using default stock data', 'warning');
+            }
+            
+            // Sync existing subscriptions with inventory on load
+            syncSubscriptionsWithInventory();
+            
+            // Check if there's a saved state
+            const savedSection = localStorage.getItem('adminActiveSection') || 'dashboard';
+            const savedMilkTab = localStorage.getItem('adminActiveMilkTab') || 'inventory';
+            
+            console.log('🔄 Restoring state - Section:', savedSection, 'MilkTab:', savedMilkTab);
+            
+            // Restore the saved section
+            showSection(savedSection);
+            
+            // If milk section, restore the saved tab immediately
+            if (savedSection === 'milk') {
+                console.log('🎯 Restoring milk tab:', savedMilkTab);
+                
+                // Restore fullscreen mode if it was enabled
+                const savedFullscreen = localStorage.getItem('adminFullscreenMode');
+                if (savedFullscreen === 'true') {
+                    setTimeout(() => {
+                        const milkSection = document.getElementById('milk-section');
+                        const icon = document.getElementById('fullscreen-icon');
+                        milkSection.classList.add('fullscreen-mode');
+                        icon.textContent = 'fullscreen_exit';
+                        isFullscreen = true;
+                    }, 50);
+                }
+                
+                showMilkTab(savedMilkTab);
+                setTimeout(() => {
+                    updateStockDisplay();
+                    if (savedMilkTab === 'summary') {
+                        generateUC7DReport();
+                    } else if (savedMilkTab === 'notify') {
+                        loadNotificationRequests();
+                    } else if (savedMilkTab === 'delivery') {
+                        loadDeliveryManagement();
+                    }
+                }, 100);
+            }
         });
     </script>
 </body>

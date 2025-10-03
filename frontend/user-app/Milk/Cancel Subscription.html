@@ -384,6 +384,19 @@
             const reason = document.querySelector('input[name="cancellation_reason"]:checked').value;
             const comments = document.querySelector('textarea').value;
 
+            // Update subscription status in userSubscriptions
+            const userSubscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            if (userSubscriptions.length > 0) {
+                const subscription = userSubscriptions[0];
+                
+                // Release inventory before cancelling
+                releaseInventoryOnCancel(subscription);
+                
+                subscription.status = 'cancelled';
+                subscription.nextDelivery = null;
+                localStorage.setItem('userSubscriptions', JSON.stringify(userSubscriptions));
+            }
+
             // Hide the popup
             hideConfirmationPopup();
 
@@ -394,6 +407,88 @@
             setTimeout(() => {
                 window.location.href = 'Subscription Canceled page.html';
             }, 2000);
+        }
+        
+        // Release inventory when subscription is cancelled
+        function releaseInventoryOnCancel(subscription) {
+            console.log('=== RELEASING INVENTORY ===');
+            console.log('Subscription to cancel:', subscription);
+            
+            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            console.log('Stock data before release:', JSON.parse(JSON.stringify(stockData)));
+            
+            if (!stockData.buffalo || !stockData.cow) {
+                console.log('No stock data found, cannot release inventory');
+                return;
+            }
+            
+            // Handle both old localStorage format and new userSubscriptions format
+            let morningData = null;
+            let eveningData = null;
+            
+            if (subscription.morningDelivery) {
+                // New format
+                morningData = subscription.morningDelivery;
+            } else {
+                // Old format - read from localStorage
+                const morningEnabled = localStorage.getItem('morningDelivery') === 'true';
+                if (morningEnabled) {
+                    morningData = {
+                        enabled: true,
+                        milkType: localStorage.getItem('morningMilkType') || 'buffalo',
+                        quantity: parseFloat(localStorage.getItem('morningQuantity') || '0.5')
+                    };
+                }
+            }
+            
+            if (subscription.eveningDelivery) {
+                // New format
+                eveningData = subscription.eveningDelivery;
+            } else {
+                // Old format - read from localStorage
+                const eveningEnabled = localStorage.getItem('eveningDelivery') === 'true';
+                if (eveningEnabled) {
+                    eveningData = {
+                        enabled: true,
+                        milkType: localStorage.getItem('eveningMilkType') || 'cow',
+                        quantity: parseFloat(localStorage.getItem('eveningQuantity') || '0.5')
+                    };
+                }
+            }
+            
+            // Release morning delivery booking
+            if (morningData && morningData.enabled) {
+                const milkType = morningData.milkType;
+                const quantity = morningData.quantity;
+                console.log(`Releasing morning: ${quantity}L ${milkType}`);
+                
+                if (stockData[milkType] && stockData[milkType].morning) {
+                    const oldBooked = stockData[milkType].morning.booked;
+                    stockData[milkType].morning.booked = Math.max(0, oldBooked - quantity);
+                    console.log(`${milkType} morning: ${oldBooked} -> ${stockData[milkType].morning.booked}`);
+                } else {
+                    console.log(`Warning: No stock data for ${milkType} morning`);
+                }
+            }
+            
+            // Release evening delivery booking
+            if (eveningData && eveningData.enabled) {
+                const milkType = eveningData.milkType;
+                const quantity = eveningData.quantity;
+                console.log(`Releasing evening: ${quantity}L ${milkType}`);
+                
+                if (stockData[milkType] && stockData[milkType].evening) {
+                    const oldBooked = stockData[milkType].evening.booked;
+                    stockData[milkType].evening.booked = Math.max(0, oldBooked - quantity);
+                    console.log(`${milkType} evening: ${oldBooked} -> ${stockData[milkType].evening.booked}`);
+                } else {
+                    console.log(`Warning: No stock data for ${milkType} evening`);
+                }
+            }
+            
+            localStorage.setItem('adminStockData', JSON.stringify(stockData));
+            console.log('Stock data after release:', stockData);
+            console.log('=== INVENTORY RELEASE COMPLETE ===');
         }
 
         // Keep subscription

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taaza - Delivery Address</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFD700",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#0C2D57",
+                        "zepto-blue": "#0C2D57",
+                        "zepto-yellow": "#FFD700",
+                        "zepto-light-bg": "#F8F4E9",
+                        "zepto-manage-blue": "#4A7B9D",
+                        "zepto-order-red": "#D5715C",
+                        "zepto-green": "#10B981",
+                        "zepto-gray": "#6B7280",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .focus-visible:focus {
+            outline: 2px solid #FFD700;
+            outline-offset: 2px;
+        }
+        
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(12, 45, 87, 0.3);
+            border-radius: 50%;
+            border-top-color: #0C2D57;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .dark .section-card {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .step.completed {
+            background-color: #10B981;
+            color: white;
+        }
+
+        .step.active {
+            background-color: #0C2D57;
+            color: white;
+        }
+
+        .step.pending {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background-color: #e5e7eb;
+            margin: 0 8px;
+        }
+
+        .step-line.completed {
+            background-color: #10B981;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTBpRefq3kQWU79YiRZOeGb7jamVPHHnw&libraries=places&callback=initMap"></script>
+</head>
+
+<body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="bg-background-dark text-white p-4 sticky top-0 z-20 shadow-md">
+            <div class="container mx-auto flex items-center justify-between">
+                <button class="text-white focus-visible:focus rounded-lg p-2 hover:bg-blue-900 transition-colors"
+                    onclick="goBack()" aria-label="Go back">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <h1 class="text-lg font-bold">Delivery Address</h1>
+                <div class="w-8"></div>
+            </div>
+        </header>
+
+
+
+        <!-- Main Content -->
+        <main class="flex-grow p-4 space-y-6 slide-up">
+            <!-- Delivery Address -->
+            <div class="section-card">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-zepto-blue dark:text-primary">location_on</span>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Delivery Address</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full
+                                Name</label>
+                            <input type="text" id="fullName"
+                                class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent"
+                                placeholder="Enter your full name">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone
+                                Number</label>
+                            <input type="tel" id="phoneNumber"
+                                class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent"
+                                placeholder="Enter phone number">
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Complete
+                                Address</label>
+                            <button type="button" onclick="openLocationPicker()"
+                                class="text-sm bg-zepto-blue text-white px-3 py-1 rounded-lg hover:bg-blue-800 transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">my_location</span>
+                                Use My Location
+                            </button>
+                        </div>
+                        <textarea id="address" rows="3"
+                            class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent"
+                            placeholder="House/Flat No, Street, Area, Landmark"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">City</label>
+                            <input type="text" id="city"
+                                class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent"
+                                placeholder="City">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">State</label>
+                            <input type="text" id="state"
+                                class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent"
+                                placeholder="State">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PIN
+                                Code</label>
+                            <input type="text" id="pincode"
+                                class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent"
+                                placeholder="PIN Code">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Delivery
+                            Instructions (Optional)</label>
+                        <textarea id="deliveryInstructions" rows="2"
+                            class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent"
+                            placeholder="e.g., Leave at door, Ring bell twice, Call before delivery"></textarea>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer
+            class="p-4 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200 dark:border-zinc-700">
+            <button onclick="proceedToPayment()"
+                class="w-full bg-primary text-background-dark font-bold py-3 px-4 rounded-lg text-center hover:bg-yellow-500 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus">
+                Continue to Summary
+            </button>
+        </footer>
+    </div>
+
+    <!-- Map Modal -->
+    <div id="locationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl shadow-lg w-full max-w-2xl mx-4 p-6 relative">
+            <button type="button" onclick="closeLocationPicker()"
+                class="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700 z-10">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">Select Location on Map</h2>
+            <div class="flex gap-2 mb-4">
+                <button id="locate-btn" onclick="useMyLocation()"
+                    class="flex items-center gap-1 text-sm bg-zepto-blue text-white px-3 py-2 rounded-lg hover:bg-blue-800 transition-colors">
+                    <span class="material-symbols-outlined">my_location</span>
+                    Use My Location
+                </button>
+                <div id="locate-loading"
+                    class="hidden items-center gap-1 text-sm bg-zepto-blue/10 text-zepto-blue px-3 py-2 rounded-lg">
+                    <div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>
+                    <span>Getting location...</span>
+                </div>
+            </div>
+            <div class="relative">
+                <div id="map" style="height: 300px; width: 100%; border-radius: 0.5rem; overflow: hidden;"></div>
+                <!-- Zoom Controls -->
+                <div class="absolute top-2 right-2 flex flex-col gap-1 z-10">
+                    <button onclick="zoomIn()" 
+                        class="w-10 h-10 bg-white dark:bg-zinc-700 border border-gray-300 dark:border-zinc-600 rounded-lg shadow-md hover:bg-gray-50 dark:hover:bg-zinc-600 flex items-center justify-center text-gray-700 dark:text-gray-300 font-bold text-lg">
+                        +
+                    </button>
+                    <button onclick="zoomOut()" 
+                        class="w-10 h-10 bg-white dark:bg-zinc-700 border border-gray-300 dark:border-zinc-600 rounded-lg shadow-md hover:bg-gray-50 dark:hover:bg-zinc-600 flex items-center justify-center text-gray-700 dark:text-gray-300 font-bold text-lg">
+                        −
+                    </button>
+                </div>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+                <div class="text-sm text-gray-600 dark:text-gray-400 flex-1 mr-4">
+                    <p id="selectedAddress">Click on the map or drag the marker to select location</p>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeLocationPicker()"
+                        class="px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="confirmLocation()" id="confirmBtn" disabled
+                        class="px-4 py-2 rounded-lg bg-primary text-background-dark font-bold hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Confirm Location
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let map, marker, geocoder, selectedLocation;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadUserProfile();
+        });
+
+        function loadUserProfile() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+
+            if (userData.name) document.getElementById('fullName').value = userData.name;
+            if (userData.mobile) document.getElementById('phoneNumber').value = userData.mobile;
+            if (userData.address) document.getElementById('address').value = userData.address;
+        }
+
+        function proceedToPayment() {
+            const requiredFields = ['fullName', 'phoneNumber', 'address', 'city', 'state', 'pincode'];
+            let isValid = true;
+
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#ef4444';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+
+            if (!isValid) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            const addressData = {
+                fullName: document.getElementById('fullName').value,
+                phoneNumber: document.getElementById('phoneNumber').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                pincode: document.getElementById('pincode').value,
+                deliveryInstructions: document.getElementById('deliveryInstructions').value
+            };
+
+            localStorage.setItem('subscriptionAddress', JSON.stringify(addressData));
+
+            const button = event.target;
+            button.textContent = 'Processing...';
+            button.disabled = true;
+
+            setTimeout(() => {
+                window.location.href = 'Final Confirmation.html';
+            }, 1000);
+        }
+
+        function initMap() {
+            console.log('Google Maps API loaded');
+        }
+
+        function openLocationPicker() {
+            document.getElementById('locationModal').classList.remove('hidden');
+            if (!map) {
+                initializeMap();
+            }
+        }
+
+        function closeLocationPicker() {
+            document.getElementById('locationModal').classList.add('hidden');
+        }
+
+        function initializeMap() {
+            const defaultLocation = { lat: 12.9716, lng: 77.5946 }; // Bangalore
+
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 15,
+                center: defaultLocation,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false
+            });
+
+            geocoder = new google.maps.Geocoder();
+
+            // Add click listener to map
+            map.addListener('click', function (event) {
+                placeMarker(event.latLng);
+            });
+        }
+
+        function useMyLocation() {
+            console.log('🌍 Geolocation attempt started');
+            
+            if (!navigator.geolocation) {
+                showToast('❌ Geolocation not supported by your browser', 'error');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('locate-btn').classList.add('hidden');
+            document.getElementById('locate-loading').classList.remove('hidden');
+            document.getElementById('locate-loading').classList.add('flex');
+            
+            const forceTimeout = setTimeout(() => {
+                document.getElementById('locate-btn').classList.remove('hidden');
+                document.getElementById('locate-loading').classList.add('hidden');
+                showToast('⏱️ Location request timed out. Check permissions and try again.', 'error');
+            }, 15000);
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    clearTimeout(forceTimeout);
+                    console.log('✅ Location success:', position);
+                    
+                    const userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    // Update map
+                    if (map) {
+                        map.setCenter(userLocation);
+                        map.setZoom(16);
+                        placeMarker(new google.maps.LatLng(userLocation.lat, userLocation.lng));
+                    }
+                    
+                    showToast('📍 Location found successfully!');
+
+                    // Hide loading state
+                    document.getElementById('locate-btn').classList.remove('hidden');
+                    document.getElementById('locate-loading').classList.add('hidden');
+                },
+                function(error) {
+                    clearTimeout(forceTimeout);
+                    console.error('❌ Geolocation error:', error);
+                    
+                    // Hide loading state
+                    document.getElementById('locate-btn').classList.remove('hidden');
+                    document.getElementById('locate-loading').classList.add('hidden');
+
+                    let errorMsg = '❌ Unable to get your location';
+                    
+                    switch (error.code) {
+                        case 1: // PERMISSION_DENIED
+                            errorMsg = '🚫 Location access denied. Please allow location access and try again.';
+                            break;
+                        case 2: // POSITION_UNAVAILABLE
+                            errorMsg = '📡 Location unavailable. Check your GPS/WiFi connection.';
+                            break;
+                        case 3: // TIMEOUT
+                            errorMsg = '⏱️ Location request timed out. Please try again.';
+                            break;
+                    }
+                    
+                    showToast(errorMsg, 'error');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        function placeMarker(location) {
+            if (marker) {
+                marker.setMap(null);
+            }
+
+            marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                draggable: true,
+                animation: google.maps.Animation.DROP
+            });
+
+            marker.addListener('dragend', function () {
+                getAddressFromLatLng(marker.getPosition());
+            });
+
+            selectedLocation = { lat: location.lat(), lng: location.lng() };
+            getAddressFromLatLng(location);
+            document.getElementById('confirmBtn').disabled = false;
+        }
+
+        function getAddressFromLatLng(latLng) {
+            geocoder.geocode({ location: latLng }, function (results, status) {
+                if (status === 'OK' && results[0]) {
+                    const cleanAddress = formatCleanAddress(results[0]);
+                    document.getElementById('selectedAddress').innerHTML = `${cleanAddress.main}, ${cleanAddress.area}`;
+                    selectedLocation.address = results[0];
+                } else {
+                    document.getElementById('selectedAddress').textContent = 'Unable to get address for this location';
+                }
+            });
+        }
+
+        function formatCleanAddress(addressResult) {
+            const components = addressResult.address_components;
+            let streetNumber = '', route = '', locality = '', sublocality = '', city = '', state = '';
+            
+            components.forEach(component => {
+                const types = component.types;
+                if (types.includes('street_number')) streetNumber = component.long_name;
+                if (types.includes('route')) route = component.long_name;
+                if (types.includes('sublocality_level_1') || types.includes('sublocality')) sublocality = component.long_name;
+                if (types.includes('locality')) locality = component.long_name;
+                if (types.includes('administrative_area_level_2')) city = component.long_name;
+                if (types.includes('administrative_area_level_1')) state = component.short_name;
+            });
+            
+            // Build clean address
+            let mainAddress = '';
+            if (streetNumber && route) {
+                mainAddress = `${streetNumber} ${route}`;
+            } else if (route) {
+                mainAddress = route;
+            } else if (sublocality) {
+                mainAddress = sublocality;
+            } else if (locality) {
+                mainAddress = locality;
+            }
+            
+            let areaInfo = '';
+            if (locality && locality !== mainAddress) {
+                areaInfo = locality;
+            } else if (city && city !== locality) {
+                areaInfo = city;
+            }
+            if (state && areaInfo) {
+                areaInfo += `, ${state}`;
+            } else if (state) {
+                areaInfo = state;
+            }
+            
+            return {
+                main: mainAddress || 'Current Location',
+                area: areaInfo || 'Location detected'
+            };
+        }
+
+        function zoomIn() {
+            if (map) {
+                const currentZoom = map.getZoom();
+                map.setZoom(currentZoom + 1);
+            }
+        }
+
+        function zoomOut() {
+            if (map) {
+                const currentZoom = map.getZoom();
+                map.setZoom(currentZoom - 1);
+            }
+        }
+
+        function confirmLocation() {
+            if (selectedLocation && selectedLocation.address) {
+                const components = selectedLocation.address.address_components;
+                let streetNumber = '', route = '', locality = '', city = '', state = '', pincode = '';
+
+                components.forEach(component => {
+                    const types = component.types;
+                    if (types.includes('street_number')) streetNumber = component.long_name;
+                    if (types.includes('route')) route = component.long_name;
+                    if (types.includes('sublocality') || types.includes('neighborhood')) locality = component.long_name;
+                    if (types.includes('locality') || types.includes('administrative_area_level_2')) city = component.long_name;
+                    if (types.includes('administrative_area_level_1')) state = component.long_name;
+                    if (types.includes('postal_code')) pincode = component.long_name;
+                });
+
+                const addressText = `${streetNumber} ${route}, ${locality}`.trim().replace(/^,\s*/, '');
+                document.getElementById('address').value = addressText;
+                document.getElementById('city').value = city;
+                document.getElementById('state').value = state;
+                document.getElementById('pincode').value = pincode;
+
+                closeLocationPicker();
+                showToast('Address updated successfully!');
+            } else {
+                showToast('Please select a location on the map first', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-500' : 'bg-zepto-green';
+            toast.className = `fixed top-20 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        function goBack() {
+            window.location.href = 'new milk subscrition.html';
+        }
+    </script>
+</body>
+
+</html>

@@ -250,15 +250,14 @@
                     <div class="grid grid-cols-3 gap-3 text-sm">
                         <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
                             <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Delivery Time</p>
-                            <p id="morning-time-display" class="font-medium">7:00 AM - 9:00 AM</p>
+                            <p id="morning-time-display" class="font-medium">6:00 AM - 9:00 AM</p>
                         </div>
                         <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
                             <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Frequency</p>
                             <p id="morning-frequency" class="font-medium text-zepto-blue dark:text-primary"></p>
-                            <div id="morning-days" class="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden"></div>
                         </div>
                         <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
-                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Monthly Cost</p>
+                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Daily Cost</p>
                             <p id="morning-cost" class="font-medium text-primary text-lg"></p>
                         </div>
                     </div>
@@ -276,15 +275,14 @@
                     <div class="grid grid-cols-3 gap-3 text-sm">
                         <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
                             <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Delivery Time</p>
-                            <p id="evening-time-display" class="font-medium">6:00 PM - 8:00 PM</p>
+                            <p id="evening-time-display" class="font-medium">5:30 PM - 7:30 PM</p>
                         </div>
                         <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
                             <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Frequency</p>
                             <p id="evening-frequency" class="font-medium text-zepto-blue dark:text-primary"></p>
-                            <div id="evening-days" class="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden"></div>
                         </div>
                         <div class="bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg">
-                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Monthly Cost</p>
+                            <p class="text-gray-600 dark:text-gray-400 text-xs mb-1">Daily Cost</p>
                             <p id="evening-cost" class="font-medium text-primary text-lg"></p>
                         </div>
                     </div>
@@ -425,6 +423,15 @@
         }
 
         function changePlan() {
+            // Check subscription status first
+            const userSubscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            
+            if (userSubscriptions.length > 0 && userSubscriptions[0].status === 'cancelled') {
+                // For cancelled subscriptions, create new one
+                window.location.href = 'new milk subscrition.html';
+                return;
+            }
+            
             // Set editing flag to load existing data
             localStorage.setItem('editingSubscription', 'true');
             
@@ -446,27 +453,8 @@
                 `Are you sure you want to skip the ${slot} delivery for ${dayName}?`,
                 function (confirmed) {
                     if (confirmed) {
-                        // Get the parent delivery item
-                        const deliveryItem = button.closest('.flex.items-center.justify-between');
-                        const deliveryDetails = deliveryItem.querySelector('.text-xs').textContent;
-                        const deliveryTime = deliveryItem.querySelector('.font-medium').textContent;
-                        const deliveryIcon = deliveryItem.querySelector('.text-lg').textContent;
-
-                        // Update the delivery item to show as skipped
-                        deliveryItem.innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <span class="text-lg opacity-50">${deliveryIcon}</span>
-                                <div class="text-gray-500 dark:text-gray-400">
-                                    <p class="font-medium text-sm line-through">${deliveryTime}</p>
-                                    <p class="text-xs">Skipped - ${deliveryDetails}</p>
-                                </div>
-                            </div>
-                            <button onclick="undoSkipDelivery(${dayIndex}, '${slot}', this)" 
-                                    class="bg-zepto-green/20 text-zepto-green text-sm font-semibold px-4 py-2 rounded-full hover:bg-zepto-green/30 transition-all duration-200 min-h-[44px] min-w-[80px] flex items-center justify-center">
-                                Unskip
-                            </button>
-                        `;
-
+                        updateDeliveryStatus(dayIndex, slot, 'skipped_by_user');
+                        refreshDeliveryDisplay();
                         showToast("Skipped ✓");
                     }
                 }
@@ -474,58 +462,9 @@
         }
 
         function undoSkipDelivery(dayIndex, slot, button) {
-            // Get the parent delivery item
-            const deliveryItem = button.closest('.flex.items-center.justify-between');
-            
-            // Get subscription data to restore original delivery info
-            const subscriptionData = getStoredSubscriptionData();
-            const planData = subscriptionData[slot];
-            
-            if (planData) {
-                const morningTimeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
-                const eveningTimeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
-                const morningTimeMap = {
-                    '7:00-7:30': '7:00 - 7:30 AM',
-                    '7:30-8:00': '7:30 - 8:00 AM',
-                    '8:00-8:30': '8:00 - 8:30 AM',
-                    '8:30-9:00': '8:30 - 9:00 AM'
-                };
-                const eveningTimeMap = {
-                    '6:00-6:30': '6:00 - 6:30 PM',
-                    '6:30-7:00': '6:30 - 7:00 PM',
-                    '7:00-7:30': '7:00 - 7:30 PM',
-                    '7:30-8:00': '7:30 - 8:00 PM'
-                };
-                const deliveryTime = slot === 'morning' ? 
-                    (morningTimeMap[morningTimeSlot] || '7:00 - 7:30 AM') : 
-                    (eveningTimeMap[eveningTimeSlot] || '6:00 - 6:30 PM');
-                const deliveryDetails = `${planData.quantity}L ${planData.milkType === 'buffalo' ? 'Buffalo' : 'Cow'} Milk`;
-                const deliveryIcon = slot === 'morning' ? '☀️' : '🌙';
-                
-                const canSkip = canSkipDelivery(dayIndex);
-                const skipButton = canSkip ? 
-                    `<button onclick="skipDelivery(${dayIndex}, '${slot}', this)" 
-                            class="bg-primary/20 text-background-dark text-sm font-semibold px-4 py-2 rounded-full hover:bg-primary/30 transition-all duration-200 min-h-[44px] min-w-[70px] flex items-center justify-center">
-                        Skip
-                    </button>` : 
-                    `<span class="text-xs text-gray-400 px-3 py-1">
-                        ${dayIndex === 0 ? 'Today' : 'Too late to skip'}
-                    </span>`;
-
-                // Restore the delivery item to active state
-                deliveryItem.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="text-lg">${deliveryIcon}</span>
-                        <div>
-                            <p class="font-medium text-sm">${deliveryTime}</p>
-                            <p class="text-xs text-gray-600 dark:text-gray-400">${deliveryDetails}</p>
-                        </div>
-                    </div>
-                    ${skipButton}
-                `;
-
-                showToast("Restored ✓");
-            }
+            updateDeliveryStatus(dayIndex, slot, 'scheduled');
+            refreshDeliveryDisplay();
+            showToast("Restored ✓");
         }
 
         function undoSkip(deliveryId) {
@@ -554,6 +493,33 @@
         function cancelSubscription() {
             window.location.href = 'Cancel Subscription.html';
         }
+        
+        // Release inventory when subscription is cancelled
+        function releaseInventoryOnCancel(subscription) {
+            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            
+            if (!stockData.buffalo || !stockData.cow) return;
+            
+            // Remove morning delivery booking
+            if (subscription.morningDelivery && subscription.morningDelivery.enabled) {
+                const milkType = subscription.morningDelivery.milkType;
+                const quantity = subscription.morningDelivery.quantity;
+                stockData[milkType].morning.booked = Math.max(0, stockData[milkType].morning.booked - quantity);
+            }
+            
+            // Remove evening delivery booking
+            if (subscription.eveningDelivery && subscription.eveningDelivery.enabled) {
+                const milkType = subscription.eveningDelivery.milkType;
+                const quantity = subscription.eveningDelivery.quantity;
+                stockData[milkType].evening.booked = Math.max(0, stockData[milkType].evening.booked - quantity);
+            }
+            
+            localStorage.setItem('adminStockData', JSON.stringify(stockData));
+            console.log('Inventory released for cancelled subscription:', subscription.id);
+        }
+        
+        // Make function globally available
+        window.releaseInventoryOnCancel = releaseInventoryOnCancel;
 
         function showToast(message) {
             // Create and show a toast notification at the top
@@ -566,14 +532,59 @@
             }, 1800);
         }
 
-        // Milk pricing configuration
-        const milkPrices = {
-            buffalo: 50,
-            cow: 40
-        };
+        // Step 2: Load milk prices from admin inventory
+        function getMilkPrices() {
+            const adminStock = JSON.parse(localStorage.getItem('adminStockData') || '{}');
+            return {
+                buffalo: adminStock.buffalo?.price || 50,
+                cow: adminStock.cow?.price || 40
+            };
+        }
+        
+        // Dynamic pricing - updates from admin
+        let milkPrices = getMilkPrices();
 
         // Load subscription data from localStorage
         function loadSubscriptionData() {
+            // Refresh prices from admin first
+            milkPrices = getMilkPrices();
+            
+            // Check for real subscription data from admin system
+            const userSubscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            
+            if (userSubscriptions.length > 0) {
+                // Find the most recent active subscription (highest ID)
+                const activeSubscription = userSubscriptions
+                    .filter(sub => sub.status === 'active')
+                    .sort((a, b) => b.id - a.id)[0];
+                
+                if (activeSubscription) {
+                    displayActiveSubscription(activeSubscription);
+                    return;
+                }
+                
+                // If no active subscription, check for paused
+                const pausedSubscription = userSubscriptions
+                    .filter(sub => sub.status === 'paused')
+                    .sort((a, b) => b.id - a.id)[0];
+                
+                if (pausedSubscription) {
+                    showPausedSubscription(pausedSubscription);
+                    return;
+                }
+                
+                // If no active or paused, show cancelled
+                const cancelledSubscription = userSubscriptions
+                    .filter(sub => sub.status === 'cancelled')
+                    .sort((a, b) => b.id - a.id)[0];
+                
+                if (cancelledSubscription) {
+                    showCancelledSubscription(cancelledSubscription);
+                    return;
+                }
+            }
+            
+            // Fallback to old localStorage method
             const hasSubscription = localStorage.getItem('milkSubscription');
             if (!hasSubscription) {
                 showNoSubscription();
@@ -622,6 +633,9 @@
 
         // Display subscription plans
         function displaySubscriptionPlans(data) {
+            // Refresh prices from admin inventory
+            milkPrices = getMilkPrices();
+            
             document.getElementById('no-plan').classList.add('hidden');
             
             if (data.morning) {
@@ -635,8 +649,18 @@
                 
                 document.getElementById('morning-plan-title').textContent = 
                     `${data.morning.quantity}L ${milkTypeName}`;
-                document.getElementById('morning-frequency').textContent = 
-                    data.morning.frequency === 'daily' ? 'Daily' : 'Alternate Days';
+                // Show frequency with days
+                const dayNames = {
+                    'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
+                    'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
+                };
+                
+                if (data.morning.frequency === 'daily') {
+                    document.getElementById('morning-frequency').textContent = 'Daily';
+                } else {
+                    const shortDays = data.morning.days.map(day => dayNames[day]).join(', ');
+                    document.getElementById('morning-frequency').textContent = shortDays;
+                }
                 
                 // Show selected time slot
                 const morningTimeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
@@ -649,21 +673,10 @@
                 document.getElementById('morning-time-display').textContent = 
                     timeSlotMap[morningTimeSlot] || '7:00 AM - 9:00 AM';
                 
-                // Show days for alternate frequency
-                const morningDaysElement = document.getElementById('morning-days');
-                if (data.morning.frequency === 'alternate') {
-                    const dayNames = {
-                        'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
-                        'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
-                    };
-                    const shortDays = data.morning.days.map(day => dayNames[day]).join(', ');
-                    morningDaysElement.textContent = shortDays;
-                    morningDaysElement.classList.remove('hidden');
-                } else {
-                    morningDaysElement.classList.add('hidden');
-                }
+                // Hide the days element since we show days in frequency now
+                document.getElementById('morning-days').classList.add('hidden');
                 
-                document.getElementById('morning-cost').innerHTML = `<span class="text-lg font-bold">₹${monthlyPrice}</span><span class="text-sm">/month</span>`;
+                document.getElementById('morning-cost').innerHTML = `<span class="text-lg font-bold">₹${dailyPrice}</span><span class="text-sm">/day</span>`;
             }
             
             if (data.evening) {
@@ -677,8 +690,13 @@
                 
                 document.getElementById('evening-plan-title').textContent = 
                     `${data.evening.quantity}L ${milkTypeName}`;
-                document.getElementById('evening-frequency').textContent = 
-                    data.evening.frequency === 'daily' ? 'Daily' : 'Alternate Days';
+                // Show frequency with days
+                if (data.evening.frequency === 'daily') {
+                    document.getElementById('evening-frequency').textContent = 'Daily';
+                } else {
+                    const shortDays = data.evening.days.map(day => dayNames[day]).join(', ');
+                    document.getElementById('evening-frequency').textContent = shortDays;
+                }
                 
                 // Show selected time slot
                 const eveningTimeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
@@ -691,21 +709,10 @@
                 document.getElementById('evening-time-display').textContent = 
                     timeSlotMap[eveningTimeSlot] || '6:00 PM - 8:00 PM';
                 
-                // Show days for alternate frequency
-                const eveningDaysElement = document.getElementById('evening-days');
-                if (data.evening.frequency === 'alternate') {
-                    const dayNames = {
-                        'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
-                        'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
-                    };
-                    const shortDays = data.evening.days.map(day => dayNames[day]).join(', ');
-                    eveningDaysElement.textContent = shortDays;
-                    eveningDaysElement.classList.remove('hidden');
-                } else {
-                    eveningDaysElement.classList.add('hidden');
-                }
+                // Hide the days element since we show days in frequency now
+                document.getElementById('evening-days').classList.add('hidden');
                 
-                document.getElementById('evening-cost').innerHTML = `<span class="text-lg font-bold">₹${monthlyPrice}</span><span class="text-sm">/month</span>`;
+                document.getElementById('evening-cost').innerHTML = `<span class="text-lg font-bold">₹${dailyPrice}</span><span class="text-sm">/day</span>`;
             }
         }
 
@@ -803,14 +810,24 @@
             
             let deliveriesHtml = '';
             deliveries.forEach(delivery => {
+                const deliveryStatus = getDeliveryStatus(dayIndex, delivery.slot);
                 const canSkip = canSkipDelivery(dayIndex);
                 let actionButton = '';
                 
-                if (delivery.status === 'pending' && dayIndex === 0) {
+                if (deliveryStatus === 'skipped_by_user') {
+                    actionButton = `<button onclick="undoSkipDelivery(${dayIndex}, '${delivery.slot}', this)" 
+                            class="bg-zepto-green/20 text-zepto-green text-sm font-semibold px-4 py-2 rounded-full hover:bg-zepto-green/30 transition-all duration-200 min-h-[44px] min-w-[80px] flex items-center justify-center">
+                        Unskip
+                    </button>`;
+                } else if (deliveryStatus === 'skipped_by_admin') {
+                    actionButton = `<span class="text-sm bg-red-100 text-red-600 px-4 py-2 rounded-full min-h-[44px] flex items-center justify-center">
+                        Admin Skipped
+                    </span>`;
+                } else if (delivery.status === 'pending' && dayIndex === 0) {
                     actionButton = `<span class="text-sm bg-orange-100 text-orange-600 px-4 py-2 rounded-full min-h-[44px] flex items-center justify-center">
                         Pending
                     </span>`;
-                } else if (canSkip) {
+                } else if (canSkip && deliveryStatus === 'scheduled') {
                     actionButton = `<button onclick="skipDelivery(${dayIndex}, '${delivery.slot}', this)" 
                             class="bg-primary/20 text-background-dark text-sm font-semibold px-4 py-2 rounded-full hover:bg-primary/30 transition-all duration-200 min-h-[44px] min-w-[70px] flex items-center justify-center">
                         Skip
@@ -877,6 +894,275 @@
             
             // Can skip deliveries for day 2 onwards
             return true;
+        }
+
+        // Show cancelled subscription state
+        function showCancelledSubscription(subscription) {
+            document.getElementById('no-plan').classList.add('hidden');
+            
+            // Show subscription details but with cancelled status
+            displaySubscriptionDetails(subscription);
+            
+            // Update button to "Make New Subscription"
+            const changeButton = document.querySelector('button[onclick="changePlan()"]');
+            changeButton.textContent = 'Make New Subscription';
+            changeButton.className = 'w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg text-center hover:bg-green-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus';
+            
+            // Show cancelled status in deliveries
+            showCancelledDeliveries();
+        }
+        
+        // Show paused subscription state
+        function showPausedSubscription(subscription) {
+            document.getElementById('no-plan').classList.add('hidden');
+            
+            // Show subscription details
+            displaySubscriptionDetails(subscription);
+            
+            // Update button text
+            const changeButton = document.querySelector('button[onclick="changePlan()"]');
+            changeButton.textContent = 'Change Plan';
+            
+            // Show paused status in deliveries
+            showPausedDeliveries();
+        }
+        
+        // Display active subscription
+        function displayActiveSubscription(subscription) {
+            document.getElementById('no-plan').classList.add('hidden');
+            displaySubscriptionDetails(subscription);
+            generateUpcomingDeliveriesFromSubscription(subscription);
+        }
+        
+        // Display subscription details from admin data
+        function displaySubscriptionDetails(subscription) {
+            // Refresh prices to ensure we have latest admin prices
+            milkPrices = getMilkPrices();
+            
+            if (subscription.morningDelivery && subscription.morningDelivery.enabled) {
+                const morningPlan = document.getElementById('morning-plan');
+                morningPlan.classList.remove('hidden');
+                
+                const morning = subscription.morningDelivery;
+                const milkTypeName = morning.milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
+                
+                document.getElementById('morning-plan-title').textContent = `${morning.quantity}L ${milkTypeName}`;
+                
+                // Show frequency with days
+                const dayNames = {
+                    'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
+                    'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
+                };
+                
+                if (morning.frequency === 'daily') {
+                    document.getElementById('morning-frequency').textContent = 'Daily';
+                } else {
+                    const shortDays = morning.days ? morning.days.map(day => dayNames[day]).join(', ') : 'Alternate Days';
+                    document.getElementById('morning-frequency').textContent = shortDays;
+                }
+                
+                document.getElementById('morning-time-display').textContent = morning.timeSlot;
+                
+                // Recalculate with current admin prices
+                const currentPrice = milkPrices[morning.milkType];
+                const dailyPrice = morning.quantity * currentPrice;
+                const daysPerMonth = morning.frequency === 'daily' ? 30 : (morning.days ? morning.days.length * 4 : 30);
+                const monthlyPrice = dailyPrice * daysPerMonth;
+                
+                document.getElementById('morning-cost').innerHTML = `<span class="text-lg font-bold">₹${dailyPrice}</span><span class="text-sm">/day</span>`;
+            }
+            
+            if (subscription.eveningDelivery && subscription.eveningDelivery.enabled) {
+                const eveningPlan = document.getElementById('evening-plan');
+                eveningPlan.classList.remove('hidden');
+                
+                const evening = subscription.eveningDelivery;
+                const milkTypeName = evening.milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
+                
+                document.getElementById('evening-plan-title').textContent = `${evening.quantity}L ${milkTypeName}`;
+                
+                // Show frequency with days
+                const dayNames = {
+                    'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
+                    'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
+                };
+                
+                if (evening.frequency === 'daily') {
+                    document.getElementById('evening-frequency').textContent = 'Daily';
+                } else {
+                    const shortDays = evening.days ? evening.days.map(day => dayNames[day]).join(', ') : 'Alternate Days';
+                    document.getElementById('evening-frequency').textContent = shortDays;
+                }
+                
+                document.getElementById('evening-time-display').textContent = evening.timeSlot;
+                
+                // Recalculate with current admin prices
+                const currentPrice = milkPrices[evening.milkType];
+                const dailyPrice = evening.quantity * currentPrice;
+                const daysPerMonth = evening.frequency === 'daily' ? 30 : (evening.days ? evening.days.length * 4 : 30);
+                const monthlyPrice = dailyPrice * daysPerMonth;
+                
+                document.getElementById('evening-cost').innerHTML = `<span class="text-lg font-bold">₹${dailyPrice}</span><span class="text-sm">/day</span>`;
+            }
+        }
+        
+        // Show cancelled deliveries message
+        function showCancelledDeliveries() {
+            const deliveriesList = document.getElementById('deliveries-list');
+            const noDeliveries = document.getElementById('no-deliveries');
+            
+            deliveriesList.innerHTML = '';
+            noDeliveries.innerHTML = `
+                <span class="material-symbols-outlined text-4xl text-red-400 mb-2">cancel</span>
+                <p class="text-red-600 dark:text-red-400 font-semibold">Subscription Cancelled</p>
+                <p class="text-sm text-gray-500 dark:text-gray-500 mt-1">No upcoming deliveries. Create a new subscription to resume service.</p>
+            `;
+            noDeliveries.classList.remove('hidden');
+        }
+        
+        // Show paused deliveries message
+        function showPausedDeliveries() {
+            const deliveriesList = document.getElementById('deliveries-list');
+            const noDeliveries = document.getElementById('no-deliveries');
+            
+            deliveriesList.innerHTML = '';
+            noDeliveries.innerHTML = `
+                <span class="material-symbols-outlined text-4xl text-yellow-400 mb-2">pause</span>
+                <p class="text-yellow-600 dark:text-yellow-400 font-semibold">Deliveries Paused</p>
+                <p class="text-sm text-gray-500 dark:text-gray-500 mt-1">Your subscription is paused. Contact support to resume deliveries.</p>
+            `;
+            noDeliveries.classList.remove('hidden');
+        }
+        
+        // Generate deliveries from subscription data
+        function generateUpcomingDeliveriesFromSubscription(subscription) {
+            const deliveriesList = document.getElementById('deliveries-list');
+            const noDeliveries = document.getElementById('no-deliveries');
+            
+            deliveriesList.innerHTML = '';
+            
+            const today = new Date();
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            
+            let hasDeliveries = false;
+            
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                
+                const dayName = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : dayNames[date.getDay()];
+                const dayKey = dayKeys[date.getDay()];
+                const dateStr = date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+                
+                const dayDeliveries = [];
+                
+                // Check morning delivery
+                if (subscription.morningDelivery && subscription.morningDelivery.enabled) {
+                    const morning = subscription.morningDelivery;
+                    if (morning.frequency === 'daily' || morning.days.includes(dayKey)) {
+                        dayDeliveries.push({
+                            time: morning.timeSlot,
+                            details: `${morning.quantity}L ${morning.milkType === 'buffalo' ? 'Buffalo' : 'Cow'} Milk`,
+                            icon: '☀️',
+                            slot: 'morning'
+                        });
+                    }
+                }
+                
+                // Check evening delivery
+                if (subscription.eveningDelivery && subscription.eveningDelivery.enabled) {
+                    const evening = subscription.eveningDelivery;
+                    if (evening.frequency === 'daily' || evening.days.includes(dayKey)) {
+                        dayDeliveries.push({
+                            time: evening.timeSlot,
+                            details: `${evening.quantity}L ${evening.milkType === 'buffalo' ? 'Buffalo' : 'Cow'} Milk`,
+                            icon: '🌙',
+                            slot: 'evening'
+                        });
+                    }
+                }
+                
+                if (dayDeliveries.length > 0) {
+                    hasDeliveries = true;
+                    const deliveryCard = createDeliveryCard(dayName, dateStr, dayDeliveries, i);
+                    deliveriesList.appendChild(deliveryCard);
+                }
+            }
+            
+            if (!hasDeliveries) {
+                noDeliveries.classList.remove('hidden');
+            }
+        }
+
+        // Delivery status management
+        function updateDeliveryStatus(dayIndex, slot, newStatus) {
+            const date = new Date();
+            date.setDate(date.getDate() + dayIndex);
+            const dateStr = date.toISOString().split('T')[0];
+            
+            let deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            
+            if (!deliverySchedule[dateStr]) {
+                deliverySchedule[dateStr] = { morning: [], evening: [] };
+            }
+            
+            const subscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            const activeSubscription = subscriptions.find(s => s.status === 'active');
+            
+            if (activeSubscription) {
+                const deliveryData = slot === 'morning' ? activeSubscription.morningDelivery : activeSubscription.eveningDelivery;
+                
+                if (deliveryData && deliveryData.enabled) {
+                    // Find existing delivery or create new one
+                    let delivery = deliverySchedule[dateStr][slot].find(d => d.subscriptionId === activeSubscription.id);
+                    
+                    if (!delivery) {
+                        delivery = {
+                            subscriptionId: activeSubscription.id,
+                            customerName: activeSubscription.customer.name,
+                            customerPhone: activeSubscription.customer.phone,
+                            customerAddress: activeSubscription.customer.address,
+                            milkType: deliveryData.milkType,
+                            quantity: deliveryData.quantity,
+                            timeSlot: deliveryData.timeSlot,
+                            originalQuantity: deliveryData.quantity
+                        };
+                        deliverySchedule[dateStr][slot].push(delivery);
+                    }
+                    
+                    delivery.status = newStatus;
+                    delivery.skippedBy = newStatus.includes('user') ? 'user' : newStatus.includes('admin') ? 'admin' : null;
+                    delivery.skippedAt = newStatus.includes('skipped') ? new Date().toISOString() : null;
+                    
+                    localStorage.setItem('deliverySchedule', JSON.stringify(deliverySchedule));
+                }
+            }
+        }
+        
+        function refreshDeliveryDisplay() {
+            // Reload the upcoming deliveries section
+            const subscriptionData = getStoredSubscriptionData();
+            if (subscriptionData) {
+                generateUpcomingDeliveries(subscriptionData);
+            }
+        }
+        
+        function getDeliveryStatus(dayIndex, slot) {
+            const date = new Date();
+            date.setDate(date.getDate() + dayIndex);
+            const dateStr = date.toISOString().split('T')[0];
+            
+            const deliverySchedule = JSON.parse(localStorage.getItem('deliverySchedule') || '{}');
+            const subscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            const activeSubscription = subscriptions.find(s => s.status === 'active');
+            
+            if (deliverySchedule[dateStr] && activeSubscription) {
+                const delivery = deliverySchedule[dateStr][slot]?.find(d => d.subscriptionId === activeSubscription.id);
+                return delivery ? delivery.status : 'scheduled';
+            }
+            
+            return 'scheduled';
         }
 
         // Initialize page

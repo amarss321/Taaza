@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taaza - Final Confirmation</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFD700",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#0C2D57",
+                        "zepto-blue": "#0C2D57",
+                        "zepto-yellow": "#FFD700",
+                        "zepto-light-bg": "#F8F4E9",
+                        "zepto-manage-blue": "#4A7B9D",
+                        "zepto-order-red": "#D5715C",
+                        "zepto-green": "#10B981",
+                        "zepto-gray": "#6B7280",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .invoice-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .dark .invoice-section {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .step.completed {
+            background-color: #10B981;
+            color: white;
+        }
+
+        .step.active {
+            background-color: #0C2D57;
+            color: white;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background-color: #10B981;
+            margin: 0 8px;
+        }
+
+        .invoice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .dark .invoice-item {
+            border-bottom-color: #374151;
+        }
+
+        .invoice-item:last-child {
+            border-bottom: none;
+        }
+
+        .total-row {
+            background-color: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .dark .total-row {
+            background-color: #374151;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+
+<body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="bg-background-dark text-white p-4 sticky top-0 z-20 shadow-md">
+            <div class="container mx-auto flex items-center justify-between">
+                <button class="text-white focus-visible:focus rounded-lg p-2 hover:bg-blue-900 transition-colors"
+                    onclick="goBack()" aria-label="Go back">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <h1 class="text-lg font-bold">Final Confirmation</h1>
+                <div class="w-8"></div>
+            </div>
+        </header>
+
+
+
+        <!-- Main Content -->
+        <main class="flex-grow p-4 space-y-6 slide-up">
+            <!-- Preview -->
+            <div class="invoice-section">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="material-symbols-outlined text-zepto-blue dark:text-primary">description</span>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Preview</h2>
+                </div>
+
+                <!-- Customer Details -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Bill To:</h4>
+                        <div id="customerDetails" class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                            <!-- Customer details will be populated -->
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Delivery Address:</h4>
+                        <div id="deliveryAddress" class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                            <!-- Delivery address will be populated -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Details -->
+                <div class="mb-6">
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-3">Plan Details:</h4>
+                    <div id="subscriptionItems" class="space-y-2">
+                        <!-- Subscription items will be populated -->
+                    </div>
+                </div>
+
+                <!-- Payment Summary -->
+                <div class="total-row">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
+                        <span id="subtotal" class="font-semibold">₹0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600 dark:text-gray-400">Delivery Charges:</span>
+                        <span class="font-semibold text-zepto-green">FREE</span>
+                    </div>
+                    <div class="flex justify-between items-center text-lg font-bold border-t border-gray-300 dark:border-zinc-500 pt-2">
+                        <span>Total Monthly:</span>
+                        <span id="totalAmount" class="text-zepto-blue dark:text-primary">₹0</span>
+                    </div>
+                </div>
+
+                <!-- Delivery Schedule -->
+                <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="material-symbols-outlined text-zepto-blue dark:text-primary">schedule</span>
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200">Delivery Schedule</h4>
+                    </div>
+                    <div id="deliverySchedule" class="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                        <!-- Schedule will be populated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auto-Payment Information -->
+            <div class="invoice-section">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-zepto-blue dark:text-primary">payment</span>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Auto-Payment Information</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-yellow-600 dark:text-yellow-400 mt-1">schedule</span>
+                            <div>
+                                <h4 class="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Payment Schedule</h4>
+                                <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-2">
+                                    Auto-payment will be processed 15 minutes before delivery time.
+                                </p>
+                                <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                    <strong>Tomorrow's delivery cost:</strong> <span id="tomorrowCost" class="font-bold">₹0</span> will be deducted from your account before 6:00 PM today.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-red-600 dark:text-red-400 mt-1">warning</span>
+                            <div>
+                                <h4 class="font-semibold text-red-800 dark:text-red-200 mb-2">Important Notice</h4>
+                                <p class="text-sm text-red-700 dark:text-red-300">
+                                    After order confirmation, if auto-payment fails to deduct money from your account, tomorrow's delivery will be cancelled automatically.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-green-600 dark:text-green-400 mt-1">info</span>
+                            <div>
+                                <h4 class="font-semibold text-green-800 dark:text-green-200 mb-2">Delivery Management</h4>
+                                <p class="text-sm text-green-700 dark:text-green-300 mb-1">
+                                    • You can skip deliveries before 6:00 PM the day before
+                                </p>
+                                <p class="text-sm text-green-700 dark:text-green-300">
+                                    • Your first delivery will start from tomorrow with SMS notifications
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="p-4 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200 dark:border-zinc-700">
+            <button onclick="confirmSubscription()" 
+                class="w-full bg-primary text-background-dark font-bold py-3 px-4 rounded-lg text-center hover:bg-yellow-500 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus">
+                Confirm Subscription
+            </button>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInvoiceData();
+        });
+
+        function loadInvoiceData() {
+
+            // Load customer details
+            const addressData = JSON.parse(localStorage.getItem('subscriptionAddress') || '{}');
+            const customerDetailsHTML = `
+                <p><strong>${addressData.fullName || 'Customer Name'}</strong></p>
+                <p>${addressData.phoneNumber || 'Phone Number'}</p>
+            `;
+            document.getElementById('customerDetails').innerHTML = customerDetailsHTML;
+
+            // Load delivery address
+            const deliveryAddressHTML = `
+                <p><strong>${addressData.address || 'Address'}</strong></p>
+                <p>${addressData.city || 'City'}, ${addressData.state || 'State'} - ${addressData.pincode || 'PIN'}</p>
+                ${addressData.deliveryInstructions ? `<p class="text-xs italic mt-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">Delivery Note: ${addressData.deliveryInstructions}</p>` : ''}
+            `;
+            document.getElementById('deliveryAddress').innerHTML = deliveryAddressHTML;
+
+            // Load delivery schedule
+            let scheduleHTML = '';
+            const morningEnabled = localStorage.getItem('morningDelivery') === 'true';
+            const eveningEnabled = localStorage.getItem('eveningDelivery') === 'true';
+
+            if (morningEnabled) {
+                const morningData = getMorningSubscriptionData();
+                scheduleHTML += createScheduleItem('🌅 Morning Delivery', morningData);
+            }
+
+            if (eveningEnabled) {
+                const eveningData = getEveningSubscriptionData();
+                scheduleHTML += createScheduleItem('🌆 Evening Delivery', eveningData);
+            }
+
+            document.getElementById('deliverySchedule').innerHTML = scheduleHTML;
+
+            // Load subscription items
+            let totalAmount = 0;
+            let subscriptionItemsHTML = '';
+
+            if (!subscriptionItemsHTML) {
+                subscriptionItemsHTML = '<p class="text-gray-500">No subscription items found</p>';
+            }
+
+            if (morningEnabled) {
+                const morningData = getMorningSubscriptionData();
+                subscriptionItemsHTML += createInvoiceItem('Morning Delivery', morningData);
+                totalAmount += morningData.monthlyPrice;
+            }
+
+            if (eveningEnabled) {
+                const eveningData = getEveningSubscriptionData();
+                subscriptionItemsHTML += createInvoiceItem('Evening Delivery', eveningData);
+                totalAmount += eveningData.monthlyPrice;
+            }
+
+            document.getElementById('subscriptionItems').innerHTML = subscriptionItemsHTML;
+            document.getElementById('subtotal').textContent = `₹${totalAmount}`;
+            document.getElementById('totalAmount').textContent = `₹${totalAmount}`;
+            
+            // Calculate tomorrow's delivery cost
+            let tomorrowCost = 0;
+            const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+            const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const tomorrowKey = dayKeys[(today + 1) % 7];
+            
+            if (morningEnabled) {
+                const morningData = getMorningSubscriptionData();
+                if (morningData.frequency === 'daily' || morningData.days.includes(tomorrowKey)) {
+                    tomorrowCost += morningData.dailyPrice;
+                }
+            }
+            
+            if (eveningEnabled) {
+                const eveningData = getEveningSubscriptionData();
+                if (eveningData.frequency === 'daily' || eveningData.days.includes(tomorrowKey)) {
+                    tomorrowCost += eveningData.dailyPrice;
+                }
+            }
+            
+            document.getElementById('tomorrowCost').textContent = `₹${tomorrowCost}`;
+        }
+
+        function getMorningSubscriptionData() {
+            const milkType = localStorage.getItem('morningMilkType') || 'buffalo';
+            const quantity = parseFloat(localStorage.getItem('morningQuantity') || '0.5');
+            const frequency = localStorage.getItem('morningFrequency') || 'daily';
+            const timeSlot = localStorage.getItem('morningTimeSlot') || '7:00-7:30';
+            const days = JSON.parse(localStorage.getItem('morningDays') || '[]');
+            
+            const milkPrice = milkType === 'buffalo' ? 50 : 40;
+            const dailyPrice = quantity * milkPrice;
+            const daysPerMonth = frequency === 'daily' ? 30 : days.length * 4;
+            const monthlyPrice = dailyPrice * daysPerMonth;
+
+            return {
+                milkType: milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk',
+                quantity: `${quantity}L`,
+                frequency: frequency,
+                days: days,
+                timeSlot: timeSlot,
+                dailyPrice: dailyPrice,
+                daysPerMonth: daysPerMonth,
+                monthlyPrice: monthlyPrice
+            };
+        }
+
+        function getEveningSubscriptionData() {
+            const milkType = localStorage.getItem('eveningMilkType') || 'cow';
+            const quantity = parseFloat(localStorage.getItem('eveningQuantity') || '0.5');
+            const frequency = localStorage.getItem('eveningFrequency') || 'alternate';
+            const timeSlot = localStorage.getItem('eveningTimeSlot') || '6:00-6:30';
+            const days = JSON.parse(localStorage.getItem('eveningDays') || '[]');
+            
+            const milkPrice = milkType === 'buffalo' ? 50 : 40;
+            const dailyPrice = quantity * milkPrice;
+            const daysPerMonth = frequency === 'daily' ? 30 : days.length * 4;
+            const monthlyPrice = dailyPrice * daysPerMonth;
+
+            return {
+                milkType: milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk',
+                quantity: `${quantity}L`,
+                frequency: frequency,
+                days: days,
+                timeSlot: timeSlot,
+                dailyPrice: dailyPrice,
+                daysPerMonth: daysPerMonth,
+                monthlyPrice: monthlyPrice
+            };
+        }
+
+        function createInvoiceItem(title, data) {
+            const dayNames = {
+                'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
+                'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
+            };
+            
+            let frequencyText = data.frequency === 'daily' ? 'Daily' : 'Alternate Days';
+            let daysText = '';
+            
+            if (data.frequency === 'alternate' && data.days && data.days.length > 0) {
+                const shortDays = data.days.map(day => dayNames[day] || day).join(', ');
+                daysText = ` (${shortDays})`;
+            }
+            
+            return `
+                <div class="invoice-item">
+                    <div>
+                        <h5 class="font-semibold text-gray-800 dark:text-gray-200">${title}</h5>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            ${data.quantity} ${data.milkType} • ${frequencyText}${daysText} • ${data.timeSlot}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-500">
+                            ₹${data.dailyPrice}/day × ${data.daysPerMonth} days
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-gray-800 dark:text-gray-200">₹${data.monthlyPrice}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-500">per month</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createScheduleItem(title, data) {
+            const dayNames = {
+                'monday': 'Monday', 'tuesday': 'Tuesday', 'wednesday': 'Wednesday',
+                'thursday': 'Thursday', 'friday': 'Friday', 'saturday': 'Saturday', 'sunday': 'Sunday'
+            };
+            
+            let scheduleText = '';
+            if (data.frequency === 'daily') {
+                scheduleText = 'Every day';
+            } else if (data.days && data.days.length > 0) {
+                const daysList = data.days.map(day => dayNames[day] || day).join(', ');
+                scheduleText = daysList;
+            }
+            
+            return `
+                <div class="flex items-start gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <div class="flex-1">
+                        <h5 class="font-semibold text-gray-800 dark:text-gray-200">${title}</h5>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            ${data.quantity} ${data.milkType} at ${data.timeSlot}
+                        </p>
+                        <p class="text-xs text-blue-600 dark:text-blue-400 mt-1 font-medium">
+                            📅 ${scheduleText}
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">₹${data.dailyPrice}/day</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function confirmSubscription() {
+            const button = event.target;
+            button.textContent = 'Processing...';
+            button.disabled = true;
+
+            try {
+                // Save subscription data
+                saveSubscriptionData();
+                
+                // Redirect to payment page
+                setTimeout(() => {
+                    window.location.href = 'Payment Setup.html';
+                }, 500);
+            } catch (error) {
+                console.error('Error:', error);
+                button.textContent = 'Confirm Subscription';
+                button.disabled = false;
+            }
+        }
+        
+        function saveSubscriptionData() {
+            const addressData = JSON.parse(localStorage.getItem('subscriptionAddress') || '{}');
+            
+            const subscription = {
+                id: Date.now(),
+                customer: {
+                    name: addressData.fullName || 'Customer',
+                    phone: addressData.phoneNumber || '0000000000',
+                    address: `${addressData.address || 'Address'}, ${addressData.city || 'City'}, ${addressData.state || 'State'} - ${addressData.pincode || 'PIN'}`
+                },
+                morningDelivery: {
+                    enabled: localStorage.getItem('morningDelivery') === 'true',
+                    milkType: localStorage.getItem('morningMilkType'),
+                    quantity: parseFloat(localStorage.getItem('morningQuantity') || '0'),
+                    timeSlot: localStorage.getItem('morningTimeSlot'),
+                    frequency: localStorage.getItem('morningFrequency'),
+                    days: JSON.parse(localStorage.getItem('morningDays') || '[]')
+                },
+                eveningDelivery: {
+                    enabled: localStorage.getItem('eveningDelivery') === 'true',
+                    milkType: localStorage.getItem('eveningMilkType'),
+                    quantity: parseFloat(localStorage.getItem('eveningQuantity') || '0'),
+                    timeSlot: localStorage.getItem('eveningTimeSlot'),
+                    frequency: localStorage.getItem('eveningFrequency'),
+                    days: JSON.parse(localStorage.getItem('eveningDays') || '[]')
+                },
+                status: 'pending_payment',
+                joinedDate: new Date().toISOString().split('T')[0]
+            };
+            
+            localStorage.setItem('pendingSubscription', JSON.stringify(subscription));
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+
+</html>

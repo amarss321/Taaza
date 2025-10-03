@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taaza - Payment Setup</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFD700",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#0C2D57",
+                        "zepto-blue": "#0C2D57",
+                        "zepto-yellow": "#FFD700",
+                        "zepto-green": "#10B981",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .payment-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .payment-option:hover {
+            border-color: #0C2D57;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(12, 45, 87, 0.15);
+        }
+
+        .payment-option.selected {
+            border-color: #0C2D57;
+            background-color: rgba(12, 45, 87, 0.05);
+            box-shadow: 0 4px 12px rgba(12, 45, 87, 0.15);
+        }
+
+        .dark .payment-option {
+            border-color: #374151;
+            background-color: #1f2937;
+        }
+
+        .dark .payment-option:hover {
+            border-color: #FFD700;
+        }
+
+        .dark .payment-option.selected {
+            border-color: #FFD700;
+            background-color: rgba(255, 215, 0, 0.1);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+
+<body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="bg-background-dark text-white p-4 sticky top-0 z-20 shadow-md">
+            <div class="container mx-auto flex items-center justify-between">
+                <button class="text-white focus-visible:focus rounded-lg p-2 hover:bg-blue-900 transition-colors"
+                    onclick="goBack()" aria-label="Go back">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <h1 class="text-lg font-bold">Payment Setup</h1>
+                <div class="w-8"></div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-4 space-y-6 slide-up">
+            <!-- Order Summary -->
+            <div class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
+                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">Order Summary</h2>
+                <div id="orderSummary" class="space-y-2 mb-4">
+                    <!-- Order details will be populated -->
+                </div>
+                <div class="border-t border-gray-200 dark:border-zinc-600 pt-3">
+                    <div class="flex justify-between items-center font-bold text-lg">
+                        <span>Total Amount:</span>
+                        <span id="totalAmount" class="text-zepto-blue dark:text-primary">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-zepto-blue dark:text-primary">payment</span>
+                    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Choose Payment Method</h2>
+                    <span class="text-red-500 text-sm font-medium">*Required</span>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="payment-option" onclick="selectPayment('upi')" id="upi-option">
+                        <div class="flex items-center gap-4">
+                            <input type="radio" name="payment" value="upi" class="w-5 h-5 text-blue-600">
+                            <div class="flex items-center gap-3 flex-1">
+                                <span class="text-3xl">📱</span>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">UPI Payment</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Pay using Google Pay, PhonePe, Paytm</p>
+                                </div>
+                            </div>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Recommended</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-option" onclick="selectPayment('card')" id="card-option">
+                        <div class="flex items-center gap-4">
+                            <input type="radio" name="payment" value="card" class="w-5 h-5 text-blue-600">
+                            <div class="flex items-center gap-3 flex-1">
+                                <span class="text-3xl">💳</span>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">Credit/Debit Card</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Visa, Mastercard, RuPay</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-option" onclick="selectPayment('cod')" id="cod-option">
+                        <div class="flex items-center gap-4">
+                            <input type="radio" name="payment" value="cod" class="w-5 h-5 text-blue-600">
+                            <div class="flex items-center gap-3 flex-1">
+                                <span class="text-3xl">💵</span>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">Cash on Delivery</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Pay when milk is delivered</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto-Payment Option -->
+                <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="checkbox" id="autoPayment" class="w-4 h-4 text-blue-600 rounded" checked>
+                        <label for="autoPayment" class="text-sm font-medium text-blue-800 dark:text-blue-200">Enable Auto-Payment</label>
+                    </div>
+                    <p class="text-xs text-blue-700 dark:text-blue-300 ml-6">
+                        Automatically charge for each delivery. You can disable this anytime.
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="p-4 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200 dark:border-zinc-700">
+            <button onclick="processPayment()" id="payBtn" disabled
+                class="w-full bg-gray-400 text-white font-bold py-3 px-4 rounded-lg text-center transition-all duration-200 disabled:cursor-not-allowed">
+                Select Payment Method
+            </button>
+        </footer>
+    </div>
+
+    <script>
+        let selectedPaymentMethod = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrderSummary();
+        });
+
+        function loadOrderSummary() {
+            const subscription = JSON.parse(localStorage.getItem('pendingSubscription') || '{}');
+            let summaryHTML = '';
+            let totalAmount = 0;
+
+            if (subscription.morningDelivery && subscription.morningDelivery.enabled) {
+                const morning = subscription.morningDelivery;
+                const milkPrice = morning.milkType === 'buffalo' ? 50 : 40;
+                const dailyPrice = morning.quantity * milkPrice;
+                const daysPerMonth = morning.frequency === 'daily' ? 30 : morning.days.length * 4;
+                const monthlyPrice = dailyPrice * daysPerMonth;
+                totalAmount += monthlyPrice;
+
+                summaryHTML += `
+                    <div class="flex justify-between items-center">
+                        <span>Morning: ${morning.quantity}L ${morning.milkType === 'buffalo' ? 'Buffalo' : 'Cow'} Milk</span>
+                        <span>₹${monthlyPrice}/month</span>
+                    </div>
+                `;
+            }
+
+            if (subscription.eveningDelivery && subscription.eveningDelivery.enabled) {
+                const evening = subscription.eveningDelivery;
+                const milkPrice = evening.milkType === 'buffalo' ? 50 : 40;
+                const dailyPrice = evening.quantity * milkPrice;
+                const daysPerMonth = evening.frequency === 'daily' ? 30 : evening.days.length * 4;
+                const monthlyPrice = dailyPrice * daysPerMonth;
+                totalAmount += monthlyPrice;
+
+                summaryHTML += `
+                    <div class="flex justify-between items-center">
+                        <span>Evening: ${evening.quantity}L ${evening.milkType === 'buffalo' ? 'Buffalo' : 'Cow'} Milk</span>
+                        <span>₹${monthlyPrice}/month</span>
+                    </div>
+                `;
+            }
+
+            document.getElementById('orderSummary').innerHTML = summaryHTML;
+            document.getElementById('totalAmount').textContent = `₹${totalAmount}`;
+        }
+
+        function selectPayment(method) {
+            // Remove previous selection
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+                option.querySelector('input').checked = false;
+            });
+
+            // Add selection to clicked option
+            const selectedOption = document.getElementById(`${method}-option`);
+            selectedOption.classList.add('selected');
+            selectedOption.querySelector('input').checked = true;
+
+            selectedPaymentMethod = method;
+            updatePayButton();
+        }
+
+        function updatePayButton() {
+            const button = document.getElementById('payBtn');
+            if (selectedPaymentMethod) {
+                button.disabled = false;
+                button.classList.remove('bg-gray-400');
+                button.classList.add('bg-primary', 'hover:bg-yellow-500', 'transform', 'hover:scale-[1.02]', 'active:scale-[0.98]');
+                button.textContent = 'Confirm & Pay';
+            } else {
+                button.disabled = true;
+                button.classList.add('bg-gray-400');
+                button.classList.remove('bg-primary', 'hover:bg-yellow-500', 'transform', 'hover:scale-[1.02]', 'active:scale-[0.98]');
+                button.textContent = 'Select Payment Method';
+            }
+        }
+
+        function processPayment() {
+            if (!selectedPaymentMethod) {
+                showToast('Please select a payment method', 'error');
+                return;
+            }
+
+            const button = document.getElementById('payBtn');
+            button.textContent = 'Processing Payment...';
+            button.disabled = true;
+
+            // Save payment method
+            const paymentData = {
+                method: selectedPaymentMethod,
+                autoPayment: document.getElementById('autoPayment').checked,
+                timestamp: new Date().toISOString()
+            };
+
+            // Complete subscription
+            const subscription = JSON.parse(localStorage.getItem('pendingSubscription') || '{}');
+            subscription.status = 'active';
+            subscription.payment = paymentData;
+            subscription.nextDelivery = new Date(Date.now() + 24*60*60*1000).toISOString().split('T')[0];
+
+            // Save to active subscriptions
+            const existingSubscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            existingSubscriptions.push(subscription);
+            localStorage.setItem('userSubscriptions', JSON.stringify(existingSubscriptions));
+
+            // Clean up
+            localStorage.removeItem('pendingSubscription');
+
+            // Simulate payment processing
+            setTimeout(() => {
+                showToast('Payment successful!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'Subscription Confirmed page.html';
+                }, 1000);
+            }, 2000);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-500' : 'bg-green-500';
+            toast.className = `fixed top-20 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+
+</html>
