@@ -51,6 +51,14 @@
             margin-bottom: 16px;
             transition: all 0.3s ease;
         }
+        
+        @media (max-width: 640px) {
+            .time-slot-card {
+                border-radius: 16px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+        }
 
         .time-slot-card.active {
             border-color: #0C2D57;
@@ -81,8 +89,10 @@
         @media (max-width: 640px) {
             .time-slot-header {
                 padding: 12px;
-                flex-wrap: wrap;
+                flex-direction: row;
                 gap: 8px;
+                align-items: center;
+                justify-content: space-between;
             }
         }
 
@@ -108,7 +118,9 @@
 
         @media (max-width: 640px) {
             .time-slot-title {
-                gap: 8px;
+                gap: 6px;
+                flex: 1;
+                min-width: 0;
             }
         }
 
@@ -129,7 +141,7 @@
 
         @media (max-width: 640px) {
             .time-slot-name {
-                font-size: 14px;
+                font-size: 15px;
             }
         }
 
@@ -144,7 +156,7 @@
 
         @media (max-width: 640px) {
             .time-slot-time {
-                font-size: 12px;
+                font-size: 13px;
             }
         }
 
@@ -211,8 +223,8 @@
 
         @media (max-width: 640px) {
             .time-slot-content.expanded {
-                padding: 12px;
-                max-height: 800px;
+                padding: 16px;
+                max-height: none;
             }
         }
 
@@ -233,8 +245,9 @@
 
         @media (max-width: 640px) {
             .option-group-title {
-                font-size: 13px;
-                margin-bottom: 6px;
+                font-size: 14px;
+                margin-bottom: 8px;
+                font-weight: 600;
             }
         }
 
@@ -308,7 +321,7 @@
         @media (max-width: 640px) {
             .frequency-options {
                 flex-direction: column;
-                gap: 8px;
+                gap: 12px;
             }
         }
 
@@ -325,7 +338,11 @@
 
         @media (max-width: 640px) {
             .frequency-option {
-                padding: 10px 8px;
+                padding: 12px 16px;
+                min-height: 56px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
             }
         }
 
@@ -484,15 +501,67 @@
 
         .spinner {
             animation: spin 1s linear infinite;
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0C2D57;
+            border-radius: 50%;
+        }
+
+        .spinner-large {
+            width: 24px;
+            height: 24px;
+            border-width: 3px;
         }
 
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
             }
-
             100% {
                 transform: rotate(360deg);
+            }
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: inherit;
+        }
+
+        .dark .loading-overlay {
+            background: rgba(31, 41, 55, 0.8);
+        }
+
+        .loading-text {
+            margin-left: 8px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .dark .loading-text {
+            color: #9ca3af;
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
             }
         }
 
@@ -502,13 +571,40 @@
             border-radius: 2px;
             overflow: hidden;
             margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .progress-bar.show {
+            opacity: 1;
         }
 
         .progress {
             height: 100%;
             background-color: #10B981;
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.5s ease;
+            background-image: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 20px 20px;
+            animation: progress-animation 1s linear infinite;
+        }
+
+        @keyframes progress-animation {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 20px 0;
+            }
         }
 
         .toast {
@@ -600,7 +696,7 @@
         @media (max-width: 640px) {
             .milk-type-options {
                 grid-template-columns: 1fr;
-                gap: 8px;
+                gap: 12px;
             }
         }
 
@@ -834,8 +930,9 @@
 
         @media (max-width: 640px) {
             select {
-                padding: 10px 2rem 10px 12px;
-                font-size: 14px;
+                padding: 12px 2.5rem 12px 12px;
+                font-size: 16px;
+                min-height: 48px;
             }
         }
 
@@ -986,27 +1083,37 @@
         @media (max-width: 480px) {
             .time-slot-header {
                 padding: 12px;
-                flex-direction: column;
-                gap: 12px;
-                align-items: stretch;
+                flex-direction: row;
+                gap: 8px;
+                align-items: center;
+                justify-content: space-between;
             }
             
             .time-slot-title {
-                justify-content: center;
-                text-align: center;
+                flex: 1;
+                min-width: 0;
             }
             
             .time-slot-toggle {
-                justify-content: center;
+                flex-shrink: 0;
+            }
+            
+            .time-slot-name {
+                font-size: 13px;
+            }
+            
+            .time-slot-time {
+                font-size: 11px;
             }
             
             .time-slot-content.expanded {
-                padding: 12px;
+                padding: 16px;
             }
             
             .milk-type-option {
-                padding: 12px;
-                min-height: 90px;
+                padding: 16px;
+                min-height: 100px;
+                border-radius: 12px;
             }
             
             /* Stack quantity options vertically */
@@ -1017,7 +1124,7 @@
             
             /* Larger touch targets */
             .toggle-switch {
-                width: 52px;
+                width: 56px;
                 height: 32px;
             }
             
@@ -1029,7 +1136,21 @@
             }
             
             input:checked+.toggle-slider:before {
-                transform: translateX(20px);
+                transform: translateX(24px);
+            }
+            
+            .section-header {
+                margin-bottom: 16px;
+                padding: 8px 0;
+            }
+            
+            .option-group {
+                margin-bottom: 20px;
+            }
+            
+            .time-slot-card {
+                margin-bottom: 16px;
+                border-radius: 16px;
             }
         }
         
@@ -1088,10 +1209,10 @@
         <!-- Main Content -->
         <main class="flex-grow p-3 sm:p-4 space-y-4 sm:space-y-6 slide-up">
             <!-- Delivery Time Slot with Quantity and Frequency Selection -->
-            <div class="bg-white dark:bg-zinc-800 rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
-                <div class="section-header">
+            <div class="bg-white dark:bg-zinc-800 rounded-xl p-4 sm:p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
+                <div class="section-header mb-4">
                     <span class="material-symbols-outlined section-icon">schedule</span>
-                    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Delivery Schedule</h2>
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200">Delivery Schedule</h2>
                 </div>
 
                 <!-- Morning Time Slot Card -->
@@ -1105,21 +1226,25 @@
                             </div>
                         </div>
                         <div class="time-slot-toggle flex items-center gap-2 flex-shrink-0">
-                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 cursor-pointer" onclick="setToggleState('morning', false)">OFF</span>
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 cursor-pointer font-medium" onclick="setToggleState('morning', false)">OFF</span>
                             <label class="toggle-switch">
                                 <input type="checkbox" checked id="morning-toggle"
                                     onchange="toggleTimeSlotEnabled('morning')">
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span class="text-xs sm:text-sm text-zepto-yellow cursor-pointer" onclick="setToggleState('morning', true)">ON</span>
+                            <span class="text-xs sm:text-sm text-zepto-yellow cursor-pointer font-medium" onclick="setToggleState('morning', true)">ON</span>
                         </div>
                     </div>
                     <div class="time-slot-content expanded" id="morning-content">
                         <!-- Milk Type Selection for Morning Slot -->
-                        <div class="slot-milk-type">
+                        <div class="slot-milk-type relative">
                             <div class="slot-milk-type-title">Select Milk Type for Morning Delivery</div>
                             <div class="milk-type-options" id="morning-milk-options">
                                 <!-- Options will be dynamically generated -->
+                            </div>
+                            <div id="morning-milk-loading" class="loading-overlay hidden">
+                                <div class="spinner spinner-large"></div>
+                                <span class="loading-text">Checking availability...</span>
                             </div>
                         </div>
 
@@ -1172,20 +1297,24 @@
                             </div>
                         </div>
                         <div class="time-slot-toggle flex items-center gap-2 flex-shrink-0">
-                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 cursor-pointer" onclick="setToggleState('evening', false)">OFF</span>
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 cursor-pointer font-medium" onclick="setToggleState('evening', false)">OFF</span>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="evening-toggle" onchange="toggleTimeSlotEnabled('evening')">
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span class="text-xs sm:text-sm text-zepto-yellow cursor-pointer" onclick="setToggleState('evening', true)">ON</span>
+                            <span class="text-xs sm:text-sm text-zepto-yellow cursor-pointer font-medium" onclick="setToggleState('evening', true)">ON</span>
                         </div>
                     </div>
                     <div class="time-slot-content" id="evening-content">
                         <!-- Milk Type Selection for Evening Slot -->
-                        <div class="slot-milk-type">
+                        <div class="slot-milk-type relative">
                             <div class="slot-milk-type-title">Select Milk Type for Evening Delivery</div>
                             <div class="milk-type-options" id="evening-milk-options">
                                 <!-- Options will be dynamically generated -->
+                            </div>
+                            <div id="evening-milk-loading" class="loading-overlay hidden">
+                                <div class="spinner spinner-large"></div>
+                                <span class="loading-text">Checking availability...</span>
                             </div>
                         </div>
 
@@ -1254,12 +1383,16 @@
             class="p-3 sm:p-4 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200 dark:border-zinc-700 z-[1001]"
             style="z-index:1001;">
             <button id="confirm-btn" onclick="confirmSubscription(event)"
-                class="w-full bg-primary text-background-dark font-bold py-3 px-4 rounded-lg text-center hover:bg-yellow-500 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus"
+                class="w-full bg-primary text-background-dark font-bold py-3 px-4 rounded-lg text-center hover:bg-yellow-500 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 style="pointer-events:auto;z-index:1002;">
-                Continue with Subscription
+                <span id="btn-text">Continue with Subscription</span>
+                <span id="btn-spinner" class="spinner spinner-large hidden ml-2"></span>
             </button>
-            <div id="progress-bar" class="progress-bar hidden">
+            <div id="progress-bar" class="progress-bar">
                 <div class="progress" id="progress"></div>
+            </div>
+            <div id="loading-status" class="text-center text-sm text-gray-600 dark:text-gray-400 mt-2 hidden">
+                Processing your subscription...
             </div>
         </footer>
     </div>
@@ -1767,6 +1900,15 @@
                 return;
             }
             
+            // Show loading state
+            const submitBtn = document.querySelector('#notify-modal button[onclick="submitNotificationRequest()"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner mr-2"></div>Submitting...';
+            
+            // Simulate API call
+            setTimeout(() => {
+            
             // Create notification request
             const existingQueue = localStorage.getItem('stockWaitingQueue');
             console.log('🗄️ User: Existing queue data:', existingQueue);
@@ -1813,18 +1955,23 @@
             console.log('🗄️ Raw saved data:', savedData);
             console.log('📋 Parsed saved data:', JSON.parse(savedData));
             
-            closeNotifyModal();
-            showToast(`Thank you ${name}! We'll notify you when ${milkType} milk is available for ${timeSlots.join(' and ')} delivery.`);
-            
-            console.log('✅ Notification request submitted successfully:', {
-                customerName: name,
-                phoneNumber: phone,
-                milkType: milkType,
-                timeSlots: timeSlots,
-                quantity: quantity,
-                totalRequests: queue.length,
-                finalQueue: queue
-            });
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                
+                closeNotifyModal();
+                showToast(`Thank you ${name}! We'll notify you when ${milkType} milk is available for ${timeSlots.join(' and ')} delivery.`);
+                
+                console.log('✅ Notification request submitted successfully:', {
+                    customerName: name,
+                    phoneNumber: phone,
+                    milkType: milkType,
+                    timeSlots: timeSlots,
+                    quantity: quantity,
+                    totalRequests: queue.length,
+                    finalQueue: queue
+                });
+            }, 1000);
         }
         
         // Generate milk type options with stock availability
@@ -1883,23 +2030,37 @@
         
         // Initialize milk type selection
         function initializeMilkTypeSelection(slot) {
-            generateMilkTypeOptions(slot);
+            showMilkTypeLoading(slot);
+            
+            // Simulate loading delay for better UX
+            setTimeout(() => {
+                generateMilkTypeOptions(slot);
+                hideMilkTypeLoading(slot);
+            }, 300);
             
             // Add event listeners
             const container = document.getElementById(`${slot}-milk-options`);
             container.addEventListener('change', function(e) {
                 if (e.target.name === `${slot}_milk_type`) {
+                    // Show loading for quantity update
+                    const quantitySelect = document.getElementById(`${slot}-quantity-select`);
+                    quantitySelect.disabled = true;
+                    quantitySelect.innerHTML = '<option>Loading...</option>';
+                    
                     // Update visual selection
                     container.querySelectorAll('.milk-type-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
                     e.target.closest('.milk-type-option').classList.add('selected');
                     
-                    // Update quantity options
-                    updateQuantityOptions(slot);
-                    
-                    // Update summary
-                    updateSummary();
+                    // Update quantity options with delay
+                    setTimeout(() => {
+                        updateQuantityOptions(slot);
+                        quantitySelect.disabled = false;
+                        
+                        // Update summary
+                        updateSummary();
+                    }, 200);
                 }
             });
         }
@@ -2333,6 +2494,65 @@
             return item;
         }
 
+        // Show loading state for button
+        function showButtonLoading(text = 'Processing...') {
+            const button = document.getElementById('confirm-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+            const progressBar = document.getElementById('progress-bar');
+            const loadingStatus = document.getElementById('loading-status');
+            
+            button.disabled = true;
+            btnText.textContent = text;
+            btnSpinner.classList.remove('hidden');
+            progressBar.classList.add('show');
+            loadingStatus.classList.remove('hidden');
+            
+            // Animate progress bar
+            const progress = document.getElementById('progress');
+            let width = 0;
+            const interval = setInterval(() => {
+                width += 2;
+                progress.style.width = width + '%';
+                if (width >= 90) {
+                    clearInterval(interval);
+                }
+            }, 50);
+        }
+        
+        // Hide loading state for button
+        function hideButtonLoading(text = 'Continue with Subscription') {
+            const button = document.getElementById('confirm-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+            const progressBar = document.getElementById('progress-bar');
+            const loadingStatus = document.getElementById('loading-status');
+            const progress = document.getElementById('progress');
+            
+            button.disabled = false;
+            btnText.textContent = text;
+            btnSpinner.classList.add('hidden');
+            progressBar.classList.remove('show');
+            loadingStatus.classList.add('hidden');
+            progress.style.width = '0%';
+        }
+        
+        // Show loading for milk type selection
+        function showMilkTypeLoading(slot) {
+            const loading = document.getElementById(`${slot}-milk-loading`);
+            if (loading) {
+                loading.classList.remove('hidden');
+            }
+        }
+        
+        // Hide loading for milk type selection
+        function hideMilkTypeLoading(slot) {
+            const loading = document.getElementById(`${slot}-milk-loading`);
+            if (loading) {
+                loading.classList.add('hidden');
+            }
+        }
+
         // Confirm subscription
         function confirmSubscription(event) {
             // Check if at least one delivery slot is enabled
@@ -2386,15 +2606,18 @@
                 modal.style.display = 'none';
             });
 
-            const button = document.getElementById('confirm-btn');
-            const progressBar = document.getElementById('progress-bar');
-            const progress = document.getElementById('progress');
-
             // Show loading state
-            button.disabled = true;
-            button.textContent = 'Processing...';
+            showButtonLoading('Processing Subscription...');
 
-            // Simulate processing
+            // Simulate processing with realistic steps
+            setTimeout(() => {
+                document.getElementById('loading-status').textContent = 'Validating availability...';
+            }, 500);
+            
+            setTimeout(() => {
+                document.getElementById('loading-status').textContent = 'Confirming delivery slots...';
+            }, 1500);
+            
             setTimeout(() => {
                     
                     // Save subscription status and detailed data
@@ -2450,6 +2673,10 @@
                         localStorage.setItem('eveningDelivery', 'false');
                     }
                     
+                    // Complete progress bar
+                    document.getElementById('progress').style.width = '100%';
+                    document.getElementById('loading-status').textContent = 'Finalizing subscription...';
+                    
                     // Check if this was an update
                     const isEditing = localStorage.getItem('editingSubscription') === 'true';
                     
@@ -2459,18 +2686,20 @@
                         localStorage.setItem('subscriptionUpdate', 'true');
                         localStorage.removeItem('editingSubscription');
                         
-                        showToast('Plan Updated ✓');
+                        hideButtonLoading('Plan Updated ✓');
+                        showToast('Plan Updated Successfully!');
                         setTimeout(() => {
                             window.location.href = 'Subscription Confirmed page.html';
-                        }, 1000);
+                        }, 1500);
                     } else {
                         // For new subscriptions, continue to address setup
-                        showToast('Subscribed ✓');
+                        hideButtonLoading('Subscription Created ✓');
+                        showToast('Subscription Created Successfully!');
                         setTimeout(() => {
                             window.location.href = 'Address Setup.html';
-                        }, 1000);
+                        }, 1500);
                     }
-            }, 1000);
+            }, 2500);
         }
 
         // Show toast notification
