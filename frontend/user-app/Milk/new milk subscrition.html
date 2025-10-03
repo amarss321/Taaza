@@ -1888,15 +1888,15 @@
             
             // Validation
             if (!name) {
-                showToast('Please enter your name');
+                showToast('Enter name');
                 return;
             }
             if (!phone || phone.length < 10) {
-                showToast('Please enter a valid phone number (minimum 10 digits)');
+                showToast('Valid phone required');
                 return;
             }
             if (!morningSelected && !eveningSelected) {
-                showToast('Please select at least one delivery time');
+                showToast('Select delivery time');
                 return;
             }
             
@@ -1960,7 +1960,7 @@
                 submitBtn.textContent = originalText;
                 
                 closeNotifyModal();
-                showToast(`Thank you ${name}! We'll notify you when ${milkType} milk is available for ${timeSlots.join(' and ')} delivery.`);
+                showToast('Notification sent');
                 
                 console.log('✅ Notification request submitted successfully:', {
                     customerName: name,
@@ -2505,8 +2505,6 @@
             button.disabled = true;
             btnText.textContent = text;
             btnSpinner.classList.remove('hidden');
-            progressBar.classList.add('show');
-            loadingStatus.classList.remove('hidden');
             
             // Animate progress bar
             const progress = document.getElementById('progress');
@@ -2532,9 +2530,6 @@
             button.disabled = false;
             btnText.textContent = text;
             btnSpinner.classList.add('hidden');
-            progressBar.classList.remove('show');
-            loadingStatus.classList.add('hidden');
-            progress.style.width = '0%';
         }
         
         // Show loading for milk type selection
@@ -2560,7 +2555,7 @@
             const eveningEnabled = document.getElementById('evening-toggle').checked;
             
             if (!morningEnabled && !eveningEnabled) {
-                showToast('Please select at least one delivery time slot');
+                showToast('Select delivery slot');
                 return;
             }
             
@@ -2597,7 +2592,7 @@
             }
             
             if (!hasValidPlan) {
-                showToast(errorMessage || 'Please complete your delivery plan selection');
+                showToast('Complete plan selection');
                 return;
             }
             
@@ -2610,13 +2605,7 @@
             showButtonLoading('Processing Subscription...');
 
             // Simulate processing with realistic steps
-            setTimeout(() => {
-                document.getElementById('loading-status').textContent = 'Validating availability...';
-            }, 500);
-            
-            setTimeout(() => {
-                document.getElementById('loading-status').textContent = 'Confirming delivery slots...';
-            }, 1500);
+            // Processing subscription
             
             setTimeout(() => {
                     
@@ -2673,9 +2662,7 @@
                         localStorage.setItem('eveningDelivery', 'false');
                     }
                     
-                    // Complete progress bar
-                    document.getElementById('progress').style.width = '100%';
-                    document.getElementById('loading-status').textContent = 'Finalizing subscription...';
+                    // Processing complete
                     
                     // Check if this was an update
                     const isEditing = localStorage.getItem('editingSubscription') === 'true';
@@ -2686,32 +2673,17 @@
                         localStorage.setItem('subscriptionUpdate', 'true');
                         localStorage.removeItem('editingSubscription');
                         
-                        hideButtonLoading('Plan Updated ✓');
-                        showToast('Plan Updated Successfully!');
-                        setTimeout(() => {
-                            window.location.href = 'Subscription Confirmed page.html';
-                        }, 1500);
+                        hideButtonLoading('Continue with Subscription');
+                        window.location.href = 'Subscription Confirmed page.html';
                     } else {
                         // For new subscriptions, continue to address setup
-                        hideButtonLoading('Subscription Created ✓');
-                        showToast('Subscription Created Successfully!');
-                        setTimeout(() => {
-                            window.location.href = 'Address Setup.html';
-                        }, 1500);
+                        hideButtonLoading('Continue with Subscription');
+                        window.location.href = 'Address Setup.html';
                     }
             }, 2500);
         }
 
-        // Show toast notification
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toast-message');
-            toastMessage.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
+
 
         // Load existing subscription data for editing
         function loadExistingSubscriptionData() {
@@ -2949,6 +2921,17 @@
         }
         
         window.clearNotificationQueue = clearNotificationQueue;
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
 
         // Go back function
         function goBack() {

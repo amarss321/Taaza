@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taaza - Summary</title>
+    <title>Taaza - Subscription Summary</title>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
@@ -147,7 +147,7 @@
                     onclick="goBack()" aria-label="Go back">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
-                <h1 class="text-lg font-bold">Summary</h1>
+                <h1 class="text-lg font-bold">Subscription Summary</h1>
                 <div class="w-8"></div>
             </div>
         </header>
@@ -197,43 +197,25 @@
                 
                 <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
                     <div class="space-y-6">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                                1
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Delivery Skip Policy</h4>
-                                <p class="text-sm text-gray-700 dark:text-gray-300">
-                                    To skip any delivery, customers must notify us before 6:00 PM on the day prior to the scheduled delivery date.
-                                </p>
-                            </div>
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Delivery Skip Policy</h4>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">
+                                To skip any delivery, customers must skip before 6:00 PM on the day prior to the scheduled delivery date.
+                            </p>
                         </div>
                         
-                        <div class="flex items-start gap-4">
-                            <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                                2
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Auto-Payment Terms</h4>
-                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                                    Daily auto-payment will be processed at 5:30 PM from the customer's registered account for the following day's delivery.
-                                </p>
-                                <p class="text-sm text-gray-700 dark:text-gray-300">
-                                    In case of payment failure, the next day's delivery will be automatically cancelled without prior notice.
-                                </p>
-                            </div>
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Auto-Payment Processing</h4>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">
+                                Daily auto-payment will be processed at 5:30 PM from the customer's registered account for the next day delivery only.
+                            </p>
                         </div>
                         
-                        <div class="flex items-start gap-4">
-                            <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                                3
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Subscription Cancellation</h4>
-                                <p class="text-sm text-gray-700 dark:text-gray-300">
-                                    Customers may cancel their subscription plan at any time through their account dashboard or by contacting customer support.
-                                </p>
-                            </div>
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Payment Failure Policy</h4>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">
+                                In case of payment failure, the next day delivery will be automatically cancelled without prior notice.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -246,10 +228,7 @@
         <footer class="p-4 bg-white/95 dark:bg-zinc-800/95 backdrop-blur-md sticky bottom-0 border-t border-gray-200 dark:border-zinc-700 shadow-lg">
             <button onclick="confirmSubscription()" 
                 class="w-full bg-gradient-to-r from-primary to-yellow-400 text-background-dark font-bold py-4 px-6 rounded-xl text-center hover:from-yellow-400 hover:to-primary transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus shadow-lg">
-                <span class="flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined">check_circle</span>
-                    Continue with Payment
-                </span>
+                Continue with Auto-Pay
             </button>
         </footer>
     </div>
