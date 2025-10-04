@@ -1190,6 +1190,7 @@
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script src="price-api.js"></script>
 </head>
 
 <body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
@@ -1632,13 +1633,9 @@
     </div>
 
     <script>
-        // Step 2: Load milk prices from admin inventory
-        function getMilkPrices() {
-            const adminStock = JSON.parse(localStorage.getItem('adminStockData') || '{}');
-            return {
-                buffalo: adminStock.buffalo?.price || 50,
-                cow: adminStock.cow?.price || 40
-            };
+        // Get milk prices from API
+        async function getMilkPrices() {
+            return await getMilkPricesFromAPI();
         }
         
         // Dynamic pricing - updates from admin
@@ -1780,7 +1777,7 @@
         window.createTestNotifyRequest = createTestNotifyRequest;
 
         // Initialize the page
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             // Initialize stock data first
             initializeStockData();
             
@@ -1791,12 +1788,12 @@
             const isEditing = localStorage.getItem('editingSubscription') === 'true';
             
             // Initialize milk type selection for both slots
-            initializeMilkTypeSelection('morning');
-            initializeMilkTypeSelection('evening');
+            await initializeMilkTypeSelection('morning');
+            await initializeMilkTypeSelection('evening');
 
             // Initialize quantity options for both slots
-            updateQuantityOptions('morning');
-            updateQuantityOptions('evening');
+            await updateQuantityOptions('morning');
+            await updateQuantityOptions('evening');
 
             // Initialize time slot dropdowns
             initializeTimeSlotDropdowns();
@@ -1834,22 +1831,27 @@
             if (eveningCowPrice) eveningCowPrice.textContent = `₹${prices.cow}/L - Light & Healthy`;
         }
 
-        // Check stock availability
-        function checkStockAvailability(milkType, timeSlot, quantity) {
-            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
-            
-            // Debug: Log the stock data
-            console.log('Stock Data:', stockData);
-            console.log('Checking:', milkType, timeSlot, quantity);
-            
-            if (!stockData[milkType] || !stockData[milkType][timeSlot]) {
-                console.log('No stock data found for:', milkType, timeSlot);
+        // Check stock availability via API
+        async function checkStockAvailability(milkType, timeSlot, quantity) {
+            try {
+                const response = await fetch('/api/v1/inventory/stock');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const result = await response.json();
+                const stockArray = result.stock || [];
+                const productData = stockArray.find(p => p.type === milkType);
+                
+                if (!productData) return false;
+                
+                const slotData = productData[timeSlot];
+                if (!slotData) return false;
+                
+                const available = slotData.available_stock || 0;
+                return available >= quantity;
+            } catch (error) {
+                console.error('Stock check failed:', error);
                 return false;
             }
-            
-            const available = stockData[milkType][timeSlot].stock - stockData[milkType][timeSlot].booked;
-            console.log('Available stock:', available);
-            return available >= quantity;
         }
         
         // Open notification modal
@@ -1975,68 +1977,95 @@
         }
         
         // Generate milk type options with stock availability
-        function generateMilkTypeOptions(slot) {
+        async function generateMilkTypeOptions(slot) {
             const container = document.getElementById(`${slot}-milk-options`);
-            const prices = getMilkPrices();
-            const milkTypes = [
-                { type: 'buffalo', icon: '🐃', name: 'Buffalo Milk', desc: 'Rich & Creamy' },
-                { type: 'cow', icon: '🐄', name: 'Cow Milk', desc: 'Light & Healthy' }
-            ];
+            if (!container) {
+                console.error(`Container not found: ${slot}-milk-options`);
+                return;
+            }
             
-            let optionsHTML = '';
-            let firstAvailable = null;
-            
-            milkTypes.forEach((milk, index) => {
-                const isAvailable = checkStockAvailability(milk.type, slot, 0.5);
-                const isSelected = (slot === 'morning' && index === 0) || (slot === 'evening' && index === 1);
+            try {
+                const prices = await getMilkPrices();
+                const milkTypes = [
+                    { type: 'buffalo', icon: '🐃', name: 'Buffalo Milk', desc: 'Rich & Creamy' },
+                    { type: 'cow', icon: '🐄', name: 'Cow Milk', desc: 'Light & Healthy' }
+                ];
                 
-                if (isAvailable && !firstAvailable) {
-                    firstAvailable = milk.type;
+                let optionsHTML = '';
+                let firstAvailable = null;
+                
+                for (const [index, milk] of milkTypes.entries()) {
+                    const isAvailable = await checkStockAvailability(milk.type, slot, 0.5);
+                    const isSelected = (slot === 'morning' && index === 0) || (slot === 'evening' && index === 1);
+                    
+                    if (isAvailable && !firstAvailable) {
+                        firstAvailable = milk.type;
+                    }
+                    
+                    optionsHTML += `
+                        <label class="milk-type-option ${isSelected && isAvailable ? 'selected' : ''}">
+                            <input class="sr-only" name="${slot}_milk_type" type="radio" value="${milk.type}" 
+                                   ${isSelected && isAvailable ? 'checked' : ''} ${!isAvailable ? 'disabled' : ''} />
+                            <div class="milk-type-icon">${milk.icon}</div>
+                            <div class="milk-type-name">${milk.name}</div>
+                            <div class="milk-type-price">
+                                ${isAvailable ? 
+                                    `₹${prices[milk.type]}/L - ${milk.desc}` : 
+                                    `<span class="text-red-500">Out of Stock</span>`
+                                }
+                            </div>
+                            ${!isAvailable ? `
+                                <button type="button" onclick="addToWaitingQueue('${milk.type}', '${slot}', 0.5)" 
+                                        class="mt-2 bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
+                                    Notify Me
+                                </button>
+                            ` : ''}
+                        </label>
+                    `;
                 }
                 
-                optionsHTML += `
-                    <label class="milk-type-option ${isSelected && isAvailable ? 'selected' : ''}">
-                        <input class="sr-only" name="${slot}_milk_type" type="radio" value="${milk.type}" 
-                               ${isSelected && isAvailable ? 'checked' : ''} ${!isAvailable ? 'disabled' : ''} />
-                        <div class="milk-type-icon">${milk.icon}</div>
-                        <div class="milk-type-name">${milk.name}</div>
-                        <div class="milk-type-price">
-                            ${isAvailable ? 
-                                `₹${prices[milk.type]}/L - ${milk.desc}` : 
-                                `<span class="text-red-500">Out of Stock</span>`
-                            }
-                        </div>
-                        ${!isAvailable ? `
-                            <button type="button" onclick="addToWaitingQueue('${milk.type}', '${slot}', 0.5)" 
-                                    class="mt-2 bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
-                                Notify Me
-                            </button>
-                        ` : ''}
+                container.innerHTML = optionsHTML;
+                console.log(`Generated milk options for ${slot}:`, optionsHTML.length > 0 ? 'Success' : 'Empty');
+                
+                // If no option is selected but there's an available one, select it
+                if (firstAvailable && !container.querySelector('input:checked')) {
+                    const firstAvailableInput = container.querySelector(`input[value="${firstAvailable}"]`);
+                    if (firstAvailableInput) {
+                        firstAvailableInput.checked = true;
+                        firstAvailableInput.closest('.milk-type-option').classList.add('selected');
+                    }
+                }
+            } catch (error) {
+                console.error(`Error generating milk options for ${slot}:`, error);
+                // Fallback: show basic options
+                container.innerHTML = `
+                    <label class="milk-type-option selected">
+                        <input class="sr-only" name="${slot}_milk_type" type="radio" value="buffalo" checked />
+                        <div class="milk-type-icon">🐃</div>
+                        <div class="milk-type-name">Buffalo Milk</div>
+                        <div class="milk-type-price">₹90/L - Rich & Creamy</div>
+                    </label>
+                    <label class="milk-type-option">
+                        <input class="sr-only" name="${slot}_milk_type" type="radio" value="cow" />
+                        <div class="milk-type-icon">🐄</div>
+                        <div class="milk-type-name">Cow Milk</div>
+                        <div class="milk-type-price">₹60/L - Light & Healthy</div>
                     </label>
                 `;
-            });
-            
-            container.innerHTML = optionsHTML;
-            
-            // If no option is selected but there's an available one, select it
-            if (firstAvailable && !container.querySelector('input:checked')) {
-                const firstAvailableInput = container.querySelector(`input[value="${firstAvailable}"]`);
-                if (firstAvailableInput) {
-                    firstAvailableInput.checked = true;
-                    firstAvailableInput.closest('.milk-type-option').classList.add('selected');
-                }
             }
         }
         
         // Initialize milk type selection
-        function initializeMilkTypeSelection(slot) {
+        async function initializeMilkTypeSelection(slot) {
             showMilkTypeLoading(slot);
             
-            // Simulate loading delay for better UX
-            setTimeout(() => {
-                generateMilkTypeOptions(slot);
+            try {
+                await generateMilkTypeOptions(slot);
+            } catch (error) {
+                console.error('Error loading milk types:', error);
+            } finally {
                 hideMilkTypeLoading(slot);
-            }, 300);
+            }
             
             // Add event listeners
             const container = document.getElementById(`${slot}-milk-options`);
@@ -2054,31 +2083,38 @@
                     e.target.closest('.milk-type-option').classList.add('selected');
                     
                     // Update quantity options with delay
-                    setTimeout(() => {
-                        updateQuantityOptions(slot);
+                    setTimeout(async () => {
+                        await updateQuantityOptions(slot);
                         quantitySelect.disabled = false;
                         
                         // Update summary
-                        updateSummary();
+                        await updateSummary();
                     }, 200);
                 }
             });
         }
 
         // Update quantity options based on selected milk type and stock availability
-        function updateQuantityOptions(slot) {
+        async function updateQuantityOptions(slot) {
             const quantitySelect = document.getElementById(`${slot}-quantity-select`);
             const selectedMilkType = document.querySelector(`input[name="${slot}_milk_type"]:checked`)?.value;
             
             if (!selectedMilkType) return;
             
-            // Clear existing options
             quantitySelect.innerHTML = '';
             
-            // Get available stock
-            const stockData = JSON.parse(localStorage.getItem('adminStockData') || '{}');
-            const availableStock = stockData[selectedMilkType]?.[slot] ? 
-                stockData[selectedMilkType][slot].stock - stockData[selectedMilkType][slot].booked : 0;
+            // Get available stock from API
+            let availableStock = 0;
+            try {
+                const response = await fetch('/api/v1/inventory/stock');
+                const result = await response.json();
+                const stockArray = result.stock || [];
+                const productData = stockArray.find(p => p.type === selectedMilkType);
+                availableStock = productData?.[slot]?.available_stock || 0;
+            } catch (error) {
+                console.error('Error fetching stock:', error);
+                availableStock = 0;
+            }
             
             let hasAvailableOptions = false;
             let maxAvailableQuantity = 0;
@@ -2604,10 +2640,64 @@
             // Show loading state
             showButtonLoading('Processing Subscription...');
 
-            // Simulate processing with realistic steps
-            // Processing subscription
-            
-            setTimeout(() => {
+            // Process subscription with API booking
+            setTimeout(async () => {
+                try {
+                    // Book inventory via API
+                    const bookingRequests = [];
+                    
+                    const morningToggle = document.getElementById('morning-toggle');
+                    if (morningToggle && morningToggle.checked) {
+                        const morningMilkType = document.querySelector('input[name="morning_milk_type"]:checked')?.value || 'buffalo';
+                        const morningQuantity = parseFloat(document.getElementById('morning-quantity-select')?.value || '0.5');
+                        
+                        bookingRequests.push({
+                            milk_type: morningMilkType,
+                            time_slot: 'morning',
+                            quantity: morningQuantity
+                        });
+                    }
+                    
+                    const eveningToggle = document.getElementById('evening-toggle');
+                    if (eveningToggle && eveningToggle.checked) {
+                        const eveningMilkType = document.querySelector('input[name="evening_milk_type"]:checked')?.value || 'cow';
+                        const eveningQuantity = parseFloat(document.getElementById('evening-quantity-select')?.value || '0.5');
+                        
+                        bookingRequests.push({
+                            milk_type: eveningMilkType,
+                            time_slot: 'evening',
+                            quantity: eveningQuantity
+                        });
+                    }
+                    
+                    // Book inventory via API
+                    for (const booking of bookingRequests) {
+                        const productId = booking.milk_type === 'buffalo' ? 1 : 2;
+                        
+                        const response = await fetch('/api/v1/inventory/bookings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                product_id: productId,
+                                time_slot: booking.time_slot,
+                                quantity: booking.quantity,
+                                reason: 'New subscription booking'
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`Failed to book ${booking.milk_type}: ${errorText}`);
+                        }
+                        
+                        console.log(`Successfully booked ${booking.quantity}L ${booking.milk_type} for ${booking.time_slot}`);
+                    }
+                } catch (error) {
+                    console.error('Booking error:', error);
+                    showToast('Booking failed. Please try again.');
+                    hideButtonLoading('Continue with Subscription');
+                    return;
+                }
                     
                     // Save subscription status and detailed data
                     localStorage.setItem('milkSubscription', 'true');

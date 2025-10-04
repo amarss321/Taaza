@@ -110,15 +110,38 @@ func UpdateStock(c *gin.Context) {
 		return
 	}
 
-	// Get current stock
-	var currentStock float64
-	err := db.QueryRow("SELECT total_stock FROM inventory_stock WHERE product_id = $1 AND time_slot = $2", 
-		productID, timeSlot).Scan(&currentStock)
+	// Get current stock and booked stock
+	var currentStock, bookedStock float64
+	err := db.QueryRow("SELECT total_stock, booked_stock FROM inventory_stock WHERE product_id = $1 AND time_slot = $2", 
+		productID, timeSlot).Scan(&currentStock, &bookedStock)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Stock not found"})
 		return
 	}
 
+	// Validate stock changes
+	if req.TotalStock < bookedStock {
+		availableToDecrease := currentStock - bookedStock
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot decrease stock below booked amount. Current booked: " + strconv.FormatFloat(bookedStock, 'f', 1, 64) + "L. You can only decrease by " + strconv.FormatFloat(availableToDecrease, 'f', 1, 64) + "L"})
+		return
+	}
+	
+	// If trying to decrease stock, validate the decrease amount
+	if req.TotalStock < currentStock {
+		availableToDecrease := currentStock - bookedStock
+		maxAllowedStock := bookedStock + availableToDecrease
+		if req.TotalStock > maxAllowedStock {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stock decrease. Current: " + strconv.FormatFloat(currentStock, 'f', 1, 64) + "L, Booked: " + strconv.FormatFloat(bookedStock, 'f', 1, 64) + "L. You can only decrease by available stock (" + strconv.FormatFloat(availableToDecrease, 'f', 1, 64) + "L). Minimum allowed: " + strconv.FormatFloat(bookedStock, 'f', 1, 64) + "L"})
+			return
+		}
+	}
+
+	// Prevent no-change updates when stock is being "decreased" to the same value
+	if req.TotalStock == currentStock {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No change in stock. Current stock is already " + strconv.FormatFloat(currentStock, 'f', 1, 64) + "L"})
+		return
+	}
+	
 	// Update stock
 	_, err = db.Exec("UPDATE inventory_stock SET total_stock = $1 WHERE product_id = $2 AND time_slot = $3",
 		req.TotalStock, productID, timeSlot)
@@ -150,10 +173,10 @@ func AdjustStock(c *gin.Context) {
 		return
 	}
 
-	// Get current stock
-	var currentStock float64
-	err := db.QueryRow("SELECT total_stock FROM inventory_stock WHERE product_id = $1 AND time_slot = $2", 
-		productID, timeSlot).Scan(&currentStock)
+	// Get current stock and booked stock
+	var currentStock, bookedStock float64
+	err := db.QueryRow("SELECT total_stock, booked_stock FROM inventory_stock WHERE product_id = $1 AND time_slot = $2", 
+		productID, timeSlot).Scan(&currentStock, &bookedStock)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Stock not found"})
 		return
@@ -162,6 +185,13 @@ func AdjustStock(c *gin.Context) {
 	newStock := currentStock + req.Quantity
 	if newStock < 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Stock cannot be negative"})
+		return
+	}
+	
+	// Validate that new stock is not less than booked stock
+	if newStock < bookedStock {
+		availableToDecrease := currentStock - bookedStock
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot decrease stock below booked amount. Current booked: " + strconv.FormatFloat(bookedStock, 'f', 1, 64) + "L. You can only decrease by " + strconv.FormatFloat(availableToDecrease, 'f', 1, 64) + "L"})
 		return
 	}
 
@@ -219,16 +249,23 @@ func AddBooking(c *gin.Context) {
 		return
 	}
 
-	// Get current booked stock
-	var currentBooked float64
-	err := db.QueryRow("SELECT booked_stock FROM inventory_stock WHERE product_id = $1 AND time_slot = $2", 
-		req.ProductID, req.TimeSlot).Scan(&currentBooked)
+	// Get current stock and booked stock
+	var totalStock, currentBooked float64
+	err := db.QueryRow("SELECT total_stock, booked_stock FROM inventory_stock WHERE product_id = $1 AND time_slot = $2", 
+		req.ProductID, req.TimeSlot).Scan(&totalStock, &currentBooked)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Stock not found"})
 		return
 	}
 
 	newBooked := currentBooked + req.Quantity
+	
+	// Validate that booking doesn't exceed available stock
+	if newBooked > totalStock {
+		availableStock := totalStock - currentBooked
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot book more than available stock. Available: " + strconv.FormatFloat(availableStock, 'f', 1, 64) + "L"})
+		return
+	}
 
 	// Update booked stock
 	_, err = db.Exec("UPDATE inventory_stock SET booked_stock = $1 WHERE product_id = $2 AND time_slot = $3",

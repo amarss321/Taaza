@@ -1031,7 +1031,7 @@
             
             // Initialize with saved or default tab
             showMilkTab(savedMilkTab);
-            // Initialize stock display
+            // Initialize stock display with API data only
             setTimeout(updateStockDisplay, 100);
             // Load subscriptions data for when user switches to that tab
             setTimeout(loadSubscriptionsData, 200);
@@ -1558,9 +1558,7 @@
         }
 
         function updateStockDisplay() {
-            // Sync subscriptions first to ensure accurate booked quantities
-            syncSubscriptionsWithInventory();
-            
+            // Use API data directly as single source of truth
             Object.keys(stockData).forEach(product => {
                 const data = stockData[product];
                 
@@ -1613,11 +1611,6 @@
                     document.getElementById(`${product}-evening-summary-remaining`).textContent = `${eveningRemaining}L`;
                 }
             });
-            
-
-            
-            // Share inventory data with user app
-            localStorage.setItem('adminStockData', JSON.stringify(stockData));
         }
         
         // Price synchronization functions
@@ -3252,8 +3245,7 @@
                 generateSampleSubscriptionData();
             }
             
-            // Sync existing subscriptions with inventory on load
-            syncSubscriptionsWithInventory();
+            // Don't sync with localStorage - use API as single source of truth
             
             // Check if there's a saved state
             const savedSection = localStorage.getItem('adminActiveSection') || 'dashboard';
