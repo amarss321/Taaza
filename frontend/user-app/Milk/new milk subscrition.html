@@ -1341,6 +1341,8 @@
     <!-- Database API Scripts -->
     <script src="../js/data-api.js"></script>
     <script src="../js/subscription-manager.js"></script>
+    <script src="../js/addresses-api.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTBpRefq3kQWU79YiRZOeGb7jamVPHHnw&libraries=places&callback=initGoogleMaps"></script>
 </head>
 
 <body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
@@ -1503,6 +1505,44 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Address Selection -->
+            <div class="bg-white dark:bg-zinc-800 rounded-xl p-4 sm:p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
+                <div class="section-header mb-4">
+                    <span class="material-symbols-outlined section-icon">location_on</span>
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200">Delivery Address</h2>
+                </div>
+
+                <!-- Address Dropdown -->
+                <div class="space-y-3">
+                    <div class="relative">
+                        <select id="address-dropdown" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-zepto-blue focus:border-transparent transition-all text-sm sm:text-base">
+                            <option value="">Loading addresses...</option>
+                        </select>
+                        <div id="address-loading-icon" class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Selected Address Details -->
+                    <div id="selected-address-details" class="hidden bg-gray-50 dark:bg-zinc-700 rounded-lg p-3 border border-gray-200 dark:border-zinc-600">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-zepto-blue mt-1">location_on</span>
+                            <div class="flex-1">
+                                <h4 id="address-label-display" class="font-semibold text-gray-800 dark:text-gray-200 mb-1"></h4>
+                                <p id="address-line-display" class="text-sm text-gray-700 dark:text-gray-300"></p>
+                                <p id="address-city-display" class="text-xs text-gray-500 dark:text-gray-400"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add New Address Button -->
+                    <button onclick="openAddressModal()" class="w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-300 dark:border-zinc-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-zepto-blue hover:text-zepto-blue transition-all">
+                        <span class="material-symbols-outlined">add</span>
+                        <span>Add New Address</span>
+                    </button>
                 </div>
             </div>
 
@@ -1779,6 +1819,92 @@
         </div>
     </div>
 
+    <!-- Address Modal -->
+    <div id="address-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Add Address</h3>
+                <button onclick="closeAddressModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="address-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Label</label>
+                    <input id="address-label" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200" type="text" placeholder="Home, Work, etc." required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Address</label>
+                    <input id="address-line" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200" type="text" placeholder="Street, Apt, etc." required />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">City</label>
+                        <input id="address-city" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200" type="text" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">ZIP</label>
+                        <input id="address-zip" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200" type="text" required />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Country</label>
+                    <input id="address-country" class="w-full p-3 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-200" type="text" value="India" required />
+                </div>
+                <div>
+                    <button type="button" onclick="openMapModal()" class="flex items-center gap-2 text-zepto-blue hover:text-blue-800 mb-2">
+                        <span class="material-symbols-outlined">map</span>
+                        <span>Select on Map</span>
+                    </button>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                        <span id="coordinates-display">No location selected</span>
+                    </div>
+                    <input type="hidden" id="address-lat" />
+                    <input type="hidden" id="address-lng" />
+                </div>
+                <div class="flex items-center gap-2">
+                    <input id="address-default" type="checkbox" class="rounded" />
+                    <label for="address-default" class="text-sm text-gray-700 dark:text-gray-300">Set as default</label>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeAddressModal()" class="px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-zepto-blue text-white rounded-lg hover:bg-blue-700">
+                        Save Address
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Map Modal -->
+    <div id="map-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Select Location</h3>
+                <button onclick="closeMapModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="flex gap-2 mb-4">
+                <button id="locate-btn" onclick="locateUser()" class="flex items-center gap-1 text-sm bg-zepto-blue/10 text-zepto-blue px-3 py-2 rounded-lg hover:bg-zepto-blue/20">
+                    <span class="material-symbols-outlined">my_location</span>
+                    Use My Location
+                </button>
+            </div>
+            <div id="google-map" style="height: 300px; width: 100%; border-radius: 8px;"></div>
+            <div class="flex justify-end gap-2 mt-4">
+                <button onclick="closeMapModal()" class="px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700">
+                    Cancel
+                </button>
+                <button onclick="confirmLocation()" class="px-4 py-2 bg-zepto-blue text-white rounded-lg hover:bg-blue-700">
+                    Confirm Location
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="toast">
         <div class="toast-content">
@@ -1957,9 +2083,315 @@
         // Flag to prevent auto-saving during page load
         let isLoadingExistingData = false;
         
+        // Address functionality
+        let addresses = [];
+        let selectedAddressId = null;
+        let addressAPI = null;
+        let map = null;
+        let marker = null;
+        let selectedLocation = null;
+        let autocomplete = null;
+
+        // Initialize Google Maps callback
+        window.initGoogleMaps = function() {
+            console.log('Google Maps loaded');
+        };
+
+        // Load addresses from API
+        async function loadAddresses() {
+            const dropdown = document.getElementById('address-dropdown');
+            const loadingIcon = document.getElementById('address-loading-icon');
+            
+            try {
+                dropdown.innerHTML = '<option value="">Loading addresses...</option>';
+                dropdown.disabled = true;
+                loadingIcon.classList.remove('hidden');
+                
+                addresses = await addressAPI.getAddresses();
+                
+                dropdown.innerHTML = '';
+                loadingIcon.classList.add('hidden');
+                dropdown.disabled = false;
+                
+                if (addresses.length === 0) {
+                    dropdown.innerHTML = '<option value="">No addresses found</option>';
+                } else {
+                    dropdown.innerHTML = '<option value="">Select delivery address</option>';
+                    addresses.forEach(addr => {
+                        const option = document.createElement('option');
+                        option.value = addr.id;
+                        option.textContent = `${addr.label} - ${addr.address_line}`;
+                        if (addr.is_default) {
+                            option.textContent += ' (Default)';
+                        }
+                        dropdown.appendChild(option);
+                    });
+                    
+                    // Auto-select default address
+                    const defaultAddr = addresses.find(addr => addr.is_default);
+                    if (defaultAddr) {
+                        dropdown.value = defaultAddr.id;
+                        selectAddress(defaultAddr.id);
+                    }
+                }
+                
+                // Add event listener
+                dropdown.addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        selectAddress(parseInt(e.target.value));
+                    } else {
+                        selectedAddressId = null;
+                        document.getElementById('selected-address-details').classList.add('hidden');
+                        updateSummary();
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Failed to load addresses:', error);
+                dropdown.innerHTML = '<option value="">Failed to load addresses</option>';
+                dropdown.disabled = true;
+                loadingIcon.classList.add('hidden');
+            }
+        }
+
+
+
+        // Select address
+        function selectAddress(addressId) {
+            selectedAddressId = addressId;
+            const selectedAddr = addresses.find(addr => addr.id === addressId);
+            
+            if (selectedAddr) {
+                // Show address details
+                document.getElementById('address-label-display').textContent = selectedAddr.label;
+                document.getElementById('address-line-display').textContent = selectedAddr.address_line;
+                document.getElementById('address-city-display').textContent = `${selectedAddr.city}, ${selectedAddr.zip_code}, ${selectedAddr.country}`;
+                document.getElementById('selected-address-details').classList.remove('hidden');
+            } else {
+                document.getElementById('selected-address-details').classList.add('hidden');
+            }
+            
+            updateSummary();
+        }
+
+        // Open address modal
+        function openAddressModal() {
+            document.getElementById('address-modal').style.display = 'flex';
+            document.getElementById('address-form').reset();
+            document.getElementById('address-country').value = 'India';
+            document.getElementById('coordinates-display').textContent = 'No location selected';
+            selectedLocation = null;
+            
+            // Initialize autocomplete
+            if (typeof google !== 'undefined' && google.maps) {
+                const input = document.getElementById('address-line');
+                autocomplete = new google.maps.places.Autocomplete(input, { types: ['address'] });
+                autocomplete.addListener('place_changed', handlePlaceSelect);
+            }
+        }
+
+        // Close address modal
+        function closeAddressModal() {
+            document.getElementById('address-modal').style.display = 'none';
+        }
+
+        // Handle place selection from autocomplete
+        function handlePlaceSelect() {
+            const place = autocomplete.getPlace();
+            if (!place.geometry) return;
+            
+            // Extract address components
+            let streetNumber = '', route = '', city = '', zipCode = '', country = '';
+            for (const component of place.address_components) {
+                const type = component.types[0];
+                switch (type) {
+                    case 'street_number': streetNumber = component.long_name; break;
+                    case 'route': route = component.long_name; break;
+                    case 'locality': city = component.long_name; break;
+                    case 'postal_code': zipCode = component.long_name; break;
+                    case 'country': country = component.long_name; break;
+                }
+            }
+            
+            // Fill form
+            const addressLine = streetNumber && route ? `${streetNumber} ${route}` : route;
+            if (addressLine) document.getElementById('address-line').value = addressLine;
+            if (city) document.getElementById('address-city').value = city;
+            if (zipCode) document.getElementById('address-zip').value = zipCode;
+            if (country) document.getElementById('address-country').value = country;
+            
+            // Set coordinates
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            document.getElementById('address-lat').value = lat;
+            document.getElementById('address-lng').value = lng;
+            document.getElementById('coordinates-display').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            selectedLocation = { lat, lng };
+        }
+
+        // Open map modal
+        function openMapModal() {
+            document.getElementById('map-modal').style.display = 'flex';
+            setTimeout(() => initMap(), 100);
+        }
+
+        // Close map modal
+        function closeMapModal() {
+            document.getElementById('map-modal').style.display = 'none';
+        }
+
+        // Initialize map
+        function initMap() {
+            if (typeof google === 'undefined') return;
+            
+            const center = selectedLocation || { lat: 12.9716, lng: 77.5946 };
+            map = new google.maps.Map(document.getElementById('google-map'), {
+                zoom: 13,
+                center: center
+            });
+            
+            if (selectedLocation) setMarker(selectedLocation);
+            
+            map.addListener('click', (e) => {
+                setMarker(e.latLng);
+                reverseGeocode(e.latLng.lat(), e.latLng.lng());
+            });
+        }
+
+        // Set marker on map
+        function setMarker(location) {
+            if (marker) marker.setMap(null);
+            marker = new google.maps.Marker({ position: location, map: map, draggable: true });
+            marker.addListener('dragend', () => {
+                const pos = marker.getPosition();
+                selectedLocation = { lat: pos.lat(), lng: pos.lng() };
+                reverseGeocode(pos.lat(), pos.lng());
+            });
+            selectedLocation = { lat: location.lat(), lng: location.lng() };
+        }
+
+        // Reverse geocode
+        function reverseGeocode(lat, lng) {
+            if (typeof google === 'undefined') return;
+            
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    const address = results[0];
+                    let streetNumber = '', route = '', city = '', zipCode = '', country = '';
+                    
+                    for (const component of address.address_components) {
+                        const type = component.types[0];
+                        switch (type) {
+                            case 'street_number': streetNumber = component.long_name; break;
+                            case 'route': route = component.long_name; break;
+                            case 'locality': city = component.long_name; break;
+                            case 'postal_code': zipCode = component.long_name; break;
+                            case 'country': country = component.long_name; break;
+                        }
+                    }
+                    
+                    const addressLine = streetNumber && route ? `${streetNumber} ${route}` : route;
+                    if (addressLine) document.getElementById('address-line').value = addressLine;
+                    if (city) document.getElementById('address-city').value = city;
+                    if (zipCode) document.getElementById('address-zip').value = zipCode;
+                    if (country) document.getElementById('address-country').value = country;
+                }
+            });
+        }
+
+        // Locate user
+        function locateUser() {
+            if (!navigator.geolocation) {
+                showErrorToast('Location not supported');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    if (map) {
+                        map.setCenter(userLocation);
+                        map.setZoom(16);
+                        setMarker(userLocation);
+                        reverseGeocode(userLocation.lat, userLocation.lng);
+                    }
+                    
+                    showSuccessToast('Location found');
+                },
+                () => showErrorToast('Location failed'),
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // Confirm location
+        function confirmLocation() {
+            if (!selectedLocation) {
+                showWarningToast('Select location first');
+                return;
+            }
+            
+            document.getElementById('address-lat').value = selectedLocation.lat;
+            document.getElementById('address-lng').value = selectedLocation.lng;
+            document.getElementById('coordinates-display').textContent = 
+                `${selectedLocation.lat.toFixed(4)}, ${selectedLocation.lng.toFixed(4)}`;
+            closeMapModal();
+            showSuccessToast('Location selected');
+        }
+
+        // Handle address form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('address-form').onsubmit = async function(e) {
+                e.preventDefault();
+                
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Saving...';
+                
+                const addressData = {
+                    label: document.getElementById('address-label').value.trim(),
+                    address_line: document.getElementById('address-line').value.trim(),
+                    city: document.getElementById('address-city').value.trim(),
+                    zip_code: document.getElementById('address-zip').value.trim(),
+                    country: document.getElementById('address-country').value.trim(),
+                    latitude: document.getElementById('address-lat').value || null,
+                    longitude: document.getElementById('address-lng').value || null,
+                    is_default: document.getElementById('address-default').checked
+                };
+                
+                try {
+                    await addressAPI.createAddress(addressData);
+                    closeAddressModal();
+                    await loadAddresses();
+                    showSuccessToast('Address saved');
+                    
+                    // Auto-select the newly created address
+                    if (addresses.length > 0) {
+                        const newAddress = addresses[addresses.length - 1];
+                        document.getElementById('address-dropdown').value = newAddress.id;
+                        selectAddress(newAddress.id);
+                    }
+                } catch (error) {
+                    showErrorToast('Failed to save address');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            };
+        });
+
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async function () {
             isLoadingExistingData = true;
+            
+            // Initialize address API
+            addressAPI = new AddressAPI();
+            
             // Initialize stock data first
             initializeStockData();
             
@@ -1986,6 +2418,9 @@
             // Initialize frequency selection
             initializeFrequencySelection('morning');
             initializeFrequencySelection('evening');
+
+            // Load addresses
+            await loadAddresses();
 
             // Load existing subscription data from database (read-only)
             await loadExistingSubscriptionFromDatabase();
@@ -2803,6 +3238,12 @@
                 return;
             }
             
+            // Check if address is selected
+            if (!selectedAddressId) {
+                showWarningToast('Select delivery address');
+                return;
+            }
+            
             // Set processing flag
             isProcessing = true;
             
@@ -2816,7 +3257,7 @@
                 console.log('✅ Subscription saved/updated');
                 
                 // Always go to Subscription Summary after saving
-                window.location.href = 'Subscription Summary.html';
+                window.location.href = 'Subscription_Summary.html';
             } catch (error) {
                 console.error('❌ Failed to save subscription:', error);
                 
@@ -2846,6 +3287,19 @@
             const morningEnabled = document.getElementById('morning-toggle').checked;
             const eveningEnabled = document.getElementById('evening-toggle').checked;
             
+            // Get selected address
+            const selectedAddress = addresses.find(addr => addr.id === selectedAddressId);
+            const addressData = selectedAddress ? {
+                id: selectedAddress.id,
+                label: selectedAddress.label,
+                address_line: selectedAddress.address_line,
+                city: selectedAddress.city,
+                zip_code: selectedAddress.zip_code,
+                country: selectedAddress.country,
+                latitude: selectedAddress.latitude,
+                longitude: selectedAddress.longitude
+            } : {};
+            
             const subscriptionData = {
                 subscription_type: 'milk',
                 morning_enabled: morningEnabled,
@@ -2860,7 +3314,7 @@
                 evening_frequency: '',
                 evening_time_slot: '',
                 evening_days: {},
-                address_data: {},
+                address_data: addressData,
                 status: 'active'
             };
             
