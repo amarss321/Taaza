@@ -59,6 +59,18 @@ func main() {
 			users.PUT("/addresses/:id", middleware.AuthMiddleware(), handlers.UpdateAddress)
 			users.DELETE("/addresses/:id", middleware.AuthMiddleware(), handlers.DeleteAddress)
 			users.PUT("/addresses/:id/default", middleware.AuthMiddleware(), handlers.SetDefaultAddress)
+			
+			// Subscription routes
+			users.GET("/subscriptions", middleware.AuthMiddleware(), handlers.GetUserSubscriptions)
+			users.POST("/subscriptions", middleware.AuthMiddleware(), handlers.CreateSubscription)
+			users.PUT("/subscriptions/:id", middleware.AuthMiddleware(), handlers.UpdateSubscription)
+			users.PUT("/subscriptions/:id/address", middleware.AuthMiddleware(), handlers.UpdateSubscriptionAddress)
+			users.DELETE("/subscriptions/:id", middleware.AuthMiddleware(), handlers.DeleteSubscription)
+			
+			// Preference routes
+			users.GET("/preferences", middleware.AuthMiddleware(), handlers.GetUserPreferences)
+			users.POST("/preferences", middleware.AuthMiddleware(), handlers.SetUserPreference)
+			users.PUT("/preferences", middleware.AuthMiddleware(), handlers.SetUserPreferences)
 		}
 	}
 

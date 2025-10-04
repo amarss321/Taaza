@@ -1,6 +1,5 @@
 -- Create inventory database and tables
-CREATE DATABASE IF NOT EXISTS taaza_inventory;
-
+-- Connect to the inventory database
 \c taaza_inventory;
 
 -- Inventory products table
@@ -44,12 +43,11 @@ CREATE TABLE IF NOT EXISTS notification_requests (
     id SERIAL PRIMARY KEY,
     customer_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
-    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    milk_type VARCHAR(20) NOT NULL, -- 'buffalo', 'cow'
     time_slot VARCHAR(10) NOT NULL,
     quantity DECIMAL(10,2) NOT NULL,
     status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'notified', 'expired'
-    request_date DATE DEFAULT CURRENT_DATE,
-    request_time TIME DEFAULT CURRENT_TIME,
+    notes TEXT,
     notified_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

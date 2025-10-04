@@ -79,6 +79,9 @@
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <!-- Database API Scripts -->
+    <script src="../js/data-api.js"></script>
+    <script src="../js/subscription-manager.js"></script>
 </head>
 
 <body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
@@ -247,7 +250,7 @@
             }
         }
 
-        function processPayment() {
+        async function processPayment() {
             if (!selectedPaymentMethod) {
                 showToast('Please select a payment method', 'error');
                 return;
@@ -270,7 +273,34 @@
             subscription.payment = paymentData;
             subscription.nextDelivery = new Date(Date.now() + 24*60*60*1000).toISOString().split('T')[0];
 
-            // Save to active subscriptions
+            // 🔥 NEW: Save to database
+            try {
+                // Update subscription with payment info
+                const subscriptionUpdate = {
+                    ...subscription,
+                    status: 'active',
+                    payment_method: paymentData.method,
+                    auto_payment: paymentData.autoPayment,
+                    next_delivery: subscription.nextDelivery
+                };
+                
+                // Save to database via API
+                if (window.subscriptionManager) {
+                    await window.subscriptionManager.createSubscription(subscriptionUpdate);
+                }
+                
+                // Also save payment preferences
+                if (window.dataAPI) {
+                    await window.dataAPI.setPreferences({
+                        'payment_method': paymentData.method,
+                        'auto_payment': paymentData.autoPayment.toString()
+                    });
+                }
+            } catch (error) {
+                console.error('Database save failed:', error);
+            }
+            
+            // BACKUP: Save to localStorage for compatibility
             const existingSubscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
             existingSubscriptions.push(subscription);
             localStorage.setItem('userSubscriptions', JSON.stringify(existingSubscriptions));

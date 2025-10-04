@@ -31,7 +31,10 @@ func InitDB() error {
 		dbPassword = "postgres"
 	}
 
-	dbName := "taaza_inventory"
+	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName = "taaza_inventory"
+	}
 
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName)

@@ -1338,6 +1338,9 @@
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script src="price-api.js"></script>
+    <!-- Database API Scripts -->
+    <script src="../js/data-api.js"></script>
+    <script src="../js/subscription-manager.js"></script>
 </head>
 
 <body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
@@ -1530,11 +1533,10 @@
         <footer
             class="p-3 sm:p-4 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200 dark:border-zinc-700 z-[1001]"
             style="z-index:1001;">
-            <button id="confirm-btn" onclick="confirmSubscription(event)"
+            <button id="confirm-btn" onclick="confirmSubscription(event)" type="button"
                 class="w-full bg-primary text-background-dark font-bold py-3 px-4 rounded-lg text-center hover:bg-yellow-500 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 style="pointer-events:auto;z-index:1002;">
-                <span id="btn-text">Continue with Subscription</span>
-                <span id="btn-spinner" class="spinner spinner-large hidden ml-2"></span>
+                Continue with Subscription
             </button>
             <div id="progress-bar" class="progress-bar">
                 <div class="progress" id="progress"></div>
@@ -1952,8 +1954,12 @@
             }, 5000); // Check every 5 seconds
         }
         
+        // Flag to prevent auto-saving during page load
+        let isLoadingExistingData = false;
+        
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async function () {
+            isLoadingExistingData = true;
             // Initialize stock data first
             initializeStockData();
             
@@ -1965,9 +1971,6 @@
             
             // Start real-time price monitoring
             startPriceMonitoring();
-            
-            // Check if we're editing an existing subscription
-            const isEditing = localStorage.getItem('editingSubscription') === 'true';
             
             // Initialize milk type selection for both slots
             await initializeMilkTypeSelection('morning');
@@ -1984,16 +1987,14 @@
             initializeFrequencySelection('morning');
             initializeFrequencySelection('evening');
 
-            // Load existing subscription data if editing
-            if (isEditing) {
-                loadExistingSubscriptionData();
-                // Update header to show we're editing
-                document.querySelector('header h1').textContent = 'Edit Milk Subscription';
-                document.getElementById('confirm-btn').textContent = 'Update Subscription';
-            }
+            // Load existing subscription data from database (read-only)
+            await loadExistingSubscriptionFromDatabase();
 
             // Update the summary after everything is loaded
-            setTimeout(() => updateSummary(), 500);
+            setTimeout(() => {
+                updateSummary();
+                isLoadingExistingData = false; // Allow saving after load complete
+            }, 500);
         });
         
         // Update price displays with current admin prices
@@ -2038,6 +2039,8 @@
         
         // Open notification modal
         function addToWaitingQueue(milkType, timeSlot, quantity) {
+            console.log('Opening notification modal for:', { milkType, timeSlot, quantity });
+            
             // Pre-fill the modal with current selection
             document.getElementById('notify-milk-type').value = milkType;
             document.getElementById('notify-quantity').value = quantity;
@@ -2072,15 +2075,15 @@
             
             // Validation
             if (!name) {
-                showWarningToast('Enter name');
+                showWarningToast('Please enter your name');
                 return;
             }
             if (!phone || phone.length < 10) {
-                showWarningToast('Valid phone required');
+                showWarningToast('Please enter valid phone number');
                 return;
             }
             if (!morningSelected && !eveningSelected) {
-                showWarningToast('Select delivery time');
+                showWarningToast('Please select delivery time');
                 return;
             }
             
@@ -2095,25 +2098,40 @@
                 if (morningSelected) timeSlots.push('morning');
                 if (eveningSelected) timeSlots.push('evening');
                 
+                console.log('Submitting notification request:', {
+                    customer_name: name,
+                    phone_number: phone,
+                    milk_type: milkType,
+                    quantity: quantity,
+                    time_slots: timeSlots
+                });
+                
                 // Submit to API for each time slot
                 for (const slot of timeSlots) {
+                    const requestData = {
+                        customer_name: name,
+                        phone_number: phone,
+                        milk_type: milkType,
+                        quantity: quantity,
+                        time_slot: slot,
+                        notes: `Requested via user app on ${new Date().toLocaleDateString()}`
+                    };
+                    
+                    console.log('Sending request for slot:', slot, requestData);
+                    
                     const response = await fetch('/api/v1/inventory/notifications', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({
-                            customer_name: name,
-                            phone_number: phone,
-                            milk_type: milkType,
-                            quantity: quantity,
-                            time_slot: slot,
-                            notes: `Requested via user app on ${new Date().toLocaleDateString()}`
-                        })
+                        body: JSON.stringify(requestData)
                     });
                     
+                    const responseText = await response.text();
+                    console.log('API Response:', response.status, responseText);
+                    
                     if (!response.ok) {
-                        throw new Error(`Failed to submit notification for ${slot}`);
+                        throw new Error(`API Error ${response.status}: ${responseText}`);
                     }
                 }
                 
@@ -2122,15 +2140,9 @@
                 submitBtn.textContent = originalText;
                 
                 closeNotifyModal();
-                showSuccessToast('Notification sent');
+                showSuccessToast('Notification request sent successfully!');
                 
-                console.log('✅ Notification request submitted via API:', {
-                    customerName: name,
-                    phoneNumber: phone,
-                    milkType: milkType,
-                    timeSlots: timeSlots,
-                    quantity: quantity
-                });
+                console.log('✅ Notification request submitted successfully');
             } catch (error) {
                 console.error('Failed to submit notification:', error);
                 
@@ -2138,7 +2150,7 @@
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
                 
-                showErrorToast('Send failed');
+                showErrorToast('Failed to send notification request');
             }
         }
         
@@ -2720,14 +2732,11 @@
         // Show loading state for button
         function showButtonLoading(text = 'Processing...') {
             const button = document.getElementById('confirm-btn');
-            const btnText = document.getElementById('btn-text');
-            const btnSpinner = document.getElementById('btn-spinner');
             const progressBar = document.getElementById('progress-bar');
             const loadingStatus = document.getElementById('loading-status');
             
             button.disabled = true;
-            btnText.textContent = text;
-            btnSpinner.classList.remove('hidden');
+            button.textContent = text;
             
             // Animate progress bar
             const progress = document.getElementById('progress');
@@ -2744,15 +2753,12 @@
         // Hide loading state for button
         function hideButtonLoading(text = 'Continue with Subscription') {
             const button = document.getElementById('confirm-btn');
-            const btnText = document.getElementById('btn-text');
-            const btnSpinner = document.getElementById('btn-spinner');
             const progressBar = document.getElementById('progress-bar');
             const loadingStatus = document.getElementById('loading-status');
             const progress = document.getElementById('progress');
             
             button.disabled = false;
-            btnText.textContent = text;
-            btnSpinner.classList.add('hidden');
+            button.textContent = text;
         }
         
         // Show loading for milk type selection
@@ -2771,8 +2777,23 @@
             }
         }
 
+        // Prevent multiple clicks
+        let isProcessing = false;
+        
         // Confirm subscription
-        function confirmSubscription(event) {
+        async function confirmSubscription(event) {
+            // Prevent multiple clicks
+            if (isProcessing) {
+                console.log('⚠️ Already processing, ignoring click');
+                return;
+            }
+            
+            // Prevent saving during page load
+            if (isLoadingExistingData) {
+                console.log('⚠️ Prevented auto-save during page load');
+                return;
+            }
+            
             // Check if at least one delivery slot is enabled
             const morningEnabled = document.getElementById('morning-toggle').checked;
             const eveningEnabled = document.getElementById('evening-toggle').checked;
@@ -2782,187 +2803,215 @@
                 return;
             }
             
-            // Check if enabled slots have valid selections and available stock
-            let hasValidPlan = false;
-            let errorMessage = '';
+            // Set processing flag
+            isProcessing = true;
             
+            const button = document.getElementById('confirm-btn');
+            button.disabled = true;
+            button.textContent = 'Processing...';
+            
+            try {
+                // Always use saveSubscriptionToDatabase - backend handles create/update logic
+                await saveSubscriptionToDatabase();
+                console.log('✅ Subscription saved/updated');
+                
+                // Always go to Subscription Summary after saving
+                window.location.href = 'Subscription Summary.html';
+            } catch (error) {
+                console.error('❌ Failed to save subscription:', error);
+                
+                // Show specific error message
+                let errorMessage = 'Failed to save subscription';
+                if (error.message.includes('429')) {
+                    errorMessage = 'Too many requests. Please wait and try again.';
+                } else if (error.message.includes('401')) {
+                    errorMessage = 'Session expired. Please login again.';
+                } else if (error.message.includes('400')) {
+                    errorMessage = 'Invalid subscription data.';
+                }
+                
+                // Reset button state
+                button.disabled = false;
+                button.textContent = 'Continue with Subscription';
+                isProcessing = false;
+                
+                showErrorToast(errorMessage);
+            }
+        }
+        
+
+        
+        // Save subscription data to database
+        async function saveSubscriptionToDatabase() {
+            const morningEnabled = document.getElementById('morning-toggle').checked;
+            const eveningEnabled = document.getElementById('evening-toggle').checked;
+            
+            const subscriptionData = {
+                subscription_type: 'milk',
+                morning_enabled: morningEnabled,
+                evening_enabled: eveningEnabled,
+                morning_milk_type: '',
+                morning_quantity: 0,
+                morning_frequency: '',
+                morning_time_slot: '',
+                morning_days: {},
+                evening_milk_type: '',
+                evening_quantity: 0,
+                evening_frequency: '',
+                evening_time_slot: '',
+                evening_days: {},
+                address_data: {},
+                status: 'active'
+            };
+            
+            // Add morning delivery data if enabled
             if (morningEnabled) {
-                const morningMilkType = document.querySelector('input[name="morning_milk_type"]:checked');
-                const morningQuantity = document.getElementById('morning-quantity-select').value;
-                if (!morningMilkType) {
-                    errorMessage = 'Please select milk type for morning delivery';
-                } else if (morningMilkType.disabled) {
-                    errorMessage = 'Selected morning milk type is out of stock';
-                } else if (!morningQuantity) {
-                    errorMessage = 'Please select quantity for morning delivery';
-                } else {
-                    hasValidPlan = true;
-                }
+                const morningMilkType = document.querySelector('input[name="morning_milk_type"]:checked')?.value || 'buffalo';
+                const morningQuantity = parseFloat(document.getElementById('morning-quantity-select')?.value || '0.5');
+                const morningTimeSlot = document.getElementById('morning-time-select')?.value || '7:00-7:30';
+                const morningFrequency = document.querySelector('#morning-content .frequency-option.selected')?.getAttribute('data-value') || 'daily';
+                const morningDaysArray = getDaysForSlot('morning');
+                
+                subscriptionData.morning_milk_type = morningMilkType;
+                subscriptionData.morning_quantity = morningQuantity || 1.0;
+                subscriptionData.morning_time_slot = morningTimeSlot;
+                subscriptionData.morning_frequency = morningFrequency;
+                subscriptionData.morning_days = { days: morningDaysArray };
             }
             
-            if (eveningEnabled && !hasValidPlan) {
-                const eveningMilkType = document.querySelector('input[name="evening_milk_type"]:checked');
-                const eveningQuantity = document.getElementById('evening-quantity-select').value;
-                if (!eveningMilkType) {
-                    errorMessage = 'Please select milk type for evening delivery';
-                } else if (eveningMilkType.disabled) {
-                    errorMessage = 'Selected evening milk type is out of stock';
-                } else if (!eveningQuantity) {
-                    errorMessage = 'Please select quantity for evening delivery';
-                } else {
-                    hasValidPlan = true;
-                }
+            // Add evening delivery data if enabled
+            if (eveningEnabled) {
+                const eveningMilkType = document.querySelector('input[name="evening_milk_type"]:checked')?.value || 'cow';
+                const eveningQuantity = parseFloat(document.getElementById('evening-quantity-select')?.value || '0.5');
+                const eveningTimeSlot = document.getElementById('evening-time-select')?.value || '6:00-6:30';
+                const eveningFrequency = document.querySelector('#evening-content .frequency-option.selected')?.getAttribute('data-value') || 'alternate';
+                const eveningDaysArray = getDaysForSlot('evening');
+                
+                subscriptionData.evening_milk_type = eveningMilkType;
+                subscriptionData.evening_quantity = eveningQuantity;
+                subscriptionData.evening_time_slot = eveningTimeSlot;
+                subscriptionData.evening_frequency = eveningFrequency;
+                subscriptionData.evening_days = { days: eveningDaysArray };
             }
             
-            if (!hasValidPlan) {
-                showWarningToast('Complete selection');
-                return;
+            // Single API call with longer timeout
+            try {
+                console.log('💾 Saving subscription to database...');
+                await window.dataAPI.createSubscription(subscriptionData);
+                console.log('✅ Subscription saved successfully');
+            } catch (error) {
+                console.error('❌ Failed to save subscription:', error.message);
+                throw error;
             }
-            
-            // If any modal is open, close it before proceeding
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.style.display = 'none';
-            });
-
-            // Show loading state
-            showButtonLoading('Processing Subscription...');
-
-            // Process subscription with API booking
-            setTimeout(async () => {
-                try {
-                    // Book inventory via API
-                    const bookingRequests = [];
-                    
-                    const morningToggle = document.getElementById('morning-toggle');
-                    if (morningToggle && morningToggle.checked) {
-                        const morningMilkType = document.querySelector('input[name="morning_milk_type"]:checked')?.value || 'buffalo';
-                        const morningQuantity = parseFloat(document.getElementById('morning-quantity-select')?.value || '0.5');
-                        
-                        bookingRequests.push({
-                            milk_type: morningMilkType,
-                            time_slot: 'morning',
-                            quantity: morningQuantity
-                        });
-                    }
-                    
-                    const eveningToggle = document.getElementById('evening-toggle');
-                    if (eveningToggle && eveningToggle.checked) {
-                        const eveningMilkType = document.querySelector('input[name="evening_milk_type"]:checked')?.value || 'cow';
-                        const eveningQuantity = parseFloat(document.getElementById('evening-quantity-select')?.value || '0.5');
-                        
-                        bookingRequests.push({
-                            milk_type: eveningMilkType,
-                            time_slot: 'evening',
-                            quantity: eveningQuantity
-                        });
-                    }
-                    
-                    // Book inventory via API
-                    for (const booking of bookingRequests) {
-                        const productId = booking.milk_type === 'buffalo' ? 1 : 2;
-                        
-                        const response = await fetch('/api/v1/inventory/bookings', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                product_id: productId,
-                                time_slot: booking.time_slot,
-                                quantity: booking.quantity,
-                                reason: 'New subscription booking'
-                            })
-                        });
-                        
-                        if (!response.ok) {
-                            const errorText = await response.text();
-                            throw new Error(`Failed to book ${booking.milk_type}: ${errorText}`);
-                        }
-                        
-                        console.log(`Successfully booked ${booking.quantity}L ${booking.milk_type} for ${booking.time_slot}`);
-                    }
-                } catch (error) {
-                    console.error('Booking error:', error);
-                    showErrorToast('Booking failed');
-                    hideButtonLoading('Continue with Subscription');
-                    return;
-                }
-                    
-                    // Save subscription status and detailed data
-                    localStorage.setItem('milkSubscription', 'true');
-                    
-                    // Save morning delivery data if enabled
-                    const morningToggle = document.getElementById('morning-toggle');
-                    if (morningToggle && morningToggle.checked) {
-                        localStorage.setItem('morningDelivery', 'true');
-                        const morningMilkType = document.querySelector('input[name="morning_milk_type"]:checked')?.value || 'buffalo';
-                        const morningQuantity = document.getElementById('morning-quantity-select')?.value || '0.5';
-                        const morningFrequency = document.querySelector('#morning-content .frequency-option.selected')?.getAttribute('data-value') || 'daily';
-                        const morningTimeSlot = document.getElementById('morning-time-select')?.value || '7:00-7:30';
-                        
-                        localStorage.setItem('morningMilkType', morningMilkType);
-                        localStorage.setItem('morningQuantity', morningQuantity);
-                        localStorage.setItem('morningFrequency', morningFrequency);
-                        localStorage.setItem('morningTimeSlot', morningTimeSlot);
-                        
-                        if (morningFrequency === 'alternate') {
-                            const selectedDays = Array.from(document.querySelectorAll('#morning-days-modal input[type="checkbox"]:checked'))
-                                .map(cb => cb.value);
-                            localStorage.setItem('morningDays', JSON.stringify(selectedDays));
-                        } else {
-                            localStorage.setItem('morningDays', JSON.stringify(['monday','tuesday','wednesday','thursday','friday','saturday','sunday']));
-                        }
-                    } else {
-                        localStorage.setItem('morningDelivery', 'false');
-                    }
-                    
-                    // Save evening delivery data if enabled
-                    const eveningToggle = document.getElementById('evening-toggle');
-                    if (eveningToggle && eveningToggle.checked) {
-                        localStorage.setItem('eveningDelivery', 'true');
-                        const eveningMilkType = document.querySelector('input[name="evening_milk_type"]:checked')?.value || 'cow';
-                        const eveningQuantity = document.getElementById('evening-quantity-select')?.value || '0.5';
-                        const eveningFrequency = document.querySelector('#evening-content .frequency-option.selected')?.getAttribute('data-value') || 'alternate';
-                        const eveningTimeSlot = document.getElementById('evening-time-select')?.value || '6:00-6:30';
-                        
-                        localStorage.setItem('eveningMilkType', eveningMilkType);
-                        localStorage.setItem('eveningQuantity', eveningQuantity);
-                        localStorage.setItem('eveningFrequency', eveningFrequency);
-                        localStorage.setItem('eveningTimeSlot', eveningTimeSlot);
-                        
-                        if (eveningFrequency === 'alternate') {
-                            const selectedDays = Array.from(document.querySelectorAll('#evening-days-modal input[type="checkbox"]:checked'))
-                                .map(cb => cb.value);
-                            localStorage.setItem('eveningDays', JSON.stringify(selectedDays));
-                        } else {
-                            localStorage.setItem('eveningDays', JSON.stringify(['monday','tuesday','wednesday','thursday','friday','saturday','sunday']));
-                        }
-                    } else {
-                        localStorage.setItem('eveningDelivery', 'false');
-                    }
-                    
-                    // Processing complete
-                    
-                    // Check if this was an update
-                    const isEditing = localStorage.getItem('editingSubscription') === 'true';
-                    
-                    if (isEditing) {
-                        // For updates, directly update subscription in localStorage
-                        updateExistingSubscription();
-                        localStorage.setItem('subscriptionUpdate', 'true');
-                        localStorage.removeItem('editingSubscription');
-                        
-                        hideButtonLoading('Continue with Subscription');
-                        window.location.href = 'Subscription Confirmed page.html';
-                    } else {
-                        // For new subscriptions, continue to address setup
-                        hideButtonLoading('Continue with Subscription');
-                        window.location.href = 'Address Setup.html';
-                    }
-            }, 2500);
         }
 
 
 
-        // Load existing subscription data for editing
+        // Load existing subscription data from database
+        async function loadExistingSubscriptionFromDatabase() {
+            try {
+                const subscriptions = await window.subscriptionManager.getSubscriptions();
+                const activeSubscription = subscriptions.find(sub => sub.status === 'active');
+                
+                if (!activeSubscription) {
+                    console.log('No active subscription found');
+                    return;
+                }
+                
+                console.log('📝 Loading existing subscription:', activeSubscription);
+                
+                // Load morning delivery data
+                if (activeSubscription.morning_enabled) {
+                    const morningToggle = document.getElementById('morning-toggle');
+                    morningToggle.checked = true;
+                    toggleTimeSlotEnabled('morning');
+                    
+                    // Set milk type
+                    setTimeout(() => {
+                        const morningMilkRadio = document.querySelector(`input[name="morning_milk_type"][value="${activeSubscription.morning_milk_type}"]`);
+                        if (morningMilkRadio) {
+                            morningMilkRadio.checked = true;
+                            morningMilkRadio.closest('.milk-type-option').classList.add('selected');
+                            document.querySelectorAll('input[name="morning_milk_type"]').forEach(radio => {
+                                if (radio !== morningMilkRadio) {
+                                    radio.closest('.milk-type-option').classList.remove('selected');
+                                }
+                            });
+                        }
+                        
+                        // Set quantity
+                        const quantitySelect = document.getElementById('morning-quantity-select');
+                        if (quantitySelect && activeSubscription.morning_quantity) {
+                            quantitySelect.value = activeSubscription.morning_quantity;
+                        }
+                        
+                        // Set time slot
+                        const timeSelect = document.getElementById('morning-time-select');
+                        if (timeSelect && activeSubscription.morning_time_slot) {
+                            timeSelect.value = activeSubscription.morning_time_slot;
+                        }
+                        
+                        // Set frequency
+                        const frequency = activeSubscription.morning_frequency || 'daily';
+                        const freqOption = document.querySelector(`#morning-content .frequency-option[data-value="${frequency}"]`);
+                        if (freqOption) {
+                            document.querySelectorAll('#morning-content .frequency-option').forEach(opt => opt.classList.remove('selected'));
+                            freqOption.classList.add('selected');
+                        }
+                        
+                        updateSummary();
+                    }, 500);
+                }
+                
+                // Load evening delivery data
+                if (activeSubscription.evening_enabled) {
+                    const eveningToggle = document.getElementById('evening-toggle');
+                    eveningToggle.checked = true;
+                    toggleTimeSlotEnabled('evening');
+                    
+                    // Set milk type
+                    setTimeout(() => {
+                        const eveningMilkRadio = document.querySelector(`input[name="evening_milk_type"][value="${activeSubscription.evening_milk_type}"]`);
+                        if (eveningMilkRadio) {
+                            eveningMilkRadio.checked = true;
+                            eveningMilkRadio.closest('.milk-type-option').classList.add('selected');
+                            document.querySelectorAll('input[name="evening_milk_type"]').forEach(radio => {
+                                if (radio !== eveningMilkRadio) {
+                                    radio.closest('.milk-type-option').classList.remove('selected');
+                                }
+                            });
+                        }
+                        
+                        // Set quantity
+                        const quantitySelect = document.getElementById('evening-quantity-select');
+                        if (quantitySelect && activeSubscription.evening_quantity) {
+                            quantitySelect.value = activeSubscription.evening_quantity;
+                        }
+                        
+                        // Set time slot
+                        const timeSelect = document.getElementById('evening-time-select');
+                        if (timeSelect && activeSubscription.evening_time_slot) {
+                            timeSelect.value = activeSubscription.evening_time_slot;
+                        }
+                        
+                        // Set frequency
+                        const frequency = activeSubscription.evening_frequency || 'alternate';
+                        const freqOption = document.querySelector(`#evening-content .frequency-option[data-value="${frequency}"]`);
+                        if (freqOption) {
+                            document.querySelectorAll('#evening-content .frequency-option').forEach(opt => opt.classList.remove('selected'));
+                            freqOption.classList.add('selected');
+                        }
+                        
+                        updateSummary();
+                    }, 500);
+                }
+                
+            } catch (error) {
+                console.error('Failed to load existing subscription:', error);
+            }
+        }
+        
+        // Load existing subscription data for editing (legacy localStorage)
         function loadExistingSubscriptionData() {
             // Load morning delivery data
             const morningEnabled = localStorage.getItem('morningDelivery') === 'true';
@@ -3262,10 +3311,13 @@
 
         // Go back function
         function goBack() {
-            // Clear editing flag when going back
-            localStorage.removeItem('editingSubscription');
-            // Force redirect to homepage
-            window.location.replace('../pages/7-Homepage.html');
+            // Check if we came from address setup
+            const referrer = document.referrer;
+            if (referrer.includes('Address Setup.html')) {
+                window.location.href = 'Address Setup.html';
+            } else {
+                window.location.replace('../pages/7-Homepage.html');
+            }
         }
     </script>
 </body>

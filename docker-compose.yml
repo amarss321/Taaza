@@ -108,6 +108,7 @@ services:
       - DB_PORT=5432
       - DB_USER=taaza
       - DB_PASSWORD=taaza123
+      - DB_NAME=taaza_inventory
       - PORT=8083
     depends_on:
       postgres:

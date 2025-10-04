@@ -3184,37 +3184,63 @@
         // Load stock data from API
         async function loadStockFromAPI() {
             try {
+                console.log('🔄 Loading stock data from API...');
+                
                 const [productsResponse, stockResponse] = await Promise.all([
                     inventoryAPI.getProducts(),
                     inventoryAPI.getStock()
                 ]);
                 
+                console.log('📊 Products response:', productsResponse);
+                console.log('📊 Stock response:', stockResponse);
+                
                 // Build product mapping
-                productsResponse.products.forEach(product => {
-                    productMap[product.type] = product.id;
-                });
+                if (productsResponse && productsResponse.products) {
+                    productsResponse.products.forEach(product => {
+                        productMap[product.type] = product.id;
+                    });
+                }
                 
                 // Update stock data
-                stockResponse.stock.forEach(product => {
-                    const type = product.type;
-                    stockData[type] = {
-                        morning: {
-                            stock: product.morning.total_stock,
-                            booked: product.morning.booked_stock
-                        },
-                        evening: {
-                            stock: product.evening.total_stock,
-                            booked: product.evening.booked_stock
-                        },
-                        price: product.price
-                    };
-                });
+                if (stockResponse && stockResponse.stock) {
+                    stockResponse.stock.forEach(product => {
+                        const type = product.type;
+                        stockData[type] = {
+                            morning: {
+                                stock: product.morning.total_stock || 0,
+                                booked: product.morning.booked_stock || 0
+                            },
+                            evening: {
+                                stock: product.evening.total_stock || 0,
+                                booked: product.evening.booked_stock || 0
+                            },
+                            price: product.price || 0
+                        };
+                    });
+                }
                 
-                console.log('📊 Stock data loaded from API:', stockData);
+                console.log('📊 Final stock data:', stockData);
+                console.log('📊 Product mapping:', productMap);
                 updateStockDisplay();
+                showToast('Inventory data loaded successfully', 'success');
             } catch (error) {
                 console.error('Failed to load stock from API:', error);
-                showToast('Failed to load inventory data', 'error');
+                showToast('Failed to load inventory data: ' + error.message, 'error');
+                
+                // Initialize with default data to prevent crashes
+                stockData = {
+                    buffalo: { 
+                        morning: { stock: 0, booked: 0 },
+                        evening: { stock: 0, booked: 0 },
+                        price: 75 
+                    },
+                    cow: { 
+                        morning: { stock: 0, booked: 0 },
+                        evening: { stock: 0, booked: 0 },
+                        price: 50 
+                    }
+                };
+                updateStockDisplay();
             }
         }
 

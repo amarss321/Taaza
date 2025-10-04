@@ -69,6 +69,13 @@ func main() {
 			admin.Any("/users/*path", handlers.ProxyToAdminService)
 			admin.Any("/users", handlers.ProxyToAdminService)
 		}
+
+		// Inventory routes
+		inventory := v1.Group("/inventory")
+		{
+			inventory.Any("/*path", handlers.ProxyToInventoryService)
+			inventory.Any("", handlers.ProxyToInventoryService)
+		}
 	}
 
 	// Catch-all for other routes

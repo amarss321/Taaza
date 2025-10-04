@@ -218,6 +218,9 @@
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <!-- Database API Scripts -->
+    <script src="../js/data-api.js"></script>
+    <script src="../js/subscription-manager.js"></script>
 </head>
 
 <body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
@@ -544,13 +547,27 @@
         // Dynamic pricing - updates from admin
         let milkPrices = getMilkPrices();
 
-        // Load subscription data from localStorage
-        function loadSubscriptionData() {
+        // Load subscription data from database first, then localStorage
+        async function loadSubscriptionData() {
             // Refresh prices from admin first
             milkPrices = getMilkPrices();
             
-            // Check for real subscription data from admin system
-            const userSubscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+            // 🔥 NEW: Try database first
+            let userSubscriptions = [];
+            try {
+                if (window.subscriptionManager) {
+                    userSubscriptions = await window.subscriptionManager.getSubscriptions();
+                    console.log('Loaded subscriptions from database:', userSubscriptions);
+                }
+            } catch (error) {
+                console.error('Database load failed, using localStorage:', error);
+            }
+            
+            // Fallback to localStorage if database is empty
+            if (userSubscriptions.length === 0) {
+                userSubscriptions = JSON.parse(localStorage.getItem('userSubscriptions') || '[]');
+                console.log('Using localStorage subscriptions:', userSubscriptions);
+            }
             
             if (userSubscriptions.length > 0) {
                 // Find the most recent active subscription (highest ID)
@@ -934,19 +951,28 @@
             generateUpcomingDeliveriesFromSubscription(subscription);
         }
         
-        // Display subscription details from admin data
+        // Display subscription details from database or localStorage
         function displaySubscriptionDetails(subscription) {
             // Refresh prices to ensure we have latest admin prices
             milkPrices = getMilkPrices();
             
-            if (subscription.morningDelivery && subscription.morningDelivery.enabled) {
+            // Handle both database format and localStorage format
+            const morningData = subscription.morning_enabled ? {
+                enabled: subscription.morning_enabled,
+                milkType: subscription.morning_milk_type,
+                quantity: subscription.morning_quantity,
+                frequency: subscription.morning_frequency,
+                timeSlot: subscription.morning_time_slot,
+                days: subscription.morning_days || []
+            } : subscription.morningDelivery;
+            
+            if (morningData && morningData.enabled) {
                 const morningPlan = document.getElementById('morning-plan');
                 morningPlan.classList.remove('hidden');
                 
-                const morning = subscription.morningDelivery;
-                const milkTypeName = morning.milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
+                const milkTypeName = morningData.milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
                 
-                document.getElementById('morning-plan-title').textContent = `${morning.quantity}L ${milkTypeName}`;
+                document.getElementById('morning-plan-title').textContent = `${morningData.quantity}L ${milkTypeName}`;
                 
                 // Show frequency with days
                 const dayNames = {
@@ -954,32 +980,41 @@
                     'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
                 };
                 
-                if (morning.frequency === 'daily') {
+                if (morningData.frequency === 'daily') {
                     document.getElementById('morning-frequency').textContent = 'Daily';
                 } else {
-                    const shortDays = morning.days ? morning.days.map(day => dayNames[day]).join(', ') : 'Alternate Days';
+                    const shortDays = morningData.days ? morningData.days.map(day => dayNames[day]).join(', ') : 'Alternate Days';
                     document.getElementById('morning-frequency').textContent = shortDays;
                 }
                 
-                document.getElementById('morning-time-display').textContent = morning.timeSlot;
+                document.getElementById('morning-time-display').textContent = morningData.timeSlot;
                 
                 // Recalculate with current admin prices
-                const currentPrice = milkPrices[morning.milkType];
-                const dailyPrice = morning.quantity * currentPrice;
-                const daysPerMonth = morning.frequency === 'daily' ? 30 : (morning.days ? morning.days.length * 4 : 30);
+                const currentPrice = milkPrices[morningData.milkType];
+                const dailyPrice = morningData.quantity * currentPrice;
+                const daysPerMonth = morningData.frequency === 'daily' ? 30 : (morningData.days ? morningData.days.length * 4 : 30);
                 const monthlyPrice = dailyPrice * daysPerMonth;
                 
                 document.getElementById('morning-cost').innerHTML = `<span class="text-lg font-bold">₹${dailyPrice}</span><span class="text-sm">/day</span>`;
             }
             
-            if (subscription.eveningDelivery && subscription.eveningDelivery.enabled) {
+            // Handle both database format and localStorage format
+            const eveningData = subscription.evening_enabled ? {
+                enabled: subscription.evening_enabled,
+                milkType: subscription.evening_milk_type,
+                quantity: subscription.evening_quantity,
+                frequency: subscription.evening_frequency,
+                timeSlot: subscription.evening_time_slot,
+                days: subscription.evening_days || []
+            } : subscription.eveningDelivery;
+            
+            if (eveningData && eveningData.enabled) {
                 const eveningPlan = document.getElementById('evening-plan');
                 eveningPlan.classList.remove('hidden');
                 
-                const evening = subscription.eveningDelivery;
-                const milkTypeName = evening.milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
+                const milkTypeName = eveningData.milkType === 'buffalo' ? 'Buffalo Milk' : 'Cow Milk';
                 
-                document.getElementById('evening-plan-title').textContent = `${evening.quantity}L ${milkTypeName}`;
+                document.getElementById('evening-plan-title').textContent = `${eveningData.quantity}L ${milkTypeName}`;
                 
                 // Show frequency with days
                 const dayNames = {
@@ -987,19 +1022,19 @@
                     'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun'
                 };
                 
-                if (evening.frequency === 'daily') {
+                if (eveningData.frequency === 'daily') {
                     document.getElementById('evening-frequency').textContent = 'Daily';
                 } else {
-                    const shortDays = evening.days ? evening.days.map(day => dayNames[day]).join(', ') : 'Alternate Days';
+                    const shortDays = eveningData.days ? eveningData.days.map(day => dayNames[day]).join(', ') : 'Alternate Days';
                     document.getElementById('evening-frequency').textContent = shortDays;
                 }
                 
-                document.getElementById('evening-time-display').textContent = evening.timeSlot;
+                document.getElementById('evening-time-display').textContent = eveningData.timeSlot;
                 
                 // Recalculate with current admin prices
-                const currentPrice = milkPrices[evening.milkType];
-                const dailyPrice = evening.quantity * currentPrice;
-                const daysPerMonth = evening.frequency === 'daily' ? 30 : (evening.days ? evening.days.length * 4 : 30);
+                const currentPrice = milkPrices[eveningData.milkType];
+                const dailyPrice = eveningData.quantity * currentPrice;
+                const daysPerMonth = eveningData.frequency === 'daily' ? 30 : (eveningData.days ? eveningData.days.length * 4 : 30);
                 const monthlyPrice = dailyPrice * daysPerMonth;
                 
                 document.getElementById('evening-cost').innerHTML = `<span class="text-lg font-bold">₹${dailyPrice}</span><span class="text-sm">/day</span>`;
@@ -1166,8 +1201,8 @@
         }
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', function () {
-            loadSubscriptionData();
+        document.addEventListener('DOMContentLoaded', async function () {
+            await loadSubscriptionData();
         });
     </script>
 </body>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Usage Example</title>
+</head>
+<body>
+    <h1>Database-based Data Management</h1>
+    
+    <div id="status">Loading...</div>
+    
+    <button onclick="testSubscriptions()">Test Subscriptions</button>
+    <button onclick="testPreferences()">Test Preferences</button>
+    
+    <!-- Include the new database-based scripts -->
+    <script src="js/db-session.js"></script>
+    <script src="js/data-api.js"></script>
+    <script src="js/subscription-manager.js"></script>
+    
+    <script>
+        // Example usage
+        async function testSubscriptions() {
+            try {
+                // Get existing subscriptions
+                const subscriptions = await window.subscriptionManager.getSubscriptions();
+                console.log('Current subscriptions:', subscriptions);
+                
+                // Create a new subscription
+                if (subscriptions.length === 0) {
+                    const newSub = await window.subscriptionManager.createSubscription({
+                        morningEnabled: true,
+                        morningMilkType: 'buffalo',
+                        morningQuantity: 1.0,
+                        morningFrequency: 'daily',
+                        morningTimeSlot: '7:00-7:30',
+                        morningDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+                        addressData: { label: 'Home', address: '123 Main St' }
+                    });
+                    console.log('Created subscription:', newSub);
+                }
+                
+                document.getElementById('status').textContent = 'Subscription operations completed';
+            } catch (error) {
+                console.error('Subscription test failed:', error);
+                document.getElementById('status').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testPreferences() {
+            try {
+                // Set some preferences
+                await window.dataAPI.setPreferences({
+                    'theme': 'dark',
+                    'notifications': 'enabled',
+                    'language': 'en'
+                });
+                
+                // Get preferences
+                const prefs = await window.dataAPI.getPreferences();
+                console.log('Current preferences:', prefs);
+                
+                document.getElementById('status').textContent = 'Preference operations completed';
+            } catch (error) {
+                console.error('Preference test failed:', error);
+                document.getElementById('status').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        // Auto-migrate localStorage data on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    await window.dataAPI.migrateLocalStorageData();
+                    document.getElementById('status').textContent = 'Ready - localStorage data migrated';
+                } catch (error) {
+                    console.error('Migration failed:', error);
+                    document.getElementById('status').textContent = 'Ready - Migration failed';
+                }
+            } else {
+                document.getElementById('status').textContent = 'Ready - No authentication token';
+            }
+        });
+    </script>
+</body>
+</html>

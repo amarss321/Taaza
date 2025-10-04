@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taaza - Delivery Address</title>
+    <title>Taaza - Subscription Summary</title>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
@@ -149,7 +149,7 @@
                     onclick="goBack()" aria-label="Go back">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
-                <h1 class="text-lg font-bold">Delivery Address</h1>
+                <h1 class="text-lg font-bold">Subscription Summary</h1>
                 <div class="w-8"></div>
             </div>
         </header>
@@ -158,51 +158,44 @@
 
         <!-- Main Content -->
         <main class="flex-grow p-4 space-y-6 slide-up">
-            <!-- Delivery Address Selection -->
+            <!-- Subscription Summary -->
             <div class="section-card">
                 <div class="flex items-center gap-3 mb-4">
-                    <span class="material-symbols-outlined text-zepto-blue dark:text-primary">location_on</span>
-                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Select Delivery Address</h2>
+                    <span class="material-symbols-outlined text-zepto-blue dark:text-primary">receipt_long</span>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Your Subscription</h2>
                 </div>
 
                 <!-- Loading State -->
                 <div id="loading-state" class="text-center py-8">
                     <div class="spinner mx-auto mb-3"></div>
-                    <p class="text-gray-600 dark:text-gray-400">Loading addresses...</p>
+                    <p class="text-gray-600 dark:text-gray-400">Loading subscription...</p>
                 </div>
 
                 <!-- Error State -->
                 <div id="error-state" class="hidden text-center py-8">
                     <span class="material-symbols-outlined text-4xl text-red-500 mb-2">error</span>
-                    <p class="text-red-600 dark:text-red-400 mb-4">Failed to load addresses</p>
-                    <button onclick="loadAddresses()" class="bg-zepto-blue text-white px-4 py-2 rounded-lg hover:bg-blue-800">
+                    <p class="text-red-600 dark:text-red-400 mb-4">Failed to load subscription</p>
+                    <button onclick="loadSubscription()" class="bg-zepto-blue text-white px-4 py-2 rounded-lg hover:bg-blue-800">
                         Try Again
                     </button>
                 </div>
 
-                <div id="addresses-list" class="space-y-4 hidden"></div>
+                <div id="subscription-details" class="space-y-4 hidden"></div>
                 
                 <div id="empty-state" class="hidden text-center py-8">
-                    <span class="material-symbols-outlined text-4xl text-gray-400 mb-2">location_off</span>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">No addresses found</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-500">Add your first address to continue</p>
+                    <span class="material-symbols-outlined text-4xl text-gray-400 mb-2">receipt_long</span>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">No subscription found</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">Create your first subscription</p>
                 </div>
             </div>
-
-            <!-- Add Address Button -->
-            <button onclick="openModal()" 
-                class="w-full flex items-center justify-center gap-2 bg-zepto-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors">
-                <span class="material-symbols-outlined">add</span>
-                Add New Address
-            </button>
         </main>
 
         <!-- Footer -->
         <footer
             class="p-4 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200 dark:border-zinc-700">
-            <button id="continue-btn" onclick="proceedToPayment()" disabled
+            <button id="continue-btn" onclick="continueToPayment()" disabled
                 class="w-full bg-primary text-background-dark font-bold py-3 px-4 rounded-lg text-center hover:bg-yellow-500 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus disabled:opacity-50 disabled:cursor-not-allowed">
-                Continue to Summary
+                Continue to Payment
             </button>
         </footer>
     </div>
@@ -303,49 +296,51 @@
     </div>
 
     <script src="../js/addresses-api.js"></script>
+    <script src="../js/data-api.js"></script>
+    <script src="../js/subscription-manager.js"></script>
     <script>
-        let addresses = [];
-        let selectedAddressId = null;
-        let addressAPI = new AddressAPI();
-        
-        // Google Maps variables
-        let map, marker, selectedLocation = null;
-        let autocomplete;
+        let subscription = null;
 
         document.addEventListener('DOMContentLoaded', function () {
-            loadAddresses();
+            loadSubscription();
         });
 
-        async function loadAddresses() {
+
+        async function loadSubscription() {
             const loadingState = document.getElementById('loading-state');
             const errorState = document.getElementById('error-state');
-            const addressesList = document.getElementById('addresses-list');
+            const subscriptionDetails = document.getElementById('subscription-details');
             const emptyState = document.getElementById('empty-state');
             
             // Show loading state
             loadingState.classList.remove('hidden');
             errorState.classList.add('hidden');
-            addressesList.classList.add('hidden');
+            subscriptionDetails.classList.add('hidden');
             emptyState.classList.add('hidden');
             
             try {
-                addresses = await addressAPI.getAddresses();
+                const subscriptions = await window.subscriptionManager.getSubscriptions();
+                subscription = subscriptions.find(sub => sub.user_id) || subscriptions[0];
                 loadingState.classList.add('hidden');
-                renderAddresses();
+                
+                if (subscription) {
+                    renderSubscription();
+                } else {
+                    emptyState.classList.remove('hidden');
+                }
             } catch (error) {
-                console.error('Failed to load addresses:', error);
+                console.error('Failed to load subscription:', error);
                 loadingState.classList.add('hidden');
                 errorState.classList.remove('hidden');
                 
-                // Show specific error message
                 const errorMsg = error.message.includes('401') ? 
                     'Session expired' : 
                     'Load failed';
-                showToast(errorMsg);
+                showToast(errorMsg, 'error');
             }
         }
 
-        function renderAddresses() {
+        async function renderAddresses() {
             const list = document.getElementById('addresses-list');
             const empty = document.getElementById('empty-state');
             const continueBtn = document.getElementById('continue-btn');
@@ -400,7 +395,10 @@
                 list.appendChild(card);
             });
             
-            // Auto-select default address or first address
+            // Load saved address from database first, then fallback to default
+            await loadSelectedAddressFromDatabase();
+            
+            // Auto-select default address or first address if none saved
             if (!selectedAddressId) {
                 const defaultAddr = addresses.find(addr => addr.is_default);
                 const firstAddr = addresses[0];
@@ -424,38 +422,68 @@
             openModal(addr);
         }
 
-        function proceedToPayment() {
+        async function continueWithAddress() {
+            console.log('🔍 proceedToPayment called');
+            console.log('🔍 selectedAddressId:', selectedAddressId);
+            
             if (!selectedAddressId) {
                 showToast('Select address');
                 return;
             }
 
             const selectedAddress = addresses.find(addr => addr.id === selectedAddressId);
+            console.log('🔍 selectedAddress:', selectedAddress);
+            
             if (!selectedAddress) {
                 showToast('Address not found');
                 return;
             }
 
-            const addressData = {
-                id: selectedAddress.id,
-                label: selectedAddress.label,
-                address_line: selectedAddress.address_line,
-                city: selectedAddress.city,
-                zip_code: selectedAddress.zip_code,
-                country: selectedAddress.country,
-                latitude: selectedAddress.latitude,
-                longitude: selectedAddress.longitude
-            };
-
-            localStorage.setItem('subscriptionAddress', JSON.stringify(addressData));
-
             const button = event.target;
             button.textContent = 'Processing...';
             button.disabled = true;
 
-            setTimeout(() => {
+            try {
+                // Save address directly to database
+                const addressData = {
+                    id: selectedAddress.id,
+                    label: selectedAddress.label,
+                    address_line: selectedAddress.address_line,
+                    city: selectedAddress.city,
+                    zip_code: selectedAddress.zip_code,
+                    country: selectedAddress.country,
+                    latitude: selectedAddress.latitude,
+                    longitude: selectedAddress.longitude
+                };
+                
+                console.log('💾 Address data to save:', addressData);
+
+                            // Update only address data using dedicated endpoint
+                const subscriptions = await window.subscriptionManager.getSubscriptions();
+                console.log('📝 All subscriptions:', subscriptions);
+                
+                const userSubscription = subscriptions.find(sub => sub.user_id) || subscriptions[0];
+                console.log('🎯 User subscription:', userSubscription);
+                
+                if (userSubscription) {
+                    console.log('🔄 Updating address for subscription ID:', userSubscription.id);
+                    
+                    // Use dedicated address update endpoint
+                    await updateSubscriptionAddress(userSubscription.id, addressData);
+                    console.log('✅ Address saved to database successfully');
+                } else {
+                    console.error('❌ No subscription found');
+                    showToast('No subscription found', 'error');
+                    return;
+                }
+
                 window.location.href = 'Final Confirmation.html';
-            }, 1000);
+            } catch (error) {
+                console.error('❌ Failed to save address:', error);
+                button.textContent = 'Continue with Address';
+                button.disabled = false;
+                showToast('Failed to save address', 'error');
+            }
         }
 
         function openModal(editAddr) {
@@ -764,6 +792,23 @@
                     }
                 }, 300);
             }, 3000);
+        }
+
+        // Update subscription address only
+        async function updateSubscriptionAddress(subscriptionId, addressData) {
+            const response = await fetch(`/api/v1/users/subscriptions/${subscriptionId}/address`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(addressData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            return response.json();
         }
 
         function goBack() {
