@@ -615,20 +615,66 @@
             background-color: #dc2626;
             color: white;
             padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             z-index: 1100;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-50%) translateY(-10px);
+            min-width: 280px;
+            max-width: 400px;
+        }
+
+        .toast.success {
+            background-color: #10B981;
+            border-left: 4px solid #059669;
+        }
+
+        .toast.error {
+            background-color: #dc2626;
+            border-left: 4px solid #b91c1c;
+        }
+
+        .toast.warning {
+            background-color: #f59e0b;
+            border-left: 4px solid #d97706;
+        }
+
+        .toast.info {
+            background-color: #3b82f6;
+            border-left: 4px solid #2563eb;
         }
 
         .dark .toast {
-            background-color: #FFD700;
-            color: #0C2D57;
+            background-color: #1f2937;
+            color: #f9fafb;
+            border: 1px solid #374151;
+        }
+
+        .dark .toast.success {
+            background-color: #064e3b;
+            border-left-color: #10B981;
+        }
+
+        .dark .toast.error {
+            background-color: #7f1d1d;
+            border-left-color: #ef4444;
         }
 
         .toast.show {
             opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-icon {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
         }
 
         /* Custom animations */
@@ -954,10 +1000,111 @@
             font-size: 18px;
             font-weight: 700;
             color: #0C2D57;
+            animation: priceUpdate 0.5s ease-in-out;
         }
 
         .dark .price-highlight {
             color: #FFD700;
+        }
+
+        @keyframes priceUpdate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Stock status indicators */
+        .stock-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 6px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        .stock-available {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .stock-low {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .stock-out {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .dark .stock-available {
+            background-color: #064e3b;
+            color: #10b981;
+        }
+
+        .dark .stock-low {
+            background-color: #451a03;
+            color: #f59e0b;
+        }
+
+        .dark .stock-out {
+            background-color: #7f1d1d;
+            color: #ef4444;
+        }
+
+        /* Improved button states */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Enhanced modal animations */
+        .modal {
+            backdrop-filter: blur(4px);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+            to {
+                opacity: 1;
+                backdrop-filter: blur(4px);
+            }
+        }
+
+        .modal-content {
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .section-header {
@@ -1566,7 +1713,13 @@
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">We'll notify you when this milk type is back in stock. Please provide your preferences:</p>
+            <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3 mb-4">
+                <div class="flex items-center text-orange-600 dark:text-orange-400">
+                    <span class="material-symbols-outlined mr-2">notifications_active</span>
+                    <p class="text-sm font-medium">We'll notify you when this milk type is back in stock!</p>
+                </div>
+                <p class="text-xs text-orange-500 dark:text-orange-300 mt-1 ml-7">Please provide your preferences below:</p>
+            </div>
 
             <!-- User Details -->
             <div class="mb-4">
@@ -1626,8 +1779,8 @@
 
     <!-- Toast Notification -->
     <div id="toast" class="toast">
-        <div class="flex items-center">
-            <span class="material-symbols-outlined mr-2">check_circle</span>
+        <div class="toast-content">
+            <span id="toast-icon" class="material-symbols-outlined toast-icon">check_circle</span>
             <span id="toast-message">Subscription confirmed successfully!</span>
         </div>
     </div>
@@ -1794,7 +1947,7 @@
                     console.log('Prices updated:', milkPrices);
                     await updatePriceDisplays();
                     updateSummary();
-                    showToast('Prices updated by admin');
+                    showInfoToast('Prices updated', 2000);
                 }
             }, 5000); // Check every 5 seconds
         }
@@ -1919,15 +2072,15 @@
             
             // Validation
             if (!name) {
-                showToast('Enter name');
+                showWarningToast('Enter name');
                 return;
             }
             if (!phone || phone.length < 10) {
-                showToast('Valid phone required');
+                showWarningToast('Valid phone required');
                 return;
             }
             if (!morningSelected && !eveningSelected) {
-                showToast('Select delivery time');
+                showWarningToast('Select delivery time');
                 return;
             }
             
@@ -1969,7 +2122,7 @@
                 submitBtn.textContent = originalText;
                 
                 closeNotifyModal();
-                showToast('Notification sent successfully');
+                showSuccessToast('Notification sent');
                 
                 console.log('✅ Notification request submitted via API:', {
                     customerName: name,
@@ -1985,7 +2138,7 @@
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
                 
-                showToast('Failed to send notification. Please try again.');
+                showErrorToast('Send failed');
             }
         }
         
@@ -2024,15 +2177,25 @@
                             <div class="milk-type-price">
                                 ${isAvailable ? 
                                     `₹${milkPrices[milk.type]}/L - ${milk.desc}` : 
-                                    `<span class="text-red-500">Out of Stock</span>`
+                                    `₹${milkPrices[milk.type]}/L - ${milk.desc}`
                                 }
                             </div>
                             ${!isAvailable ? `
+                                <div class="stock-indicator stock-out">
+                                    <span class="material-symbols-outlined" style="font-size: 14px;">inventory_2</span>
+                                    Out of Stock
+                                </div>
                                 <button type="button" onclick="addToWaitingQueue('${milk.type}', '${slot}', 0.5)" 
-                                        class="mt-2 bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
+                                        class="mt-2 bg-orange-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-orange-600 transition-all duration-200 transform hover:scale-105">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 4px;">notifications</span>
                                     Notify Me
                                 </button>
-                            ` : ''}
+                            ` : `
+                                <div class="stock-indicator stock-available">
+                                    <span class="material-symbols-outlined" style="font-size: 14px;">check_circle</span>
+                                    Available
+                                </div>
+                            `}
                         </label>
                     `;
                 }
@@ -2186,7 +2349,18 @@
             if (!hasAvailableOptions) {
                 stockInfo = document.createElement('div');
                 stockInfo.className = 'stock-info text-xs text-red-600 mt-1';
-                stockInfo.innerHTML = `Out of stock. <button onclick="addToWaitingQueue('${selectedMilkType}', '${slot}', 0.5)" class="text-orange-500 underline">Get notified</button> when available.`;
+                stockInfo.innerHTML = `
+                    <div class="flex items-center justify-between p-2 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                        <span class="text-red-600 dark:text-red-400 text-xs flex items-center">
+                            <span class="material-symbols-outlined mr-1" style="font-size: 16px;">inventory_2</span>
+                            Out of stock
+                        </span>
+                        <button onclick="addToWaitingQueue('${selectedMilkType}', '${slot}', 0.5)" 
+                                class="text-orange-500 hover:text-orange-600 underline text-xs font-medium transition-colors">
+                            Get notified
+                        </button>
+                    </div>
+                `;
                 container.appendChild(stockInfo);
             }
             
@@ -2604,7 +2778,7 @@
             const eveningEnabled = document.getElementById('evening-toggle').checked;
             
             if (!morningEnabled && !eveningEnabled) {
-                showToast('Select delivery slot');
+                showWarningToast('Select delivery slot');
                 return;
             }
             
@@ -2641,7 +2815,7 @@
             }
             
             if (!hasValidPlan) {
-                showToast('Complete plan selection');
+                showWarningToast('Complete selection');
                 return;
             }
             
@@ -2707,7 +2881,7 @@
                     }
                 } catch (error) {
                     console.error('Booking error:', error);
-                    showToast('Booking failed. Please try again.');
+                    showErrorToast('Booking failed');
                     hideButtonLoading('Continue with Subscription');
                     return;
                 }
@@ -3025,15 +3199,65 @@
         
         window.clearNotificationQueue = clearNotificationQueue;
 
-        // Show toast notification
-        function showToast(message) {
+        // Enhanced toast notification system
+        function showToast(message, type = 'error', duration = 3000) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            // Clear existing classes
+            toast.className = 'toast';
+            
+            // Set message
             toastMessage.textContent = message;
+            
+            // Set icon and type
+            switch(type) {
+                case 'success':
+                    toast.classList.add('success');
+                    toastIcon.textContent = 'check_circle';
+                    break;
+                case 'error':
+                    toast.classList.add('error');
+                    toastIcon.textContent = 'error';
+                    break;
+                case 'warning':
+                    toast.classList.add('warning');
+                    toastIcon.textContent = 'warning';
+                    break;
+                case 'info':
+                    toast.classList.add('info');
+                    toastIcon.textContent = 'info';
+                    break;
+                default:
+                    toast.classList.add('error');
+                    toastIcon.textContent = 'error';
+            }
+            
+            // Show toast
             toast.classList.add('show');
+            
+            // Hide after duration
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 2000);
+            }, duration);
+        }
+        
+        // Convenience functions for different toast types
+        function showSuccessToast(message, duration = 3000) {
+            showToast(message, 'success', duration);
+        }
+        
+        function showErrorToast(message, duration = 3000) {
+            showToast(message, 'error', duration);
+        }
+        
+        function showWarningToast(message, duration = 3000) {
+            showToast(message, 'warning', duration);
+        }
+        
+        function showInfoToast(message, duration = 3000) {
+            showToast(message, 'info', duration);
         }
 
         // Go back function
