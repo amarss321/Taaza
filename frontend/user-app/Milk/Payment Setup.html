@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taaza - Payment Setup</title>
+    <title>Taaza - Enable Auto-Pay</title>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
@@ -90,33 +90,18 @@
                     onclick="goBack()" aria-label="Go back">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
-                <h1 class="text-lg font-bold">Payment Setup</h1>
+                <h1 class="text-lg font-bold">Enable Auto-Pay</h1>
                 <div class="w-8"></div>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="flex-grow p-4 space-y-6 slide-up">
-            <!-- Order Summary -->
-            <div class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
-                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">Order Summary</h2>
-                <div id="orderSummary" class="space-y-2 mb-4">
-                    <!-- Order details will be populated -->
-                </div>
-                <div class="border-t border-gray-200 dark:border-zinc-600 pt-3">
-                    <div class="flex justify-between items-center font-bold text-lg">
-                        <span>Total Amount:</span>
-                        <span id="totalAmount" class="text-zepto-blue dark:text-primary">₹0</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Payment Methods -->
             <div class="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700">
                 <div class="flex items-center gap-3 mb-4">
                     <span class="material-symbols-outlined text-zepto-blue dark:text-primary">payment</span>
                     <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Choose Payment Method</h2>
-                    <span class="text-red-500 text-sm font-medium">*Required</span>
                 </div>
 
                 <div class="space-y-4">
@@ -168,7 +153,7 @@
                         <label for="autoPayment" class="text-sm font-medium text-blue-800 dark:text-blue-200">Enable Auto-Payment</label>
                     </div>
                     <p class="text-xs text-blue-700 dark:text-blue-300 ml-6">
-                        Automatically charge for each delivery. You can disable this anytime.
+                        Automatically charges for only Tommarows delivery. You can disable this anytime.
                     </p>
                 </div>
             </div>
@@ -253,7 +238,7 @@
                 button.disabled = false;
                 button.classList.remove('bg-gray-400');
                 button.classList.add('bg-primary', 'hover:bg-yellow-500', 'transform', 'hover:scale-[1.02]', 'active:scale-[0.98]');
-                button.textContent = 'Confirm & Pay';
+                button.textContent = 'Enable Auto-Pay';
             } else {
                 button.disabled = true;
                 button.classList.add('bg-gray-400');
