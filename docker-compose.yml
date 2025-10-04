@@ -98,6 +98,24 @@ services:
       - taaza-network
     restart: unless-stopped
 
+  # Inventory Service
+  inventory-service:
+    build: ./inventory-service
+    ports:
+      - "8083:8083"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=taaza
+      - DB_PASSWORD=taaza123
+      - PORT=8083
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - taaza-network
+    restart: unless-stopped
+
   # API Gateway
   api-gateway:
     build: ./api-gateway
@@ -106,6 +124,7 @@ services:
     environment:
       - USER_SERVICE_URL=http://user-service:8081
       - ADMIN_SERVICE_URL=http://admin-service:8082
+      - INVENTORY_SERVICE_URL=http://inventory-service:8083
       - REDIS_URL=redis:6379
       - JWT_SECRET=your-secret-key-here
       - PORT=8080

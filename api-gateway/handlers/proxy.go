@@ -20,6 +20,10 @@ func ProxyToAdminService(c *gin.Context) {
 	proxyRequest(c, os.Getenv("ADMIN_SERVICE_URL"))
 }
 
+func ProxyToInventoryService(c *gin.Context) {
+	proxyRequest(c, os.Getenv("INVENTORY_SERVICE_URL"))
+}
+
 func proxyRequest(c *gin.Context, targetURL string) {
 	// Build target URL
 	url := targetURL + c.Request.URL.Path
@@ -91,6 +95,12 @@ func RouteBasedOnJWT(c *gin.Context) {
 	// User routes
 	if strings.HasPrefix(path, "/api/v1/users/") {
 		ProxyToUserService(c)
+		return
+	}
+	
+	// Inventory routes
+	if strings.HasPrefix(path, "/api/v1/inventory/") {
+		ProxyToInventoryService(c)
 		return
 	}
 	
