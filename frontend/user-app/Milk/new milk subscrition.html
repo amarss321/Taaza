@@ -1633,13 +1633,20 @@
     </div>
 
     <script>
+        // Dynamic pricing - updates from admin
+        let milkPrices = { buffalo: 80, cow: 70 }; // Default fallback
+        
         // Get milk prices from API
         async function getMilkPrices() {
-            return await getMilkPricesFromAPI();
+            try {
+                const prices = await getMilkPricesFromAPI();
+                milkPrices = prices;
+                return prices;
+            } catch (error) {
+                console.error('Failed to get prices:', error);
+                return milkPrices;
+            }
         }
-        
-        // Dynamic pricing - updates from admin
-        let milkPrices = getMilkPrices();
 
         // Quantity options with their liter values
         const quantityOptions = [
@@ -1776,13 +1783,35 @@
         
         window.createTestNotifyRequest = createTestNotifyRequest;
 
+        // Real-time price monitoring
+        function startPriceMonitoring() {
+            setInterval(async () => {
+                const oldPrices = { ...milkPrices };
+                await getMilkPrices();
+                
+                // Check if prices changed
+                if (oldPrices.buffalo !== milkPrices.buffalo || oldPrices.cow !== milkPrices.cow) {
+                    console.log('Prices updated:', milkPrices);
+                    await updatePriceDisplays();
+                    updateSummary();
+                    showToast('Prices updated by admin');
+                }
+            }, 5000); // Check every 5 seconds
+        }
+        
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async function () {
             // Initialize stock data first
             initializeStockData();
             
+            // Load prices first
+            await getMilkPrices();
+            
             // Update prices from admin first
-            updatePriceDisplays();
+            await updatePriceDisplays();
+            
+            // Start real-time price monitoring
+            startPriceMonitoring();
             
             // Check if we're editing an existing subscription
             const isEditing = localStorage.getItem('editingSubscription') === 'true';
@@ -1810,13 +1839,13 @@
                 document.getElementById('confirm-btn').textContent = 'Update Subscription';
             }
 
-            // Update the summary
-            updateSummary();
+            // Update the summary after everything is loaded
+            setTimeout(() => updateSummary(), 500);
         });
         
         // Update price displays with current admin prices
-        function updatePriceDisplays() {
-            const prices = getMilkPrices();
+        async function updatePriceDisplays() {
+            const prices = await getMilkPrices();
             
             // Update morning slot prices
             const morningBuffaloPrice = document.getElementById('morning-buffalo-price');
@@ -2010,7 +2039,7 @@
                             <div class="milk-type-name">${milk.name}</div>
                             <div class="milk-type-price">
                                 ${isAvailable ? 
-                                    `₹${prices[milk.type]}/L - ${milk.desc}` : 
+                                    `₹${milkPrices[milk.type]}/L - ${milk.desc}` : 
                                     `<span class="text-red-500">Out of Stock</span>`
                                 }
                             </div>
@@ -2088,7 +2117,7 @@
                         quantitySelect.disabled = false;
                         
                         // Update summary
-                        await updateSummary();
+                        updateSummary();
                     }, 200);
                 }
             });
@@ -2187,7 +2216,7 @@
             
             // Add event listener for changes
             quantitySelect.removeEventListener('change', updateSummary);
-            quantitySelect.addEventListener('change', updateSummary);
+            quantitySelect.addEventListener('change', () => updateSummary());
         }
 
         // Initialize time slot dropdowns
@@ -2198,19 +2227,19 @@
             const eveningQuantitySelect = document.getElementById('evening-quantity-select');
             
             if (morningSelect) {
-                morningSelect.addEventListener('change', updateSummary);
+                morningSelect.addEventListener('change', () => updateSummary());
             }
             
             if (eveningSelect) {
-                eveningSelect.addEventListener('change', updateSummary);
+                eveningSelect.addEventListener('change', () => updateSummary());
             }
             
             if (morningQuantitySelect) {
-                morningQuantitySelect.addEventListener('change', updateSummary);
+                morningQuantitySelect.addEventListener('change', () => updateSummary());
             }
             
             if (eveningQuantitySelect) {
-                eveningQuantitySelect.addEventListener('change', updateSummary);
+                eveningQuantitySelect.addEventListener('change', () => updateSummary());
             }
         }
 
@@ -2390,9 +2419,9 @@
         }
 
         // Update the subscription summary
-        function updateSummary() {
+        async function updateSummary() {
             // Refresh prices from admin inventory
-            milkPrices = getMilkPrices();
+            await getMilkPrices();
             
             const summaryContainer = document.getElementById('summary-container');
             summaryContainer.innerHTML = '';
@@ -2441,7 +2470,7 @@
             if (!milkTypeElement) return null; // No milk type selected
             
             const milkType = milkTypeElement.value;
-            const milkPrice = milkPrices[milkType];
+            const milkPrice = milkPrices[milkType] || (milkType === 'buffalo' ? 80 : 60);
             const quantitySelect = document.getElementById(`${slot}-quantity-select`);
             if (!quantitySelect.value) return null; // No quantity selected
             
