@@ -952,6 +952,12 @@
         let isFullscreen = false;
         
         function showMilkTab(tab) {
+            // Stop auto-refresh when switching away from notify tab
+            const currentActiveTab = document.querySelector('.milk-tab.active');
+            if (currentActiveTab && currentActiveTab.textContent.includes('Notify Me') && tab !== 'notify') {
+                stopNotificationAutoRefresh();
+            }
+            
             // Hide all milk tab contents
             document.querySelectorAll('.milk-tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.milk-tab').forEach(t => t.classList.remove('active'));
@@ -980,6 +986,7 @@
             } else if (tab === 'notify') {
                 console.log('🔔 Admin: Switching to Notify Me tab');
                 loadNotificationRequests();
+                startNotificationAutoRefresh();
             } else if (tab === 'delivery') {
                 console.log('🚚 Admin: Switching to Delivery tab');
                 setTimeout(() => {
@@ -2232,21 +2239,22 @@
         }
 
         // Notification Management Functions
-        function loadNotificationRequests() {
-            const notifications = getStoredNotifications();
-            console.log('🔍 Admin: Loading notifications from localStorage');
-            console.log('📊 Found notifications:', notifications);
-            console.log('📈 Total count:', notifications.length);
-            displayNotificationGrid(notifications);
-            updateNotificationStats(notifications);
-        }
-        
-        function getStoredNotifications() {
-            const notifications = localStorage.getItem('stockWaitingQueue');
-            console.log('🗄️ Raw localStorage data:', notifications);
-            const parsed = notifications ? JSON.parse(notifications) : [];
-            console.log('📋 Parsed notifications:', parsed);
-            return parsed;
+        async function loadNotificationRequests() {
+            try {
+                console.log('🔍 Admin: Loading notifications from API');
+                const response = await inventoryAPI.getNotifications();
+                const notifications = response.notifications || [];
+                console.log('📊 Found notifications:', notifications);
+                console.log('📈 Total count:', notifications.length);
+                displayNotificationGrid(notifications);
+                updateNotificationStats(notifications);
+            } catch (error) {
+                console.error('Failed to load notifications:', error);
+                showToast('Failed to load notifications', 'error');
+                // Fallback to empty array
+                displayNotificationGrid([]);
+                updateNotificationStats([]);
+            }
         }
         
         function displayNotificationGrid(notifications) {
@@ -2263,10 +2271,10 @@
                 filteredNotifications = filteredNotifications.filter(n => n.status === statusFilter);
             }
             if (milkFilter) {
-                filteredNotifications = filteredNotifications.filter(n => n.milkType === milkFilter);
+                filteredNotifications = filteredNotifications.filter(n => n.milk_type === milkFilter);
             }
             if (timeFilter) {
-                filteredNotifications = filteredNotifications.filter(n => n.timeSlot === timeFilter);
+                filteredNotifications = filteredNotifications.filter(n => n.time_slot === timeFilter);
             }
             
             if (!filteredNotifications.length) {
@@ -2309,10 +2317,10 @@
                                         '<span class="px-2 py-1 bg-orange-600 text-white text-xs rounded-full">Pending</span>' :
                                         '<span class="px-2 py-1 bg-green-600 text-white text-xs rounded-full">Notified</span>';
                                     
-                                    const milkIcon = notification.milkType === 'buffalo' ? '🐃' : '🐄';
-                                    const timeIcon = notification.timeSlot === 'morning' ? '🌅' : '🌆';
-                                    const requestDate = notification.requestDate || new Date(notification.timestamp).toLocaleDateString('en-IN');
-                                    const requestTime = notification.requestTime || new Date(notification.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+                                    const milkIcon = notification.milk_type === 'buffalo' ? '🐃' : '🐄';
+                                    const timeIcon = notification.time_slot === 'morning' ? '🌅' : '🌆';
+                                    const requestDate = new Date(notification.created_at).toLocaleDateString('en-IN');
+                                    const requestTime = new Date(notification.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
                                     
                                     return `
                                         <tr class="hover:bg-gray-600">
@@ -2320,18 +2328,18 @@
                                             <td class="px-4 py-3">
                                                 <div class="flex items-center gap-2">
                                                     <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                                                        <span class="text-white font-bold text-xs">${notification.customerName.charAt(0)}</span>
+                                                        <span class="text-white font-bold text-xs">${notification.customer_name.charAt(0)}</span>
                                                     </div>
-                                                    <span class="text-sm font-medium text-gray-100">${notification.customerName}</span>
+                                                    <span class="text-sm font-medium text-gray-100">${notification.customer_name}</span>
                                                 </div>
                                             </td>
                                             <td class="px-4 py-3 text-sm text-gray-300">
-                                                <a href="tel:${notification.phoneNumber}" class="text-blue-400 hover:text-blue-300">${notification.phoneNumber}</a>
+                                                <a href="tel:${notification.phone_number}" class="text-blue-400 hover:text-blue-300">${notification.phone_number}</a>
                                             </td>
                                             <td class="px-4 py-3">
                                                 <div class="flex items-center gap-1">
                                                     <span class="text-lg">${milkIcon}</span>
-                                                    <span class="text-sm text-gray-300">${notification.milkType.charAt(0).toUpperCase() + notification.milkType.slice(1)}</span>
+                                                    <span class="text-sm text-gray-300">${notification.milk_type.charAt(0).toUpperCase() + notification.milk_type.slice(1)}</span>
                                                 </div>
                                             </td>
                                             <td class="px-4 py-3">
@@ -2340,7 +2348,7 @@
                                             <td class="px-4 py-3">
                                                 <div class="flex items-center gap-1">
                                                     <span class="text-lg">${timeIcon}</span>
-                                                    <span class="text-sm text-blue-400">${notification.timeSlot}</span>
+                                                    <span class="text-sm text-blue-400">${notification.time_slot}</span>
                                                 </div>
                                             </td>
                                             <td class="px-4 py-3 text-xs text-gray-400">
@@ -2355,7 +2363,7 @@
                                                                 class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs" title="Mark as Notified">
                                                             ✓
                                                         </button>
-                                                        <button onclick="callCustomer('${notification.phoneNumber}', '${notification.customerName}')" 
+                                                        <button onclick="callCustomer('${notification.phone_number}', '${notification.customer_name}')" 
                                                                 class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs" title="Call Customer">
                                                             📞
                                                         </button>
@@ -2382,7 +2390,7 @@
             const stats = notifications.reduce((acc, notification) => {
                 acc.total++;
                 acc[notification.status] = (acc[notification.status] || 0) + 1;
-                if (notification.milkType === 'buffalo') acc.buffalo++;
+                if (notification.milk_type === 'buffalo') acc.buffalo++;
                 return acc;
             }, { total: 0, pending: 0, notified: 0, buffalo: 0 });
             
@@ -2392,17 +2400,14 @@
             document.getElementById('notify-buffalo-count').textContent = stats.buffalo;
         }
         
-        function markAsNotified(notificationId) {
-            const notifications = getStoredNotifications();
-            const notification = notifications.find(n => n.id == notificationId);
-            
-            if (notification) {
-                notification.status = 'notified';
-                notification.notifiedAt = new Date().toISOString();
-                localStorage.setItem('stockWaitingQueue', JSON.stringify(notifications));
-                
-                showToast(`${notification.customerName} marked as notified`, 'success');
+        async function markAsNotified(notificationId) {
+            try {
+                await inventoryAPI.updateNotificationStatus(notificationId, 'notified');
+                showToast('Customer marked as notified', 'success');
                 loadNotificationRequests();
+            } catch (error) {
+                console.error('Failed to update notification:', error);
+                showToast('Failed to update notification', 'error');
             }
         }
         
@@ -2413,87 +2418,104 @@
             }
         }
         
-        function deleteNotification(notificationId) {
+        async function deleteNotification(notificationId) {
             if (confirm('Are you sure you want to delete this notification request?')) {
-                const notifications = getStoredNotifications();
-                const filteredNotifications = notifications.filter(n => n.id != notificationId);
-                localStorage.setItem('stockWaitingQueue', JSON.stringify(filteredNotifications));
-                
-                showToast('Notification request deleted', 'success');
-                loadNotificationRequests();
+                try {
+                    await inventoryAPI.deleteNotification(notificationId);
+                    showToast('Notification deleted successfully', 'success');
+                    loadNotificationRequests();
+                } catch (error) {
+                    console.error('Failed to delete notification:', error);
+                    showToast('Failed to delete notification', 'error');
+                }
             }
         }
         
-        function clearAllNotifications() {
+        async function clearAllNotifications() {
             if (confirm('Are you sure you want to clear all notification requests? This action cannot be undone.')) {
-                localStorage.setItem('stockWaitingQueue', JSON.stringify([]));
-                showToast('All notification requests cleared', 'success');
-                loadNotificationRequests();
+                try {
+                    const response = await inventoryAPI.getNotifications();
+                    const notifications = response.notifications || [];
+                    
+                    // Delete all notifications one by one
+                    for (const notification of notifications) {
+                        await inventoryAPI.deleteNotification(notification.id);
+                    }
+                    
+                    showToast('All notification requests cleared', 'success');
+                    loadNotificationRequests();
+                } catch (error) {
+                    console.error('Failed to clear notifications:', error);
+                    showToast('Failed to clear notifications', 'error');
+                }
             }
         }
         
         // Export notifications to CSV
-        function exportNotifications() {
-            const notifications = getStoredNotifications();
-            
-            if (!notifications.length) {
-                showToast('No notifications to export', 'warning');
-                return;
-            }
-            
-            let csvContent = 'S.No,Customer Name,Phone,Milk Type,Quantity,Time Slot,Status,Requested Date,Requested Time\n';
-            
-            notifications.forEach((notification, index) => {
-                const requestDate = notification.requestDate || new Date(notification.timestamp).toLocaleDateString('en-IN');
-                const requestTime = notification.requestTime || new Date(notification.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+        async function exportNotifications() {
+            try {
+                const response = await inventoryAPI.getNotifications();
+                const notifications = response.notifications || [];
                 
-                csvContent += `${index + 1},"${notification.customerName}",${notification.phoneNumber},${notification.milkType.charAt(0).toUpperCase() + notification.milkType.slice(1)},${notification.quantity}L,${notification.timeSlot.charAt(0).toUpperCase() + notification.timeSlot.slice(1)},${notification.status.charAt(0).toUpperCase() + notification.status.slice(1)},${requestDate},${requestTime}\n`;
-            });
-            
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Stock_Notifications_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-            
-            showToast('Notifications exported successfully!', 'success');
+                if (!notifications.length) {
+                    showToast('No notifications to export', 'warning');
+                    return;
+                }
+                
+                let csvContent = 'S.No,Customer Name,Phone,Milk Type,Quantity,Time Slot,Status,Requested Date,Requested Time\n';
+                
+                notifications.forEach((notification, index) => {
+                    const requestDate = new Date(notification.created_at).toLocaleDateString('en-IN');
+                    const requestTime = new Date(notification.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+                    
+                    csvContent += `${index + 1},"${notification.customer_name}",${notification.phone_number},${notification.milk_type.charAt(0).toUpperCase() + notification.milk_type.slice(1)},${notification.quantity}L,${notification.time_slot.charAt(0).toUpperCase() + notification.time_slot.slice(1)},${notification.status.charAt(0).toUpperCase() + notification.status.slice(1)},${requestDate},${requestTime}\n`;
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Stock_Notifications_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                showToast('Notifications exported successfully!', 'success');
+            } catch (error) {
+                console.error('Failed to export notifications:', error);
+                showToast('Failed to export notifications', 'error');
+            }
         }
         
 
         
-        // Debug function to check notification flow
-        function debugNotificationFlow() {
-            console.log('=== ADMIN NOTIFICATION DEBUG ===');
-            const rawData = localStorage.getItem('stockWaitingQueue');
-            console.log('1. Raw localStorage data:', rawData);
-            
-            if (rawData) {
-                try {
-                    const parsed = JSON.parse(rawData);
-                    console.log('2. Parsed data:', parsed);
-                    console.log('3. Data type:', typeof parsed);
-                    console.log('4. Is array:', Array.isArray(parsed));
-                    console.log('5. Length:', parsed.length);
-                    
-                    if (parsed.length > 0) {
-                        console.log('6. First item:', parsed[0]);
-                        console.log('7. First item keys:', Object.keys(parsed[0]));
-                    }
-                } catch (e) {
-                    console.error('Error parsing data:', e);
-                }
-            } else {
-                console.log('2. No data found in localStorage');
+        // Auto-refresh notifications
+        let notificationRefreshInterval;
+        
+        function startNotificationAutoRefresh() {
+            // Clear existing interval
+            if (notificationRefreshInterval) {
+                clearInterval(notificationRefreshInterval);
             }
             
-            console.log('8. Reloading notification requests...');
-            loadNotificationRequests();
-            console.log('=== DEBUG COMPLETE ===');
+            // Refresh every 30 seconds
+            notificationRefreshInterval = setInterval(() => {
+                const activeTab = document.querySelector('.milk-tab.active');
+                if (activeTab && activeTab.textContent.includes('Notify Me')) {
+                    console.log('🔄 Auto-refreshing notifications...');
+                    loadNotificationRequests();
+                }
+            }, 30000);
+            
+            console.log('✅ Auto-refresh started for notifications (30s interval)');
         }
         
-        window.debugNotificationFlow = debugNotificationFlow;
+        function stopNotificationAutoRefresh() {
+            if (notificationRefreshInterval) {
+                clearInterval(notificationRefreshInterval);
+                notificationRefreshInterval = null;
+                console.log('❌ Auto-refresh stopped for notifications');
+            }
+        }
 
         // Delivery Management Functions
         let currentDeliveryDate = new Date();
@@ -3193,44 +3215,6 @@
             } catch (error) {
                 console.error('Failed to load stock from API:', error);
                 showToast('Failed to load inventory data', 'error');
-            }
-        }
-        
-        // Load notifications from API
-        async function loadNotificationRequests() {
-            try {
-                const response = await inventoryAPI.getNotifications();
-                displayNotificationGrid(response.notifications || []);
-                updateNotificationStats(response.notifications || []);
-            } catch (error) {
-                console.error('Failed to load notifications:', error);
-                showToast('Failed to load notifications', 'error');
-            }
-        }
-        
-        // Mark notification as notified via API
-        async function markAsNotified(notificationId) {
-            try {
-                await inventoryAPI.updateNotificationStatus(notificationId, 'notified');
-                showToast('Notification marked as completed', 'success');
-                loadNotificationRequests();
-            } catch (error) {
-                console.error('Failed to update notification:', error);
-                showToast('Failed to update notification', 'error');
-            }
-        }
-        
-        // Delete notification via API
-        async function deleteNotification(notificationId) {
-            if (confirm('Are you sure you want to delete this notification request?')) {
-                try {
-                    await inventoryAPI.deleteNotification(notificationId);
-                    showToast('Notification deleted successfully', 'success');
-                    loadNotificationRequests();
-                } catch (error) {
-                    console.error('Failed to delete notification:', error);
-                    showToast('Failed to delete notification', 'error');
-                }
             }
         }
 
