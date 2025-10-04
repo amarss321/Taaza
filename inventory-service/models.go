@@ -35,17 +35,25 @@ type StockHistory struct {
 }
 
 type NotificationRequest struct {
-	ID           int       `json:"id"`
-	CustomerName string    `json:"customer_name"`
-	PhoneNumber  string    `json:"phone_number"`
-	ProductID    int       `json:"product_id"`
-	TimeSlot     string    `json:"time_slot"`
-	Quantity     float64   `json:"quantity"`
-	Status       string    `json:"status"`
-	RequestDate  string    `json:"request_date"`
-	RequestTime  string    `json:"request_time"`
+	ID           int        `json:"id"`
+	CustomerName string     `json:"customer_name"`
+	PhoneNumber  string     `json:"phone_number"`
+	MilkType     string     `json:"milk_type"`
+	Quantity     float64    `json:"quantity"`
+	TimeSlot     string     `json:"time_slot"`
+	Status       string     `json:"status"`
+	CreatedAt    time.Time  `json:"created_at"`
 	NotifiedAt   *time.Time `json:"notified_at"`
-	CreatedAt    time.Time `json:"created_at"`
+	Notes        string     `json:"notes"`
+}
+
+type CreateNotificationRequest struct {
+	CustomerName string  `json:"customer_name" binding:"required"`
+	PhoneNumber  string  `json:"phone_number" binding:"required"`
+	MilkType     string  `json:"milk_type" binding:"required"`
+	Quantity     float64 `json:"quantity" binding:"required"`
+	TimeSlot     string  `json:"time_slot" binding:"required"`
+	Notes        string  `json:"notes"`
 }
 
 type StockAdjustment struct {

@@ -323,67 +323,73 @@ func RemoveBooking(c *gin.Context) {
 
 // GetNotifications returns all notification requests
 func GetNotifications(c *gin.Context) {
-	status := c.Query("status")
-	
 	query := `
-		SELECT n.id, n.customer_name, n.phone_number, n.product_id, n.time_slot, 
-		       n.quantity, n.status, n.request_date, n.request_time, n.notified_at, n.created_at,
-		       p.name, p.type
-		FROM notification_requests n
-		JOIN products p ON n.product_id = p.id
+		SELECT id, customer_name, phone_number, milk_type, quantity, time_slot, status, created_at, notified_at, notes
+		FROM notification_requests
+		ORDER BY created_at DESC
 	`
-	args := []interface{}{}
-	
-	if status != "" {
-		query += " WHERE n.status = $1"
-		args = append(args, status)
-	}
-	
-	query += " ORDER BY n.created_at DESC"
-	
-	rows, err := db.Query(query, args...)
+
+	rows, err := db.Query(query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch notifications"})
 		return
 	}
 	defer rows.Close()
 
 	var notifications []NotificationRequest
 	for rows.Next() {
-		var n NotificationRequest
-		var productName, productType string
-		
-		err := rows.Scan(&n.ID, &n.CustomerName, &n.PhoneNumber, &n.ProductID, &n.TimeSlot,
-			&n.Quantity, &n.Status, &n.RequestDate, &n.RequestTime, &n.NotifiedAt, &n.CreatedAt,
-			&productName, &productType)
+		var notification NotificationRequest
+		err := rows.Scan(
+			&notification.ID,
+			&notification.CustomerName,
+			&notification.PhoneNumber,
+			&notification.MilkType,
+			&notification.Quantity,
+			&notification.TimeSlot,
+			&notification.Status,
+			&notification.CreatedAt,
+			&notification.NotifiedAt,
+			&notification.Notes,
+		)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
+			continue
 		}
-		notifications = append(notifications, n)
+		notifications = append(notifications, notification)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"notifications": notifications})
+	c.JSON(http.StatusOK, gin.H{
+		"message":       "Notifications retrieved successfully",
+		"notifications": notifications,
+	})
 }
 
 // CreateNotification creates a new notification request
 func CreateNotification(c *gin.Context) {
-	var req NotificationRequest
+	var req CreateNotificationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	_, err := db.Exec(`
-		INSERT INTO notification_requests (customer_name, phone_number, product_id, time_slot, quantity, status)
-		VALUES ($1, $2, $3, $4, $5, $6)`,
-		req.CustomerName, req.PhoneNumber, req.ProductID, req.TimeSlot, req.Quantity, "pending")
+	query := `
+		INSERT INTO notification_requests (customer_name, phone_number, milk_type, quantity, time_slot, notes)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id, created_at
+	`
+
+	var id int
+	var createdAt time.Time
+	err := db.QueryRow(query, req.CustomerName, req.PhoneNumber, req.MilkType, req.Quantity, req.TimeSlot, req.Notes).Scan(&id, &createdAt)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create notification request"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Notification request created successfully"})
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Notification request created successfully",
+		"id":      id,
+		"created_at": createdAt,
+	})
 }
 
 // UpdateNotificationStatus updates notification status

@@ -51,9 +51,9 @@ func main() {
 
 		// Notifications
 		api.GET("/notifications", GetNotifications)
+		api.POST("/notifications", CreateNotification)
 		api.PUT("/notifications/:id/status", UpdateNotificationStatus)
 		api.DELETE("/notifications/:id", DeleteNotification)
-		api.POST("/notifications", CreateNotification)
 
 		// Analytics
 		api.GET("/analytics/summary", GetAnalyticsSummary)

@@ -1909,7 +1909,7 @@
         }
         
         // Submit notification request
-        function submitNotificationRequest() {
+        async function submitNotificationRequest() {
             const name = document.getElementById('notify-name').value.trim();
             const phone = document.getElementById('notify-phone').value.trim();
             const milkType = document.getElementById('notify-milk-type').value;
@@ -1937,72 +1937,56 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<div class="spinner mr-2"></div>Submitting...';
             
-            // Simulate API call
-            setTimeout(() => {
-            
-            // Create notification request
-            const existingQueue = localStorage.getItem('stockWaitingQueue');
-            console.log('🗄️ User: Existing queue data:', existingQueue);
-            const queue = JSON.parse(existingQueue || '[]');
-            console.log('📋 User: Parsed existing queue:', queue);
-            
-            const timeSlots = [];
-            if (morningSelected) timeSlots.push('morning');
-            if (eveningSelected) timeSlots.push('evening');
-            
-            console.log('🕰️ User: Selected time slots:', timeSlots);
-            
-            timeSlots.forEach(slot => {
-                const requestId = Date.now() + Math.random();
-                const currentDate = new Date();
+            try {
+                const timeSlots = [];
+                if (morningSelected) timeSlots.push('morning');
+                if (eveningSelected) timeSlots.push('evening');
                 
-                const newRequest = {
-                    id: requestId,
-                    customerName: name,
-                    phoneNumber: phone,
-                    milkType: milkType,
-                    timeSlot: slot,
-                    quantity: quantity,
-                    status: 'pending',
-                    requestDate: currentDate.toLocaleDateString('en-IN'),
-                    requestTime: currentDate.toLocaleTimeString('en-IN', { 
-                        hour: '2-digit', 
-                        minute: '2-digit',
-                        hour12: true
-                    }),
-                    timestamp: currentDate.toISOString(),
-                    priority: 'normal'
-                };
+                // Submit to API for each time slot
+                for (const slot of timeSlots) {
+                    const response = await fetch('/api/v1/inventory/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            customer_name: name,
+                            phone_number: phone,
+                            milk_type: milkType,
+                            quantity: quantity,
+                            time_slot: slot,
+                            notes: `Requested via user app on ${new Date().toLocaleDateString()}`
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to submit notification for ${slot}`);
+                    }
+                }
                 
-                console.log('🆕 User: Creating new request:', newRequest);
-                queue.push(newRequest);
-            });
-            
-            localStorage.setItem('stockWaitingQueue', JSON.stringify(queue));
-            
-            // Verify data was saved
-            const savedData = localStorage.getItem('stockWaitingQueue');
-            console.log('💾 User: Data saved to localStorage');
-            console.log('🗄️ Raw saved data:', savedData);
-            console.log('📋 Parsed saved data:', JSON.parse(savedData));
-            
                 // Reset button state
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
                 
                 closeNotifyModal();
-                showToast('Notification sent');
+                showToast('Notification sent successfully');
                 
-                console.log('✅ Notification request submitted successfully:', {
+                console.log('✅ Notification request submitted via API:', {
                     customerName: name,
                     phoneNumber: phone,
                     milkType: milkType,
                     timeSlots: timeSlots,
-                    quantity: quantity,
-                    totalRequests: queue.length,
-                    finalQueue: queue
+                    quantity: quantity
                 });
-            }, 1000);
+            } catch (error) {
+                console.error('Failed to submit notification:', error);
+                
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                
+                showToast('Failed to send notification. Please try again.');
+            }
         }
         
         // Generate milk type options with stock availability
