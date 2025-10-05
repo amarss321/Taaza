@@ -134,6 +134,21 @@
         .dark .total-row {
             background-color: #374151;
         }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0C2D57;
+            border-radius: 50%;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <!-- Database API Scripts -->
@@ -295,14 +310,19 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
+            console.log('📄 Subscription Summary page loading...');
+            
             // Load prices first
             await getMilkPrices();
+            console.log('💰 Prices loaded:', milkPrices);
             
             // Start real-time price monitoring
             startPriceMonitoring();
             
             // Load invoice data
-            loadInvoiceData();
+            await loadInvoiceData();
+            
+            console.log('✅ Subscription Summary page loaded');
         });
 
         async function loadInvoiceData() {
@@ -312,38 +332,53 @@
                 const subscriptions = await window.subscriptionManager.getSubscriptions();
                 const activeSubscription = subscriptions.find(sub => sub.status === 'active');
                 
-                if (activeSubscription && activeSubscription.address_data) {
+                console.log('🔍 Active subscription:', activeSubscription);
+                console.log('📍 Address data in subscription:', activeSubscription?.address_data);
+                
+                if (activeSubscription && activeSubscription.address_data && activeSubscription.address_data.id) {
                     addressData = activeSubscription.address_data;
-                    console.log('📍 Loaded address from subscription:', addressData);
+                    console.log('✅ Using address from subscription:', addressData);
                 } else {
-                    // Fallback to default address if no address saved in subscription
+                    console.log('⚠️ No address in subscription, loading from addresses API');
                     const addressAPI = new AddressAPI();
                     const addresses = await addressAPI.getAddresses();
                     const defaultAddr = addresses.find(addr => addr.is_default) || addresses[0];
                     if (defaultAddr) {
                         addressData = defaultAddr;
+                        console.log('✅ Using fallback address:', addressData);
                     }
                 }
             } catch (error) {
-                console.error('Failed to load address:', error);
+                console.error('❌ Failed to load address:', error);
             }
-            const deliveryAddressHTML = `
-                <div class="flex items-start gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-zepto-blue/10 text-zepto-blue">
-                        <span class="material-symbols-outlined">${addressData.label?.toLowerCase() === 'work' ? 'work' : 'home'}</span>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h3 class="font-bold text-gray-800 dark:text-gray-200">${addressData.label || 'Home'}</h3>
-                            ${addressData.is_default ? '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
+            console.log('🏠 Final address data for display:', addressData);
+            
+            if (addressData && (addressData.address_line || addressData.label)) {
+                const deliveryAddressHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-zepto-blue/10 text-zepto-blue">
+                            <span class="material-symbols-outlined">${addressData.label?.toLowerCase() === 'work' ? 'work' : 'home'}</span>
                         </div>
-                        <p class="text-gray-700 dark:text-gray-300">${addressData.address_line || 'Address'}</p>
-                        <p class="text-gray-500 dark:text-gray-400">${addressData.city || 'City'}, ${addressData.zip_code || 'ZIP'}</p>
-                        <p class="text-gray-500 dark:text-gray-400">${addressData.country || 'Country'}</p>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h3 class="font-bold text-gray-800 dark:text-gray-200">${addressData.label || 'Home'}</h3>
+                                ${addressData.is_default ? '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
+                            </div>
+                            <p class="text-gray-700 dark:text-gray-300">${addressData.address_line || 'Address not available'}</p>
+                            <p class="text-gray-500 dark:text-gray-400">${addressData.city || 'City'}, ${addressData.zip_code || 'ZIP'}</p>
+                            <p class="text-gray-500 dark:text-gray-400">${addressData.country || 'Country'}</p>
+                        </div>
                     </div>
-                </div>
-            `;
-            document.getElementById('deliveryAddress').innerHTML = deliveryAddressHTML;
+                `;
+                document.getElementById('deliveryAddress').innerHTML = deliveryAddressHTML;
+            } else {
+                document.getElementById('deliveryAddress').innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <span class="material-symbols-outlined mb-2">location_off</span>
+                        <p>No delivery address found</p>
+                    </div>
+                `;
+            }
 
             // Load subscription summary from database
             await updateSummary();
@@ -351,63 +386,121 @@
 
         async function getSubscriptionData() {
             try {
+                console.log('🔄 Loading subscription data...');
                 const subscriptionManager = new SubscriptionManager();
                 const subscriptions = await subscriptionManager.getSubscriptions();
-                console.log('🔍 All subscriptions loaded:', subscriptions);
-                // Look for active subscription first, then any subscription
-                const activeSubscription = subscriptions.find(sub => sub.status === 'active') || subscriptions[0] || null;
-                console.log('🎯 Selected subscription:', activeSubscription);
+                console.log('🔍 All subscriptions loaded:', subscriptions?.length || 0, 'subscriptions');
+                
+                // Look for active subscription first, then pending_payment, then any subscription
+                const activeSubscription = subscriptions.find(sub => sub.status === 'active') || 
+                                         subscriptions.find(sub => sub.status === 'pending_payment') || 
+                                         subscriptions[0] || null;
+                                         
+                console.log('🎯 Selected subscription:', activeSubscription?.id || 'none', 'status:', activeSubscription?.status || 'none');
+                
+                if (activeSubscription) {
+                    console.log('📊 Subscription details:');
+                    console.log('  - Morning enabled:', activeSubscription.morning_enabled);
+                    console.log('  - Evening enabled:', activeSubscription.evening_enabled);
+                    console.log('  - Morning milk type:', activeSubscription.morning_milk_type);
+                    console.log('  - Evening milk type:', activeSubscription.evening_milk_type);
+                }
+                
                 return activeSubscription;
             } catch (error) {
-                console.error('Failed to load subscription:', error);
+                console.error('❌ Failed to load subscription:', error);
                 return null;
             }
         }
 
         async function updateSummary() {
+            console.log('📊 Updating subscription summary...');
+            
             // Refresh prices from admin inventory (same as new milk subscription)
             await getMilkPrices();
             
             const summaryContainer = document.getElementById('summary-container');
-            summaryContainer.innerHTML = '';
+            if (!summaryContainer) {
+                console.error('❌ Summary container not found');
+                return;
+            }
+            
+            // Show loading state
+            summaryContainer.innerHTML = '<div class="text-center py-4 text-gray-500"><div class="spinner mx-auto mb-2"></div>Loading subscription...</div>';
 
             let totalMonthlyPrice = 0;
             let priceBreakdown = '';
 
             const subscriptionData = await getSubscriptionData();
+            console.log('📋 Subscription data loaded:', subscriptionData);
+            
             if (!subscriptionData) {
+                console.warn('⚠️ No subscription data found');
                 const emptyMessage = document.createElement('div');
-                emptyMessage.className = 'text-center py-8 text-gray-500';
-                emptyMessage.textContent = 'No subscription items found';
+                emptyMessage.className = 'text-center py-8 text-gray-500 dark:text-gray-400';
+                emptyMessage.innerHTML = `
+                    <span class="material-symbols-outlined text-4xl mb-2 block">receipt_long</span>
+                    <p class="font-medium">No subscription items found</p>
+                    <p class="text-sm mt-1">Please create a subscription first</p>
+                `;
+                summaryContainer.innerHTML = '';
                 summaryContainer.appendChild(emptyMessage);
                 document.getElementById('monthly-price').textContent = '₹0/month';
                 document.getElementById('price-breakdown').innerHTML = 'No deliveries selected';
                 return;
             }
+            
+            // Clear loading state
+            summaryContainer.innerHTML = '';
 
             // Process morning delivery if enabled
             if (subscriptionData.morning_enabled) {
+                console.log('🌅 Processing morning delivery');
                 const morningSummary = getSlotSummaryFromDB(subscriptionData, 'morning');
                 if (morningSummary) {
                     summaryContainer.appendChild(createSummaryItem(morningSummary));
                     totalMonthlyPrice += morningSummary.monthlyPrice;
                     priceBreakdown += `Morning: ₹${morningSummary.dailyPrice}/day × ${morningSummary.daysPerMonth} days = ₹${morningSummary.monthlyPrice}<br>`;
+                    console.log('✅ Morning summary added:', morningSummary);
                 }
             }
 
             // Process evening delivery if enabled
             if (subscriptionData.evening_enabled) {
+                console.log('🌙 Processing evening delivery');
                 const eveningSummary = getSlotSummaryFromDB(subscriptionData, 'evening');
                 if (eveningSummary) {
                     summaryContainer.appendChild(createSummaryItem(eveningSummary));
                     totalMonthlyPrice += eveningSummary.monthlyPrice;
                     priceBreakdown += `Evening: ₹${eveningSummary.dailyPrice}/day × ${eveningSummary.daysPerMonth} days = ₹${eveningSummary.monthlyPrice}<br>`;
+                    console.log('✅ Evening summary added:', eveningSummary);
                 }
+            }
+            
+            // If no items were added, show empty state
+            if (summaryContainer.children.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'text-center py-8 text-gray-500 dark:text-gray-400';
+                emptyMessage.innerHTML = `
+                    <span class="material-symbols-outlined text-4xl mb-2 block opacity-50">receipt_long</span>
+                    <p class="font-medium">No active deliveries</p>
+                    <p class="text-sm mt-1">Enable morning or evening delivery to see summary</p>
+                `;
+                summaryContainer.appendChild(emptyMessage);
             }
 
             // Update monthly price
-            document.getElementById('monthly-price').textContent = `₹${totalMonthlyPrice}/month`;
-            document.getElementById('price-breakdown').innerHTML = priceBreakdown || 'No deliveries selected';
+            const monthlyPriceElement = document.getElementById('monthly-price');
+            const priceBreakdownElement = document.getElementById('price-breakdown');
+            
+            if (monthlyPriceElement) {
+                monthlyPriceElement.textContent = `₹${totalMonthlyPrice}/month`;
+            }
+            if (priceBreakdownElement) {
+                priceBreakdownElement.innerHTML = priceBreakdown || 'No deliveries selected';
+            }
+            
+            console.log('💰 Total monthly price:', totalMonthlyPrice);
         }
 
         function getSlotSummaryFromDB(subscriptionData, slot) {

@@ -18,16 +18,23 @@ class AddressAPI {
         };
     }
 
+    // Get API URL with fallback
+    getApiUrl(endpoint) {
+        // Try API gateway first, then direct service
+        return `/api/v1/users${endpoint}`;
+    }
+
     // Get all addresses
     async getAddresses() {
         try {
-            const response = await fetch(`${this.baseURL}/addresses`, {
+            const response = await fetch(this.getApiUrl('/addresses'), {
                 method: 'GET',
                 headers: this.getAuthHeaders()
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
             }
 
             const data = await response.json();
@@ -41,15 +48,29 @@ class AddressAPI {
     // Create new address
     async createAddress(addressData) {
         try {
-            const response = await fetch(`${this.baseURL}/addresses`, {
+            // Validate required fields
+            const required = ['label', 'address_line', 'city', 'zip_code', 'country'];
+            for (const field of required) {
+                if (!addressData[field] || addressData[field].trim() === '') {
+                    throw new Error(`${field} is required`);
+                }
+            }
+
+            const response = await fetch(this.getApiUrl('/addresses'), {
                 method: 'POST',
                 headers: this.getAuthHeaders(),
                 body: JSON.stringify(addressData)
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                let errorData;
+                try {
+                    errorData = JSON.parse(errorText);
+                } catch {
+                    errorData = { error: errorText };
+                }
+                throw new Error(errorData.error || `HTTP ${response.status}: ${errorText}`);
             }
 
             return await response.json();

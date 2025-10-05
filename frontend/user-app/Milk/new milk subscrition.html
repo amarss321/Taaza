@@ -2103,11 +2103,13 @@
             const loadingIcon = document.getElementById('address-loading-icon');
             
             try {
+                console.log('🏠 Loading addresses...');
                 dropdown.innerHTML = '<option value="">Loading addresses...</option>';
                 dropdown.disabled = true;
                 loadingIcon.classList.remove('hidden');
                 
                 addresses = await addressAPI.getAddresses();
+                console.log('🏠 Loaded addresses:', addresses);
                 
                 dropdown.innerHTML = '';
                 loadingIcon.classList.add('hidden');
@@ -2147,7 +2149,7 @@
                 });
                 
             } catch (error) {
-                console.error('Failed to load addresses:', error);
+                console.error('❌ Failed to load addresses:', error);
                 dropdown.innerHTML = '<option value="">Failed to load addresses</option>';
                 dropdown.disabled = true;
                 loadingIcon.classList.add('hidden');
@@ -2343,10 +2345,33 @@
             showSuccessToast('Location selected');
         }
 
+        // Check if user is authenticated
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            console.log('🔑 Checking authentication...');
+            console.log('🔑 Token present:', !!token);
+            console.log('🔑 LocalStorage keys:', Object.keys(localStorage));
+            
+            if (!token) {
+                console.error('❌ No authentication token found');
+                showErrorToast('Please login first to access this page');
+                setTimeout(() => {
+                    window.location.href = '../pages/1-Login.html';
+                }, 2000);
+                return false;
+            }
+            return true;
+        }
+
         // Handle address form submission
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('address-form').onsubmit = async function(e) {
                 e.preventDefault();
+                
+                // Check authentication first
+                if (!checkAuthentication()) {
+                    return;
+                }
                 
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 const originalText = submitBtn.textContent;
@@ -2364,11 +2389,24 @@
                     is_default: document.getElementById('address-default').checked
                 };
                 
+                // Validate required fields
+                if (!addressData.label || !addressData.address_line || !addressData.city || !addressData.zip_code || !addressData.country) {
+                    showErrorToast('Please fill all required fields');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    return;
+                }
+                
                 try {
-                    await addressAPI.createAddress(addressData);
+                    console.log('📍 Saving address:', addressData);
+                    console.log('🔑 Auth token:', localStorage.getItem('authToken') ? 'Present' : 'Missing');
+                    
+                    const result = await addressAPI.createAddress(addressData);
+                    console.log('✅ Address saved:', result);
+                    
                     closeAddressModal();
                     await loadAddresses();
-                    showSuccessToast('Address saved');
+                    showSuccessToast('Address saved successfully!');
                     
                     // Auto-select the newly created address
                     if (addresses.length > 0) {
@@ -2377,7 +2415,22 @@
                         selectAddress(newAddress.id);
                     }
                 } catch (error) {
-                    showErrorToast('Failed to save address');
+                    console.error('❌ Full error object:', error);
+                    console.error('❌ Error message:', error.message);
+                    console.error('❌ Error stack:', error.stack);
+                    
+                    let errorMessage = `Failed to save address: ${error.message}`;
+                    if (error.message.includes('401') || error.message.includes('Invalid token')) {
+                        errorMessage = 'Session expired. Please login again.';
+                        setTimeout(() => {
+                            window.location.href = '../pages/1-Login.html';
+                        }, 2000);
+                    } else if (error.message.includes('400')) {
+                        errorMessage = `Invalid data: ${error.message}`;
+                    } else if (error.message.includes('500')) {
+                        errorMessage = 'Server error. Please try again.';
+                    }
+                    showErrorToast(errorMessage);
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
@@ -2387,6 +2440,11 @@
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async function () {
+            // Check authentication first
+            if (!checkAuthentication()) {
+                return; // Stop initialization if not authenticated
+            }
+            
             isLoadingExistingData = true;
             
             // Initialize address API
@@ -2429,7 +2487,8 @@
             setTimeout(() => {
                 updateSummary();
                 isLoadingExistingData = false; // Allow saving after load complete
-            }, 500);
+                console.log('✅ Page initialization complete');
+            }, 1200);
         });
         
         // Update price displays with current admin prices
@@ -3348,10 +3407,19 @@
                 subscriptionData.evening_days = { days: eveningDaysArray };
             }
             
-            // Single API call with longer timeout
+            // Check if updating existing subscription
             try {
                 console.log('💾 Saving subscription to database...');
-                await window.dataAPI.createSubscription(subscriptionData);
+                const existingSubscriptions = await window.subscriptionManager.getSubscriptions();
+                const activeSubscription = existingSubscriptions.find(sub => sub.status === 'active');
+                
+                if (activeSubscription) {
+                    console.log('🔄 Updating existing subscription:', activeSubscription.id);
+                    await window.subscriptionManager.updateSubscription(activeSubscription.id, subscriptionData);
+                } else {
+                    console.log('➕ Creating new subscription');
+                    await window.dataAPI.createSubscription(subscriptionData);
+                }
                 console.log('✅ Subscription saved successfully');
             } catch (error) {
                 console.error('❌ Failed to save subscription:', error.message);
@@ -3374,13 +3442,33 @@
                 
                 console.log('📝 Loading existing subscription:', activeSubscription);
                 
+                // Load address data if available
+                if (activeSubscription.address_data && activeSubscription.address_data.id) {
+                    console.log('📍 Setting address from subscription:', activeSubscription.address_data);
+                    selectedAddressId = activeSubscription.address_data.id;
+                    
+                    // Add address to addresses array if not present
+                    if (!addresses.find(addr => addr.id === selectedAddressId)) {
+                        addresses.push(activeSubscription.address_data);
+                    }
+                    
+                    // Update address dropdown after addresses are loaded
+                    setTimeout(() => {
+                        const dropdown = document.getElementById('address-dropdown');
+                        if (dropdown && dropdown.querySelector(`option[value="${selectedAddressId}"]`)) {
+                            dropdown.value = selectedAddressId;
+                            selectAddress(selectedAddressId);
+                        }
+                    }, 1500);
+                }
+                
                 // Load morning delivery data
                 if (activeSubscription.morning_enabled) {
                     const morningToggle = document.getElementById('morning-toggle');
                     morningToggle.checked = true;
                     toggleTimeSlotEnabled('morning');
                     
-                    // Set milk type
+                    // Set milk type and other data with proper timing
                     setTimeout(() => {
                         const morningMilkRadio = document.querySelector(`input[name="morning_milk_type"][value="${activeSubscription.morning_milk_type}"]`);
                         if (morningMilkRadio) {
@@ -3405,16 +3493,40 @@
                             timeSelect.value = activeSubscription.morning_time_slot;
                         }
                         
-                        // Set frequency
+                        // Set frequency with better error handling
                         const frequency = activeSubscription.morning_frequency || 'daily';
+                        console.log('🔄 Setting morning frequency:', frequency);
+                        const freqOptions = document.querySelectorAll('#morning-content .frequency-option');
+                        freqOptions.forEach(opt => opt.classList.remove('selected'));
+                        
                         const freqOption = document.querySelector(`#morning-content .frequency-option[data-value="${frequency}"]`);
                         if (freqOption) {
-                            document.querySelectorAll('#morning-content .frequency-option').forEach(opt => opt.classList.remove('selected'));
                             freqOption.classList.add('selected');
+                            console.log('✅ Morning frequency set to:', frequency);
+                        } else {
+                            console.warn('⚠️ Morning frequency option not found:', frequency);
+                            // Fallback to daily
+                            const dailyOption = document.querySelector('#morning-content .frequency-option[data-value="daily"]');
+                            if (dailyOption) dailyOption.classList.add('selected');
+                        }
+                        
+                        // Set days if alternate frequency
+                        if (frequency === 'alternate' && activeSubscription.morning_days?.days) {
+                            const morningDays = activeSubscription.morning_days.days;
+                            setTimeout(() => {
+                                morningDays.forEach(day => {
+                                    const checkbox = document.querySelector(`#morning-days-modal input[value="${day}"]`);
+                                    if (checkbox) {
+                                        checkbox.checked = true;
+                                        updateDayVisualState(checkbox);
+                                    }
+                                });
+                                updateSelectedDaysSummary('morning');
+                            }, 200);
                         }
                         
                         updateSummary();
-                    }, 500);
+                    }, 800);
                 }
                 
                 // Load evening delivery data
@@ -3423,7 +3535,7 @@
                     eveningToggle.checked = true;
                     toggleTimeSlotEnabled('evening');
                     
-                    // Set milk type
+                    // Set milk type and other data with proper timing
                     setTimeout(() => {
                         const eveningMilkRadio = document.querySelector(`input[name="evening_milk_type"][value="${activeSubscription.evening_milk_type}"]`);
                         if (eveningMilkRadio) {
@@ -3448,16 +3560,40 @@
                             timeSelect.value = activeSubscription.evening_time_slot;
                         }
                         
-                        // Set frequency
+                        // Set frequency with better error handling
                         const frequency = activeSubscription.evening_frequency || 'alternate';
+                        console.log('🔄 Setting evening frequency:', frequency);
+                        const freqOptions = document.querySelectorAll('#evening-content .frequency-option');
+                        freqOptions.forEach(opt => opt.classList.remove('selected'));
+                        
                         const freqOption = document.querySelector(`#evening-content .frequency-option[data-value="${frequency}"]`);
                         if (freqOption) {
-                            document.querySelectorAll('#evening-content .frequency-option').forEach(opt => opt.classList.remove('selected'));
                             freqOption.classList.add('selected');
+                            console.log('✅ Evening frequency set to:', frequency);
+                        } else {
+                            console.warn('⚠️ Evening frequency option not found:', frequency);
+                            // Fallback to alternate
+                            const alternateOption = document.querySelector('#evening-content .frequency-option[data-value="alternate"]');
+                            if (alternateOption) alternateOption.classList.add('selected');
+                        }
+                        
+                        // Set days if alternate frequency
+                        if (frequency === 'alternate' && activeSubscription.evening_days?.days) {
+                            const eveningDays = activeSubscription.evening_days.days;
+                            setTimeout(() => {
+                                eveningDays.forEach(day => {
+                                    const checkbox = document.querySelector(`#evening-days-modal input[value="${day}"]`);
+                                    if (checkbox) {
+                                        checkbox.checked = true;
+                                        updateDayVisualState(checkbox);
+                                    }
+                                });
+                                updateSelectedDaysSummary('evening');
+                            }, 200);
                         }
                         
                         updateSummary();
-                    }, 500);
+                    }, 800);
                 }
                 
             } catch (error) {
