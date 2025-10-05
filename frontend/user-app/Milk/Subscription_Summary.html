@@ -326,30 +326,33 @@
         });
 
         async function loadInvoiceData() {
-            // Load delivery address from subscription database
+            // Show loading state for address
+            const addressContainer = document.getElementById('deliveryAddress');
+            addressContainer.innerHTML = '<div class="flex items-center gap-2 text-gray-500"><div class="spinner"></div>Loading address...</div>';
+            
             let addressData = {};
             try {
                 const subscriptions = await window.subscriptionManager.getSubscriptions();
-                const activeSubscription = subscriptions.find(sub => sub.status === 'active');
+                const activeSubscription = subscriptions.find(sub => sub.status === 'active') || 
+                                         subscriptions.find(sub => sub.status === 'pending_payment');
                 
-                console.log('🔍 Active subscription:', activeSubscription);
-                console.log('📍 Address data in subscription:', activeSubscription?.address_data);
-                
-                if (activeSubscription && activeSubscription.address_data && activeSubscription.address_data.id) {
+                if (activeSubscription?.address_data?.id) {
                     addressData = activeSubscription.address_data;
-                    console.log('✅ Using address from subscription:', addressData);
                 } else {
-                    console.log('⚠️ No address in subscription, loading from addresses API');
                     const addressAPI = new AddressAPI();
                     const addresses = await addressAPI.getAddresses();
-                    const defaultAddr = addresses.find(addr => addr.is_default) || addresses[0];
-                    if (defaultAddr) {
-                        addressData = defaultAddr;
-                        console.log('✅ Using fallback address:', addressData);
-                    }
+                    addressData = addresses.find(addr => addr.is_default) || addresses[0] || {};
                 }
             } catch (error) {
-                console.error('❌ Failed to load address:', error);
+                console.error('❌ Address load error:', error);
+                addressContainer.innerHTML = `
+                    <div class="text-center py-4 text-red-500">
+                        <span class="material-symbols-outlined mb-2">error</span>
+                        <p>Failed to load address</p>
+                        <button onclick="loadInvoiceData()" class="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm">Retry</button>
+                    </div>
+                `;
+                return;
             }
             console.log('🏠 Final address data for display:', addressData);
             
@@ -611,39 +614,46 @@
 
         async function confirmSubscription() {
             const button = event.target;
+            const originalText = button.textContent;
             button.textContent = 'Processing...';
             button.disabled = true;
 
             try {
-                // Save subscription data
                 await saveSubscriptionData();
-                
-                // Redirect to payment page
-                setTimeout(() => {
-                    window.location.href = 'Payment Setup.html';
-                }, 500);
+                button.textContent = 'Redirecting...';
+                setTimeout(() => window.location.href = 'Payment Setup.html', 300);
             } catch (error) {
-                console.error('Error:', error);
-                button.textContent = 'Confirm Subscription';
+                console.error('Confirmation error:', error);
+                button.textContent = originalText;
                 button.disabled = false;
+                
+                // Show user-friendly error
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                toast.textContent = 'Failed to confirm subscription. Please try again.';
+                document.body.appendChild(toast);
+                setTimeout(() => document.body.removeChild(toast), 3000);
             }
         }
         
         async function saveSubscriptionData() {
-            // Update subscription status to pending payment (address already saved)
             try {
                 const subscriptionManager = new SubscriptionManager();
                 const subscriptions = await subscriptionManager.getSubscriptions();
-                const currentSub = subscriptions.find(sub => sub.status === 'active');
+                const currentSub = subscriptions.find(sub => sub.status === 'active') || 
+                                 subscriptions.find(sub => sub.status === 'pending_payment');
                 
                 if (currentSub) {
                     await subscriptionManager.updateSubscription(currentSub.id, {
-                        status: 'pending_payment'
+                        status: 'pending_payment',
+                        updated_at: new Date().toISOString()
                     });
-                    console.log('✅ Subscription status updated to pending_payment');
+                } else {
+                    throw new Error('No subscription found to update');
                 }
             } catch (error) {
-                console.error('Failed to update subscription:', error);
+                console.error('Save subscription error:', error);
+                throw error;
             }
         }
 

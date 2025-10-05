@@ -1342,7 +1342,7 @@
     <script src="../js/data-api.js"></script>
     <script src="../js/subscription-manager.js"></script>
     <script src="../js/addresses-api.js"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTBpRefq3kQWU79YiRZOeGb7jamVPHHnw&libraries=places&callback=initGoogleMaps"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initGoogleMaps"></script>
 </head>
 
 <body class="font-display bg-background-light dark:bg-zinc-900 text-background-dark dark:text-background-light">
@@ -2150,9 +2150,19 @@
                 
             } catch (error) {
                 console.error('❌ Failed to load addresses:', error);
-                dropdown.innerHTML = '<option value="">Failed to load addresses</option>';
-                dropdown.disabled = true;
+                dropdown.innerHTML = '<option value="">Failed to load addresses - Please refresh</option>';
+                dropdown.disabled = false;
                 loadingIcon.classList.add('hidden');
+                
+                // Add retry button
+                const retryBtn = document.createElement('button');
+                retryBtn.textContent = 'Retry Loading Addresses';
+                retryBtn.className = 'w-full mt-2 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600';
+                retryBtn.onclick = () => {
+                    retryBtn.remove();
+                    loadAddresses();
+                };
+                dropdown.parentElement.appendChild(retryBtn);
             }
         }
 
@@ -2348,18 +2358,22 @@
         // Check if user is authenticated
         function checkAuthentication() {
             const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-            console.log('🔑 Checking authentication...');
-            console.log('🔑 Token present:', !!token);
-            console.log('🔑 LocalStorage keys:', Object.keys(localStorage));
             
             if (!token) {
-                console.error('❌ No authentication token found');
-                showErrorToast('Please login first to access this page');
-                setTimeout(() => {
-                    window.location.href = '../pages/1-Login.html';
-                }, 2000);
+                showErrorToast('Please login to continue');
+                setTimeout(() => window.location.href = '../pages/1-Login.html', 1500);
                 return false;
             }
+            
+            // Validate token format (basic check)
+            if (token.length < 10) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
+                showErrorToast('Invalid session. Please login again.');
+                setTimeout(() => window.location.href = '../pages/1-Login.html', 1500);
+                return false;
+            }
+            
             return true;
         }
 
@@ -2415,20 +2429,18 @@
                         selectAddress(newAddress.id);
                     }
                 } catch (error) {
-                    console.error('❌ Full error object:', error);
-                    console.error('❌ Error message:', error.message);
-                    console.error('❌ Error stack:', error.stack);
+                    console.error('❌ Address save error:', error);
                     
-                    let errorMessage = `Failed to save address: ${error.message}`;
-                    if (error.message.includes('401') || error.message.includes('Invalid token')) {
+                    let errorMessage = 'Failed to save address';
+                    if (error.message?.includes('401') || error.message?.includes('Invalid token')) {
                         errorMessage = 'Session expired. Please login again.';
-                        setTimeout(() => {
-                            window.location.href = '../pages/1-Login.html';
-                        }, 2000);
-                    } else if (error.message.includes('400')) {
-                        errorMessage = `Invalid data: ${error.message}`;
-                    } else if (error.message.includes('500')) {
+                        setTimeout(() => window.location.href = '../pages/1-Login.html', 2000);
+                    } else if (error.message?.includes('400')) {
+                        errorMessage = 'Please check your address details';
+                    } else if (error.message?.includes('500')) {
                         errorMessage = 'Server error. Please try again.';
+                    } else if (!navigator.onLine) {
+                        errorMessage = 'No internet connection. Please check your network.';
                     }
                     showErrorToast(errorMessage);
                 } finally {
@@ -2692,9 +2704,9 @@
                                     Out of Stock
                                 </div>
                                 <button type="button" onclick="addToWaitingQueue('${milk.type}', '${slot}', 0.5)" 
-                                        class="mt-2 bg-orange-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-orange-600 transition-all duration-200 transform hover:scale-105">
-                                    <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 4px;">notifications</span>
-                                    Notify Me
+                                        class="mt-2 bg-orange-500 text-white px-2 rounded text-xs hover:bg-orange-600 transition-all duration-200" style="padding-top: 2px; padding-bottom: 2px; line-height: 1;">
+                                    <span class="material-symbols-outlined" style="font-size: 12px; margin-right: 2px;">notifications</span>
+                                    Notify
                                 </button>
                             ` : `
                                 <div class="stock-indicator stock-available">
@@ -3318,23 +3330,22 @@
                 // Always go to Subscription Summary after saving
                 window.location.href = 'Subscription_Summary.html';
             } catch (error) {
-                console.error('❌ Failed to save subscription:', error);
+                console.error('❌ Subscription save error:', error);
                 
-                // Show specific error message
                 let errorMessage = 'Failed to save subscription';
-                if (error.message.includes('429')) {
+                if (error.message?.includes('429')) {
                     errorMessage = 'Too many requests. Please wait and try again.';
-                } else if (error.message.includes('401')) {
+                } else if (error.message?.includes('401')) {
                     errorMessage = 'Session expired. Please login again.';
-                } else if (error.message.includes('400')) {
-                    errorMessage = 'Invalid subscription data.';
+                } else if (error.message?.includes('400')) {
+                    errorMessage = 'Please check your subscription details.';
+                } else if (!navigator.onLine) {
+                    errorMessage = 'No internet connection. Please check your network.';
                 }
                 
-                // Reset button state
                 button.disabled = false;
                 button.textContent = 'Continue with Subscription';
                 isProcessing = false;
-                
                 showErrorToast(errorMessage);
             }
         }
